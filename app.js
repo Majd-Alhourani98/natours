@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 
 // =======================
-// ROUTING EXAMPLES
+// DATA LOADING
 // =======================
 
 // Read tours data synchronously from a JSON file
@@ -19,28 +19,26 @@ app.use(express.json());
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
 // =======================
-// GET ROUTES
+// CONTROLLERS
 // =======================
 
-// GET request to fetch all tours
-// Responds with status 200 and JSON data including results count
-app.get('/api/v1/tours', (req, res) => {
+// GET /api/v1/tours
+// Fetch all tours
+const getAllTours = (req, res) => {
   return res.status(200).json({
     status: 'success',
     results: tours.length,
     data: { tours: tours },
   });
-});
+};
 
-// GET request to fetch a specific tour by ID
-// Uses route parameter `:id` to identify the tour
-app.get('/api/v1/tours/:id', (req, res) => {
-  const id = Number(req.params.id); // Convert ID from string to number
+// GET /api/v1/tours/:id
+// Fetch a single tour by ID
+const getSingleTour = (req, res) => {
+  const id = Number(req.params.id); // Convert route param to number
 
-  // Find the tour with the matching ID
   const tour = tours.find((tour) => tour.id === id);
 
-  // If no tour is found, return 404 with fail message
   if (!tour) {
     return res.status(404).json({
       status: 'fail',
@@ -48,48 +46,34 @@ app.get('/api/v1/tours/:id', (req, res) => {
     });
   }
 
-  // If tour is found, return it with status 200
   return res.status(200).json({
     status: 'success',
     data: { tour: tour },
   });
-});
+};
 
-// =======================
-// POST ROUTE
-// =======================
-
-// POST request to create a new tour
-// Accepts JSON data from the request body, adds a new ID, and saves it
-app.post('/api/v1/tours', (req, res) => {
-  // Generate new ID by incrementing the last tour's ID
+// POST /api/v1/tours
+// Create a new tour
+const createTour = (req, res) => {
   const id = tours[tours.length - 1].id + 1;
 
-  // Merge ID with request body to create a new tour object
   const newTour = { id, ...req.body };
 
-  // Add the new tour to the tours array
   tours.push(newTour);
 
-  // Write the updated tours array back to the JSON file
   fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), (err) => {
     return res.status(201).json({
       status: 'success',
       data: { tour: newTour },
     });
   });
-});
+};
 
-// =======================
-// PATCH ROUTE
-// =======================
-
-// PATCH request to update a tour by ID
-// Currently returns a placeholder response
-app.patch('/api/v1/tours/:id', (req, res) => {
+// PATCH /api/v1/tours/:id
+// Update an existing tour (placeholder)
+const updateTour = (req, res) => {
   const id = Number(req.params.id);
 
-  // Check if the ID exists
   if (id > tours.length) {
     return res.status(404).json({
       status: 'fail',
@@ -97,22 +81,18 @@ app.patch('/api/v1/tours/:id', (req, res) => {
     });
   }
 
-  // Placeholder response for now
+  // Placeholder for actual update logic
   res.status(200).json({
     status: 'success',
     data: { tour: 'UPDATE TOUR' },
   });
-});
+};
 
-// =======================
-// DELETE ROUTE
-// =======================
-
-// DELETE request to remove a tour by ID
-app.delete('/api/v1/tours/:id', (req, res) => {
+// DELETE /api/v1/tours/:id
+// Delete a tour by ID
+const deleteTour = (req, res) => {
   const id = Number(req.params.id);
 
-  // Check if the ID exists
   if (id > tours.length) {
     return res.status(404).json({
       status: 'fail',
@@ -120,12 +100,20 @@ app.delete('/api/v1/tours/:id', (req, res) => {
     });
   }
 
-  // Send a 204 No Content response
+  // 204 No Content indicates success with no response body
   res.status(204).json({
     status: 'success',
     data: null,
   });
-});
+};
+
+// =======================
+// ROUTE HANDLING
+// =======================
+
+// Chain routes using Express route() for cleaner structure
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+app.route('/api/v1/tours/:id').get(getSingleTour).patch(updateTour).delete(deleteTour);
 
 // =======================
 // SERVER SETUP
