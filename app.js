@@ -1,4 +1,7 @@
-// Import the Express module — a web framework for Node.js
+// Node.js file system module for reading files
+const fs = require('fs');
+
+// Import the Express module
 const express = require('express');
 
 // Create an Express application instance
@@ -8,19 +11,18 @@ const app = express();
 // ROUTING EXAMPLES
 // =======================
 
-// GET request on root URL '/'
-// Responds with JSON data and a 200 status code
-app.get('/', (req, res) => {
-  res.status(200).json({
-    message: 'Hello from the server side!',
-    app: 'Natours',
-  });
-});
+// Read tours data synchronously from a JSON file
+// __dirname gives the absolute path to the current directory
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
-// POST request on root URL '/'
-// Responds with a plain text message when a POST request is made
-app.post('/', (req, res) => {
-  res.send('You post to this endpoint');
+// GET request to fetch all tours
+// Responds with status 200 and JSON data including results count
+app.get('/api/v1/tours', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: { tours: tours },
+  });
 });
 
 // =======================
@@ -30,8 +32,8 @@ app.post('/', (req, res) => {
 // Define the port number the server will listen on
 const PORT = 3000;
 
-// Start the server and make it listen on the defined port
-// The callback function runs once the server starts successfully
+// Start the server and listen on the defined port
+// Logs a message to the console once the server is running
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}...`);
 });
