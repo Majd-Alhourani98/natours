@@ -7,38 +7,40 @@ const express = require('express');
 // Create an Express application instance
 const app = express();
 
-// Middleware to parse incoming JSON requests into JS objects
+// Middleware to parse incoming JSON requests
 app.use(express.json());
 
 // =======================
-// LOAD DATA
+// ROUTING EXAMPLES
 // =======================
 
-// Read tours data synchronously from a JSON file when the app starts
+// Read tours data synchronously from a JSON file
 // __dirname gives the absolute path to the current directory
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
 // =======================
-// ROUTES
+// GET ROUTES
 // =======================
 
-// GET /api/v1/tours
-// Fetch all tours and send them as JSON
+// GET request to fetch all tours
+// Responds with status 200 and JSON data including results count
 app.get('/api/v1/tours', (req, res) => {
-  res.status(200).json({
+  return res.status(200).json({
     status: 'success',
     results: tours.length,
-    data: { tours },
+    data: { tours: tours },
   });
 });
 
-// GET /api/v1/tours/:id
-// Fetch a single tour by its ID
+// GET request to fetch a specific tour by ID
+// Uses route parameter `:id` to identify the tour
 app.get('/api/v1/tours/:id', (req, res) => {
-  const id = Number(req.params.id); // Convert ID (string) to number
-  const tour = tours.find((tour) => tour.id === id); // Find tour by ID
+  const id = Number(req.params.id); // Convert ID from string to number
 
-  // If no tour is found, return 404 Not Found
+  // Find the tour with the matching ID
+  const tour = tours.find((tour) => tour.id === id);
+
+  // If no tour is found, return 404 with fail message
   if (!tour) {
     return res.status(404).json({
       status: 'fail',
@@ -46,57 +48,82 @@ app.get('/api/v1/tours/:id', (req, res) => {
     });
   }
 
-  // Respond with the found tour
-  res.status(200).json({
+  // If tour is found, return it with status 200
+  return res.status(200).json({
     status: 'success',
-    data: { tour },
+    data: { tour: tour },
   });
 });
 
-// POST /api/v1/tours
-// Create a new tour and save it to the JSON file
+// =======================
+// POST ROUTE
+// =======================
+
+// POST request to create a new tour
+// Accepts JSON data from the request body, adds a new ID, and saves it
 app.post('/api/v1/tours', (req, res) => {
-  const id = tours[tours.length - 1].id + 1; // Generate new ID
-  const newTour = { id, ...req.body }; // Combine ID with request data
+  // Generate new ID by incrementing the last tour's ID
+  const id = tours[tours.length - 1].id + 1;
 
-  tours.push(newTour); // Add new tour to the list
+  // Merge ID with request body to create a new tour object
+  const newTour = { id, ...req.body };
 
-  // Write updated tours back to the file
+  // Add the new tour to the tours array
+  tours.push(newTour);
+
+  // Write the updated tours array back to the JSON file
   fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), (err) => {
-    res.status(201).json({
+    return res.status(201).json({
       status: 'success',
       data: { tour: newTour },
     });
   });
 });
 
-// PATCH /api/v1/tours/:id
-// Update specific fields of an existing tour
-app.patch('/api/v1/tours/:id', (req, res) => {
-  const id = Number(req.params.id); // Convert ID from URL to a number
-  const tour = tours.find((tour) => tour.id === id); // Find tour by ID
+// =======================
+// PATCH ROUTE
+// =======================
 
-  // If tour not found, send 404 response
-  if (!tour) {
+// PATCH request to update a tour by ID
+// Currently returns a placeholder response
+app.patch('/api/v1/tours/:id', (req, res) => {
+  const id = Number(req.params.id);
+
+  // Check if the ID exists
+  if (id > tours.length) {
     return res.status(404).json({
       status: 'fail',
       message: 'Invalid ID',
     });
   }
 
-  // Update the tour object with the fields provided in req.body
-  const updatedTour = { ...tour, ...req.body };
+  // Placeholder response for now
+  res.status(200).json({
+    status: 'success',
+    data: { tour: 'UPDATE TOUR' },
+  });
+});
 
-  // Replace the old tour with the updated one inside the array
-  const tourIndex = tours.findIndex((el) => el.id === id);
-  tours[tourIndex] = updatedTour;
+// =======================
+// DELETE ROUTE
+// =======================
 
-  // Save the updated tours array back to the JSON file
-  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), (err) => {
-    res.status(200).json({
-      status: 'success',
-      data: { tour: updatedTour },
+// DELETE request to remove a tour by ID
+app.delete('/api/v1/tours/:id', (req, res) => {
+  const id = Number(req.params.id);
+
+  // Check if the ID exists
+  if (id > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
     });
+  }
+
+  // Send a 204 No Content response
+  res.status(204).json({
+    status: 'success',
+    data: null,
   });
 });
 
@@ -104,10 +131,11 @@ app.patch('/api/v1/tours/:id', (req, res) => {
 // SERVER SETUP
 // =======================
 
-// Define the port number for the server
+// Define the port number the server will listen on
 const PORT = 3000;
 
 // Start the server and listen on the defined port
+// Logs a message to the console once the server is running
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}...`);
 });
