@@ -1,14 +1,34 @@
+// =======================
+// IMPORTS
+// =======================
+
 // Node.js file system module for reading and writing files
 const fs = require('fs');
 
-// Import the Express module — a web framework for Node.js
+// Express module — a web framework for Node.js
 const express = require('express');
+
+// =======================
+// APPLICATION SETUP
+// =======================
 
 // Create an Express application instance
 const app = express();
 
 // Middleware to parse incoming JSON requests
 app.use(express.json());
+
+// Custom middleware example: logs a message for every request
+app.use((req, res, next) => {
+  console.log('Hello from the Middleware');
+  next(); // Pass control to the next middleware or route handler
+});
+
+// Middleware to add a timestamp to the request object
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
 
 // =======================
 // DATA LOADING
@@ -25,8 +45,10 @@ const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simpl
 // GET /api/v1/tours
 // Fetch all tours
 const getAllTours = (req, res) => {
+  console.log(req.requestTime); // Log the request time added by middleware
   return res.status(200).json({
     status: 'success',
+    requestAt: req.requestTime, // Include timestamp in response
     results: tours.length,
     data: { tours: tours },
   });
@@ -35,10 +57,10 @@ const getAllTours = (req, res) => {
 // GET /api/v1/tours/:id
 // Fetch a single tour by ID
 const getSingleTour = (req, res) => {
-  const id = Number(req.params.id); // Convert route param to number
-
+  const id = Number(req.params.id); // Convert route param from string to number
   const tour = tours.find((tour) => tour.id === id);
 
+  // Handle case when tour is not found
   if (!tour) {
     return res.status(404).json({
       status: 'fail',
@@ -55,12 +77,11 @@ const getSingleTour = (req, res) => {
 // POST /api/v1/tours
 // Create a new tour
 const createTour = (req, res) => {
-  const id = tours[tours.length - 1].id + 1;
+  const id = tours[tours.length - 1].id + 1; // Generate a new ID
+  const newTour = { id, ...req.body }; // Merge new ID with request body
+  tours.push(newTour); // Add new tour to in-memory array
 
-  const newTour = { id, ...req.body };
-
-  tours.push(newTour);
-
+  // Write the updated tours array back to the JSON file
   fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), (err) => {
     return res.status(201).json({
       status: 'success',
@@ -70,10 +91,11 @@ const createTour = (req, res) => {
 };
 
 // PATCH /api/v1/tours/:id
-// Update an existing tour (placeholder)
+// Update an existing tour (currently a placeholder)
 const updateTour = (req, res) => {
   const id = Number(req.params.id);
 
+  // Validate tour ID
   if (id > tours.length) {
     return res.status(404).json({
       status: 'fail',
@@ -81,7 +103,7 @@ const updateTour = (req, res) => {
     });
   }
 
-  // Placeholder for actual update logic
+  // Placeholder response for update logic
   res.status(200).json({
     status: 'success',
     data: { tour: 'UPDATE TOUR' },
@@ -93,6 +115,7 @@ const updateTour = (req, res) => {
 const deleteTour = (req, res) => {
   const id = Number(req.params.id);
 
+  // Validate tour ID
   if (id > tours.length) {
     return res.status(404).json({
       status: 'fail',
@@ -113,6 +136,7 @@ const deleteTour = (req, res) => {
 
 // Chain routes using Express route() for cleaner structure
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
+
 app.route('/api/v1/tours/:id').get(getSingleTour).patch(updateTour).delete(deleteTour);
 
 // =======================
