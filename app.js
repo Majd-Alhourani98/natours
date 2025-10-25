@@ -5,9 +5,10 @@
 // Third-party middleware for logging HTTP requests in development
 const morgan = require('morgan');
 
-// Express is a minimal web framework for Node.js used to build APIs and web servers
+// Express: minimal Node.js framework for building APIs and web servers
 const express = require('express');
 
+// Routers for resource-specific routes
 const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
 
@@ -15,49 +16,45 @@ const userRouter = require('./routes/user.routes');
 // APPLICATION SETUP
 // =======================
 
-// Create a new Express application
+// Create a new Express application instance
 const app = express();
 
-// --- Global Middleware Setup ---
+// =======================
+// GLOBAL MIDDLEWARE
+// =======================
 
-// Use Morgan to log incoming HTTP requests (useful during development)
+// Use Morgan to log incoming HTTP requests in the 'dev' format (useful for debugging)
 app.use(morgan('dev'));
 
-// Parse incoming JSON data into req.body
+// Parse incoming JSON requests and populate req.body
 app.use(express.json());
 
-// Custom middleware that logs a simple message for every request (for demo/debugging)
+// Simple custom middleware to demonstrate logging (for demo/debug purposes)
 app.use((req, res, next) => {
   console.log('Hello from the Middleware 👋');
   next();
 });
 
-// Middleware that attaches a timestamp to every request object
+// Middleware to attach a timestamp to each request object
+// Useful for logging, analytics, or response metadata
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
 
 // =======================
-// DATA LOADING
-// =======================
-
-// =======================
-// CONTROLLERS
-// =======================
-
-// =======================
 // ROUTE HANDLING
 // =======================
 
-// Create separate routers for tours and users
-
-// Mount routers on specific API endpoints
+// Mount resource-specific routers on their respective endpoints
+// This keeps route logic modular and maintainable
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
 // =======================
-// SERVER SETUP
+// EXPORT APP
 // =======================
 
+// Export the app instance for use in server.js
+// Separating app setup from server startup allows easier testing
 module.exports = app;

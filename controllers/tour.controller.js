@@ -1,17 +1,21 @@
-// Core Node.js module for file operations (reading/writing data files)
-const fs = require('fs');
+// --- Core Modules ---
+const fs = require('fs'); // Native Node.js module for file system operations
 
-// Read and parse tours data from the JSON file (synchronously for simplicity)
+// --- Mock Data Setup ---
+// Load and parse the tours dataset (synchronously for simplicity).
+// In production, this should be replaced with a database query or async read.
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
 
-// --- Tours Controllers ---
+// --- Controllers: Tours ---
+// Each controller represents a handler for a specific route and operation.
 
-// @desc   Get all tours
-// @route  GET /api/v1/tours
+// @desc    Retrieve all tours
+// @route   GET /api/v1/tours
+// @access  Public
 const getAllTours = (req, res) => {
-  return res.status(200).json({
+  res.status(200).json({
     status: 'success',
     requestAt: req.requestTime,
     results: tours.length,
@@ -19,14 +23,15 @@ const getAllTours = (req, res) => {
   });
 };
 
-// @desc   Get a single tour by ID
-// @route  GET /api/v1/tours/:id
+// @desc    Retrieve a single tour by its ID
+// @route   GET /api/v1/tours/:id
+// @access  Public
 const getSingleTour = (req, res) => {
   const id = Number(req.params.id);
   const tour = tours.find((t) => t.id === id);
 
-  // If the tour doesn't exist, return 404
   if (!tour) {
+    // Consistent error response structure for missing resources
     return res.status(404).json({
       status: 'fail',
       message: 'Invalid ID',
@@ -39,19 +44,28 @@ const getSingleTour = (req, res) => {
   });
 };
 
-// @desc   Create a new tour
-// @route  POST /api/v1/tours
+// @desc    Create a new tour
+// @route   POST /api/v1/tours
+// @access  Public
 const createTour = (req, res) => {
-  // Auto-generate ID based on last element
+  // In-memory ID generation (not safe in concurrent environments)
   const id = tours[tours.length - 1].id + 1;
   const newTour = { id, ...req.body };
   tours.push(newTour);
 
-  // Save updated tours data to JSON file
+  // Persist new data back to the JSON file (simulation of database write)
   fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
+    `${__dirname}/../dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
     (err) => {
+      if (err) {
+        // Always handle potential file system errors
+        return res.status(500).json({
+          status: 'error',
+          message: 'Failed to save tour data',
+        });
+      }
+
       res.status(201).json({
         status: 'success',
         data: { tour: newTour },
@@ -60,36 +74,46 @@ const createTour = (req, res) => {
   );
 };
 
-// @desc   Update an existing tour
-// @route  PATCH /api/v1/tours/:id
+// @desc    Update an existing tour
+// @route   PATCH /api/v1/tours/:id
+// @access  Public
 const updateTour = (req, res) => {
   const id = Number(req.params.id);
-  if (id > tours.length) {
+  const tour = tours.find((t) => t.id === id);
+
+  if (!tour) {
     return res.status(404).json({ status: 'fail', message: 'Invalid ID' });
   }
 
-  // Placeholder response — actual file update logic would go here
+  // TODO: Implement partial update and persist to file or DB
+  // This placeholder mimics a successful update response
   res.status(200).json({
     status: 'success',
-    data: { tour: 'UPDATED TOUR' },
+    data: { tour: 'UPDATED TOUR (mock)' },
   });
 };
 
-// @desc   Delete a tour
-// @route  DELETE /api/v1/tours/:id
+// @desc    Delete a tour
+// @route   DELETE /api/v1/tours/:id
+// @access  Public
 const deleteTour = (req, res) => {
   const id = Number(req.params.id);
-  if (id > tours.length) {
+  const tour = tours.find((t) => t.id === id);
+
+  if (!tour) {
     return res.status(404).json({ status: 'fail', message: 'Invalid ID' });
   }
 
-  // Return 204 for successful deletion with no content
+  // TODO: Implement actual deletion and persistence
+  // Return 204 (No Content) to signal successful deletion
   res.status(204).json({
     status: 'success',
     data: null,
   });
 };
 
+// --- Module Exports ---
+// Export all route handlers for use in the tours router.
 module.exports = {
   getAllTours,
   getSingleTour,
