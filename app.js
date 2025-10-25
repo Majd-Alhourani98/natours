@@ -2,27 +2,37 @@
 // IMPORTS
 // =======================
 
-const fs = require('fs'); // Node.js file system module
-const morgan = require('morgan'); // HTTP request logger middleware
-const express = require('express'); // Web framework
+// Core Node.js module for file operations (reading/writing data files)
+const fs = require('fs');
+
+// Third-party middleware for logging HTTP requests in development
+const morgan = require('morgan');
+
+// Express is a minimal web framework for Node.js used to build APIs and web servers
+const express = require('express');
 
 // =======================
 // APPLICATION SETUP
 // =======================
 
+// Create a new Express application
 const app = express();
 
-// Middleware
-app.use(morgan('dev')); // Logs HTTP requests in development
-app.use(express.json()); // Parse incoming JSON request bodies
+// --- Global Middleware Setup ---
 
-// Custom middleware: log a message for every request
+// Use Morgan to log incoming HTTP requests (useful during development)
+app.use(morgan('dev'));
+
+// Parse incoming JSON data into req.body
+app.use(express.json());
+
+// Custom middleware that logs a simple message for every request (for demo/debugging)
 app.use((req, res, next) => {
-  console.log('Hello from the Middleware');
+  console.log('Hello from the Middleware 👋');
   next();
 });
 
-// Middleware to add timestamp to request
+// Middleware that attaches a timestamp to every request object
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
@@ -32,6 +42,7 @@ app.use((req, res, next) => {
 // DATA LOADING
 // =======================
 
+// Read and parse tours data from the JSON file (synchronously for simplicity)
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
 // =======================
@@ -40,7 +51,8 @@ const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simpl
 
 // --- Tours Controllers ---
 
-// GET /api/v1/tours
+// @desc   Get all tours
+// @route  GET /api/v1/tours
 const getAllTours = (req, res) => {
   return res.status(200).json({
     status: 'success',
@@ -50,11 +62,13 @@ const getAllTours = (req, res) => {
   });
 };
 
-// GET /api/v1/tours/:id
+// @desc   Get a single tour by ID
+// @route  GET /api/v1/tours/:id
 const getSingleTour = (req, res) => {
   const id = Number(req.params.id);
   const tour = tours.find((t) => t.id === id);
 
+  // If the tour doesn't exist, return 404
   if (!tour) {
     return res.status(404).json({
       status: 'fail',
@@ -68,12 +82,15 @@ const getSingleTour = (req, res) => {
   });
 };
 
-// POST /api/v1/tours
+// @desc   Create a new tour
+// @route  POST /api/v1/tours
 const createTour = (req, res) => {
+  // Auto-generate ID based on last element
   const id = tours[tours.length - 1].id + 1;
   const newTour = { id, ...req.body };
   tours.push(newTour);
 
+  // Save updated tours data to JSON file
   fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), (err) => {
     res.status(201).json({
       status: 'success',
@@ -82,26 +99,30 @@ const createTour = (req, res) => {
   });
 };
 
-// PATCH /api/v1/tours/:id
+// @desc   Update an existing tour
+// @route  PATCH /api/v1/tours/:id
 const updateTour = (req, res) => {
   const id = Number(req.params.id);
   if (id > tours.length) {
     return res.status(404).json({ status: 'fail', message: 'Invalid ID' });
   }
 
+  // Placeholder response — actual file update logic would go here
   res.status(200).json({
     status: 'success',
-    data: { tour: 'UPDATE TOUR' }, // Placeholder for actual update
+    data: { tour: 'UPDATED TOUR' },
   });
 };
 
-// DELETE /api/v1/tours/:id
+// @desc   Delete a tour
+// @route  DELETE /api/v1/tours/:id
 const deleteTour = (req, res) => {
   const id = Number(req.params.id);
   if (id > tours.length) {
     return res.status(404).json({ status: 'fail', message: 'Invalid ID' });
   }
 
+  // Return 204 for successful deletion with no content
   res.status(204).json({
     status: 'success',
     data: null,
@@ -110,45 +131,77 @@ const deleteTour = (req, res) => {
 
 // --- Users Controllers (Placeholders) ---
 
+// @desc   Get all users
+// @route  GET /api/v1/users
 const getAllUsers = (req, res) => {
-  res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined',
+  });
 };
 
+// @desc   Get single user
+// @route  GET /api/v1/users/:id
 const getSingleUser = (req, res) => {
-  res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined',
+  });
 };
 
+// @desc   Create new user
+// @route  POST /api/v1/users
 const createUser = (req, res) => {
-  res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined',
+  });
 };
 
+// @desc   Update user
+// @route  PATCH /api/v1/users/:id
 const updateUser = (req, res) => {
-  res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined',
+  });
 };
 
+// @desc   Delete user
+// @route  DELETE /api/v1/users/:id
 const deleteUser = (req, res) => {
-  res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined',
+  });
 };
 
 // =======================
 // ROUTE HANDLING
 // =======================
 
-// Tours routes
-app.route('/api/v1/tours').get(getAllTours).post(createTour);
+// Create separate routers for tours and users
+const tourRouter = express.Router();
+const userRouter = express.Router();
 
-app.route('/api/v1/tours/:id').get(getSingleTour).patch(updateTour).delete(deleteTour);
+// Mount routers on specific API endpoints
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
 
-// Users routes (placeholders)
-app.route('/api/v1/users').get(getAllUsers).post(createUser);
+// --- Tours Routes ---
+tourRouter.route('/').get(getAllTours).post(createTour);
+tourRouter.route('/:id').get(getSingleTour).patch(updateTour).delete(deleteTour);
 
-app.route('/api/v1/users/:id').get(getSingleUser).patch(updateUser).delete(deleteUser);
+// --- Users Routes (still placeholders) ---
+userRouter.route('/').get(getAllUsers).post(createUser);
+userRouter.route('/:id').get(getSingleUser).patch(updateUser).delete(deleteUser);
 
 // =======================
 // SERVER SETUP
 // =======================
 
+// Start the Express server on port 3000
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`App running on port ${PORT}...`);
+  console.log(`App running on port ${PORT}... 🚀`);
 });
