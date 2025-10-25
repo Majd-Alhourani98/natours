@@ -5,6 +5,9 @@
 // Node.js file system module for reading and writing files
 const fs = require('fs');
 
+// Morgan — HTTP request logger middleware
+const morgan = require('morgan');
+
 // Express module — a web framework for Node.js
 const express = require('express');
 
@@ -15,10 +18,13 @@ const express = require('express');
 // Create an Express application instance
 const app = express();
 
+// Use morgan middleware for logging HTTP requests in 'dev' format
+app.use(morgan('dev'));
+
 // Middleware to parse incoming JSON requests
 app.use(express.json());
 
-// Custom middleware example: logs a message for every request
+// Custom middleware: log a simple message for every request
 app.use((req, res, next) => {
   console.log('Hello from the Middleware');
   next(); // Pass control to the next middleware or route handler
@@ -45,7 +51,7 @@ const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simpl
 // GET /api/v1/tours
 // Fetch all tours
 const getAllTours = (req, res) => {
-  console.log(req.requestTime); // Log the request time added by middleware
+  console.log(req.requestTime); // Log the timestamp added by middleware
   return res.status(200).json({
     status: 'success',
     requestAt: req.requestTime, // Include timestamp in response
