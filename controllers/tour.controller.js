@@ -1,15 +1,36 @@
-// --- Core Modules ---
+// =======================
+// CORE MODULES
+// =======================
 const fs = require('fs'); // Native Node.js module for file system operations
 
-// --- Mock Data Setup ---
+// =======================
+// MOCK DATA SETUP
+// =======================
 // Load and parse the tours dataset (synchronously for simplicity).
-// In production, this should be replaced with a database query or async read.
+// In production, this should be replaced with a database call or async read operation.
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
 
-// --- Controllers: Tours ---
-// Each controller represents a handler for a specific route and operation.
+// =======================
+// PARAM MIDDLEWARE
+// =======================
+// Automatically runs whenever the "id" parameter is present in the route.
+// Validates that the requested ID exists before continuing to the next middleware.
+const checkID = (req, res, next, value) => {
+  if (Number(value) > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+  next();
+};
+
+// =======================
+// CONTROLLERS: TOURS
+// =======================
+// Each controller handles a specific operation for the Tour resource.
 
 // @desc    Retrieve all tours
 // @route   GET /api/v1/tours
@@ -17,7 +38,7 @@ const tours = JSON.parse(
 const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
-    requestAt: req.requestTime,
+    requestedAt: req.requestTime,
     results: tours.length,
     data: { tours },
   });
@@ -31,10 +52,9 @@ const getSingleTour = (req, res) => {
   const tour = tours.find((t) => t.id === id);
 
   if (!tour) {
-    // Consistent error response structure for missing resources
     return res.status(404).json({
       status: 'fail',
-      message: 'Invalid ID',
+      message: 'Tour not found',
     });
   }
 
@@ -48,18 +68,17 @@ const getSingleTour = (req, res) => {
 // @route   POST /api/v1/tours
 // @access  Public
 const createTour = (req, res) => {
-  // In-memory ID generation (not safe in concurrent environments)
-  const id = tours[tours.length - 1].id + 1;
-  const newTour = { id, ...req.body };
+  // Simple ID generation (not concurrency-safe; only for mock data)
+  const newId = tours[tours.length - 1].id + 1;
+  const newTour = { id: newId, ...req.body };
   tours.push(newTour);
 
-  // Persist new data back to the JSON file (simulation of database write)
+  // Persist the new data back to the file system (simulated DB write)
   fs.writeFile(
     `${__dirname}/../dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
     (err) => {
       if (err) {
-        // Always handle potential file system errors
         return res.status(500).json({
           status: 'error',
           message: 'Failed to save tour data',
@@ -74,7 +93,7 @@ const createTour = (req, res) => {
   );
 };
 
-// @desc    Update an existing tour
+// @desc    Update an existing tour (partial update)
 // @route   PATCH /api/v1/tours/:id
 // @access  Public
 const updateTour = (req, res) => {
@@ -82,11 +101,13 @@ const updateTour = (req, res) => {
   const tour = tours.find((t) => t.id === id);
 
   if (!tour) {
-    return res.status(404).json({ status: 'fail', message: 'Invalid ID' });
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Tour not found',
+    });
   }
 
-  // TODO: Implement partial update and persist to file or DB
-  // This placeholder mimics a successful update response
+  // TODO: Implement partial update logic and persist to file or DB
   res.status(200).json({
     status: 'success',
     data: { tour: 'UPDATED TOUR (mock)' },
@@ -101,23 +122,28 @@ const deleteTour = (req, res) => {
   const tour = tours.find((t) => t.id === id);
 
   if (!tour) {
-    return res.status(404).json({ status: 'fail', message: 'Invalid ID' });
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Tour not found',
+    });
   }
 
-  // TODO: Implement actual deletion and persistence
-  // Return 204 (No Content) to signal successful deletion
+  // TODO: Implement actual deletion and persist changes
   res.status(204).json({
     status: 'success',
     data: null,
   });
 };
 
-// --- Module Exports ---
-// Export all route handlers for use in the tours router.
+// =======================
+// EXPORTS
+// =======================
+// Export all route handlers for use in the Tours Router
 module.exports = {
   getAllTours,
   getSingleTour,
   createTour,
   updateTour,
   deleteTour,
+  checkID,
 };
