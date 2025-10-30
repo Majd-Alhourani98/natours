@@ -4,8 +4,8 @@
   "description": "description: A modern web application for exploring, booking, and managing exciting nature tours around the world.",
   "main": "index.js",
   "scripts": {
-    "start": "node app",
-    "dev": "nodemon app"
+    "start": "node server",
+    "dev": "nodemon server"
   },
   "author": "Majd Aldein Alhourani",
   "license": "ISC",
