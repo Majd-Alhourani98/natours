@@ -1,108 +1,159 @@
-// =============================
-// SERVER SETUP
-// =============================
+// =======================
+// IMPORTS
+// =======================
 
-// Import required modules
+// Node.js file system module for reading and writing files
 const fs = require('fs');
+
+// Morgan -- HTTP request logger middleware
+const morgan = require('morgan');
+
+// Express module -- a web framework for Node.js
 const express = require('express');
+
+// =======================
+// APPLICATION SETUP
+// =======================
+
+// Create an Express application instance
 const app = express();
 
-// Middleware: parse incoming JSON requests
+// Use morgan middleware for logging HTTP requests in 'dev' format
+app.use(morgan('dev'));
+
+// Middleware to parse incoming JSON requests
 app.use(express.json());
 
-// =============================
-// GLOBAL MIDDLEWARE
-// =============================
-
-// Logs every incoming request
+// Custom middleware: log a simple message for every request
 app.use((req, res, next) => {
-  console.log('Global Middleware: Request received');
-  next(); // Pass control to next middleware/route handler
+  console.log('Hello from the Middleware');
+  next(); // Pass control to the next middleware or route handler
 });
 
-// Adds a request timestamp to req
+// Middleware to add a timestamp to the request object
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
-  next(); // Important: do not end the response here
+  next();
 });
 
-// =============================
+// =======================
 // DATA LOADING
-// =============================
+// =======================
 
+// Read tours data synchronously from a JSON file
+// __dirname gives the absolute path to the current directory
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
-// =============================
-// CONTROLLER FUNCTIONS
-// =============================
+// =======================
+// CONTROLLERS
+// =======================
 
 // GET /api/v1/tours
+// Fetch all tours
 const getAllTours = (req, res) => {
+  console.log(req.requestTime); // Log the timestamp added by middleware
   return res.status(200).json({
     status: 'success',
-    requestedAt: req.requestTime, // shows the timestamp from middleware
+    requestAt: req.requestTime, // Include timestamp in response
     results: tours.length,
-    data: { tours },
+    data: { tours: tours },
   });
 };
 
 // GET /api/v1/tours/:id
+// Fetch a single tour by ID
 const getSingleTour = (req, res) => {
-  const id = Number(req.params.id);
-  if (id > tours.length || id < 1) {
+  const id = Number(req.params.id); // Convert route param from string to number
+  const tour = tours.find(tour => tour.id === id);
+
+  // Handle case when tour is not found
+  if (!tour) {
     return res.status(404).json({
       status: 'fail',
       message: 'Invalid ID',
     });
   }
 
-  const tour = tours.find(tour => tour.id === id);
-  return res.status(200).json({ status: 'success', data: { tour } });
+  return res.status(200).json({
+    status: 'success',
+    data: { tour: tour },
+  });
 };
 
 // POST /api/v1/tours
+// Create a new tour
 const createTour = (req, res) => {
-  const id = tours[tours.length - 1].id + 1;
-  const newTour = { id, ...req.body };
-  tours.push(newTour);
+  const id = tours[tours.length - 1].id + 1; // Generate a new ID
+  const newTour = { id, ...req.body }; // Merge new ID with request body
+  tours.push(newTour); // Add new tour to in-memory array
 
+  // Write the updated tours array back to the JSON file
   fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), err => {
-    return res.status(201).json({ status: 'success', data: { tour: newTour } });
+    return res.status(201).json({
+      status: 'success',
+      data: { tour: newTour },
+    });
   });
 };
 
 // PATCH /api/v1/tours/:id
+// Update an existing tour (currently a placeholder)
 const updateTour = (req, res) => {
   const id = Number(req.params.id);
-  if (id > tours.length || id < 1) {
-    return res.status(404).json({ status: 'fail', message: 'Invalid ID' });
+
+  // Validate tour ID
+  if (id > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
   }
 
-  return res.status(200).json({ status: 'success', data: { tour: 'Updated tour' } });
+  // Placeholder response for update logic
+  res.status(200).json({
+    status: 'success',
+    data: { tour: 'UPDATE TOUR' },
+  });
 };
 
 // DELETE /api/v1/tours/:id
+// Delete a tour by ID
 const deleteTour = (req, res) => {
   const id = Number(req.params.id);
-  if (id > tours.length || id < 1) {
-    return res.status(404).json({ status: 'fail', message: 'Invalid ID' });
+
+  // Validate tour ID
+  if (id > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
   }
 
-  return res.status(204).json({ status: 'success', data: null });
+  // 204 No Content indicates success with no response body
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
 };
 
-// =============================
-// ROUTES SETUP
-// =============================
+// =======================
+// ROUTE HANDLING
+// =======================
 
+// Chain routes using Express route() for cleaner structure
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
+
 app.route('/api/v1/tours/:id').get(getSingleTour).patch(updateTour).delete(deleteTour);
 
-// =============================
-// SERVER LISTEN
-// =============================
+// =======================
+// SERVER SETUP
+// =======================
 
+// Define the port number the server will listen on
 const PORT = 3000;
+
+// Start the server and listen on the defined port
+// Logs a message to the console once the server is running
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}...`);
 });
