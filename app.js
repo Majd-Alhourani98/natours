@@ -1,28 +1,53 @@
-// Import the Node.js file system module
+// Import the Node.js file system module for reading/writing data
 const fs = require('fs');
 
 // Import and initialize Express
 const express = require('express');
 const app = express();
 
-// Read and parse tour data from the local JSON file
+// Middleware: parses incoming JSON requests into req.body
+app.use(express.json());
+
+// Load and parse tours data from local JSON file
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
-// Define a route to handle GET requests for all tours
+// =============================
+// ROUTE HANDLERS
+// =============================
+
+// GET endpoint: returns all tours
 app.get('/api/v1/tours', (req, res) => {
-  res.status(200).json({
+  return res.status(200).json({
     status: 'success',
-    results: tours.length, // number of tours returned
-    data: { tours }, // shorthand for data: { tours: tours }
+    results: tours.length, // total number of tours
+    data: { tours },
   });
 });
 
-// Define a simple POST route (for testing)
-app.post('/', (req, res) => {
-  res.send('You posted to this endpoint');
+// POST endpoint: creates a new tour and saves it to the JSON file
+app.post('/api/v1/tours', (req, res) => {
+  // Generate new ID based on the last tour's ID
+  const id = tours[tours.length - 1].id + 1;
+
+  // Create a new tour object combining the ID and request body
+  const newTour = { id, ...req.body };
+
+  // Add the new tour to the in-memory array
+  tours.push(newTour);
+
+  // Persist updated data back to the JSON file
+  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), err => {
+    // Send response after successfully writing the file
+    return res.status(201).json({
+      status: 'success',
+      data: { tour: newTour },
+    });
+  });
 });
 
-// Start the server and listen on port 3000
+// =============================
+// SERVER SETUP
+// =============================
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}...`);
