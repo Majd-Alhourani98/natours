@@ -1,32 +1,38 @@
-// Import the Node.js file system module for reading/writing data
-const fs = require('fs');
+// =============================
+// SERVER SETUP
+// =============================
 
-// Import and initialize Express
-const express = require('express');
+// Import required modules
+const fs = require('fs'); // File system module for reading/writing JSON files
+const express = require('express'); // Express framework
 const app = express();
 
-// Middleware: parses incoming JSON requests into req.body
+// Middleware: parse incoming JSON requests and attach to req.body
 app.use(express.json());
+
+// =============================
+// DATA LOADING
+// =============================
 
 // Load and parse tours data from local JSON file
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
 // =============================
-// ROUTE HANDLERS
+// CONTROLLER FUNCTIONS
 // =============================
 
 // GET /api/v1/tours → returns all tours
-app.get('/api/v1/tours', (req, res) => {
+const getAllTours = (req, res) => {
   return res.status(200).json({
     status: 'success',
     results: tours.length, // total number of tours
-    data: { tours },
+    data: { tours }, // shorthand for { tours: tours }
   });
-});
+};
 
-// GET /api/v1/tours/:id → returns a single tour by its ID
-app.get('/api/v1/tours/:id', (req, res) => {
-  const id = Number(req.params.id); // convert the ID param from string to number
+// GET /api/v1/tours/:id → returns a single tour by ID
+const getSingleTour = (req, res) => {
+  const id = Number(req.params.id); // convert ID param from string to number
 
   // Validate ID range
   if (id > tours.length || id < 1) {
@@ -44,31 +50,31 @@ app.get('/api/v1/tours/:id', (req, res) => {
     status: 'success',
     data: { tour },
   });
-});
+};
 
-// POST /api/v1/tours → creates a new tour and saves it to the JSON file
-app.post('/api/v1/tours', (req, res) => {
-  // Generate new ID based on the last tour's ID
+// POST /api/v1/tours → create a new tour
+const createTour = (req, res) => {
+  // Generate new ID based on last tour's ID
   const id = tours[tours.length - 1].id + 1;
 
-  // Create a new tour object combining the ID and request body
+  // Combine new ID with request body data
   const newTour = { id, ...req.body };
 
-  // Add the new tour to the in-memory array
+  // Add new tour to in-memory array
   tours.push(newTour);
 
   // Persist updated data back to the JSON file
   fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), err => {
-    // Send response after successfully writing the file
+    // Send response after successful write
     return res.status(201).json({
       status: 'success',
       data: { tour: newTour },
     });
   });
-});
+};
 
-// PATCH /api/v1/tours/:id → updates an existing tour (partial update)
-app.patch('/api/v1/tours/:id', (req, res) => {
+// PATCH /api/v1/tours/:id → update an existing tour (partial update)
+const updateTour = (req, res) => {
   const id = Number(req.params.id);
 
   // Validate ID range
@@ -79,15 +85,15 @@ app.patch('/api/v1/tours/:id', (req, res) => {
     });
   }
 
-  // Placeholder response — to be replaced with actual update logic later
+  // Placeholder response — actual update logic can be implemented later
   return res.status(200).json({
     status: 'success',
     data: { tour: 'Updated tour' },
   });
-});
+};
 
-// DELETE /api/v1/tours/:id → deletes a specific tour
-app.delete('/api/v1/tours/:id', (req, res) => {
+// DELETE /api/v1/tours/:id → delete a tour
+const deleteTour = (req, res) => {
   const id = Number(req.params.id);
 
   // Validate ID range
@@ -98,16 +104,33 @@ app.delete('/api/v1/tours/:id', (req, res) => {
     });
   }
 
-  // Successful deletion — send 204 (No Content)
+  // Successful deletion — send 204 No Content
   return res.status(204).json({
     status: 'success',
     data: null,
   });
-});
+};
 
 // =============================
-// SERVER SETUP
+// ROUTES SETUP
 // =============================
+
+// Use Express route chaining for cleaner syntax
+app
+  .route('/api/v1/tours')
+  .get(getAllTours) // GET all tours
+  .post(createTour); // POST create a new tour
+
+app
+  .route('/api/v1/tours/:id')
+  .get(getSingleTour) // GET single tour by ID
+  .patch(updateTour) // PATCH update tour
+  .delete(deleteTour); // DELETE a tour
+
+// =============================
+// SERVER LISTEN
+// =============================
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}...`);
