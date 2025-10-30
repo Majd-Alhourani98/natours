@@ -15,7 +15,7 @@ const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simpl
 // ROUTE HANDLERS
 // =============================
 
-// GET endpoint: returns all tours
+// GET /api/v1/tours → returns all tours
 app.get('/api/v1/tours', (req, res) => {
   return res.status(200).json({
     status: 'success',
@@ -24,7 +24,37 @@ app.get('/api/v1/tours', (req, res) => {
   });
 });
 
-// POST endpoint: creates a new tour and saves it to the JSON file
+// GET /api/v1/tours/:id → returns a single tour by its ID
+app.get('/api/v1/tours/:id', (req, res) => {
+  const id = Number(req.params.id); // convert the ID param from string to number
+
+  // Basic validation for out-of-range IDs
+  if (id > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
+  // Find the tour with the matching ID
+  const tour = tours.find(tour => tour.id === id);
+
+  // If not found, return a 404 (alternative robust validation)
+  // if (!tour) {
+  //   return res.status(404).json({
+  //     status: 'fail',
+  //     message: 'Invalid ID',
+  //   });
+  // }
+
+  // Send successful response
+  return res.status(200).json({
+    status: 'success',
+    data: { tour },
+  });
+});
+
+// POST /api/v1/tours → creates a new tour and saves it to the JSON file
 app.post('/api/v1/tours', (req, res) => {
   // Generate new ID based on the last tour's ID
   const id = tours[tours.length - 1].id + 1;
