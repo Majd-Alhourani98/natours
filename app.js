@@ -2,71 +2,74 @@
 // IMPORTS
 // =======================
 
-// Node.js file system module for reading and writing files
+// Node.js module for file system operations (read/write files)
 const fs = require('fs');
 
-// Morgan -- HTTP request logger middleware
+// Morgan middleware for logging HTTP requests; useful for debugging and monitoring
 const morgan = require('morgan');
 
-// Express module -- a web framework for Node.js
+// Express framework for building web applications and APIs
 const express = require('express');
 
 // =======================
 // APPLICATION SETUP
 // =======================
 
-// Create an Express application instance
+// Create an instance of an Express application
 const app = express();
 
-// Use morgan middleware for logging HTTP requests in 'dev' format
+// Use Morgan to log details of HTTP requests in 'dev' format
+// This shows method, URL, status code, response time, and more
 app.use(morgan('dev'));
 
-// Middleware to parse incoming JSON requests
+// Middleware to parse JSON in incoming requests and attach it to req.body
+// Required to handle POST, PATCH requests with JSON payload
 app.use(express.json());
 
-// Custom middleware: log a simple message for every request
+// Custom middleware: logs a simple message for every incoming request
+// Demonstrates how middleware works before hitting routes
 app.use((req, res, next) => {
   console.log('Hello from the Middleware');
   next(); // Pass control to the next middleware or route handler
 });
 
-// Middleware to add a timestamp to the request object
+// Middleware to attach a timestamp to every request
+// Useful for debugging and logging when a request was made
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
-  next();
+  next(); // Pass control to the next middleware or route handler
 });
 
 // =======================
 // DATA LOADING
 // =======================
 
-// Read tours data synchronously from a JSON file
-// __dirname gives the absolute path to the current directory
+// Synchronously read tours data from JSON file
+// __dirname provides the absolute path to the current directory
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
 // =======================
 // CONTROLLERS
 // =======================
 
-// GET /api/v1/tours
-// Fetch all tours
+// GET /api/v1/tours - fetch all tours
+// Sends all tours along with a timestamp and count of results
 const getAllTours = (req, res) => {
-  console.log(req.requestTime); // Log the timestamp added by middleware
-  return res.status(200).json({
+  console.log(req.requestTime); // Log the timestamp to the console
+  res.status(200).json({
     status: 'success',
-    requestAt: req.requestTime, // Include timestamp in response
-    results: tours.length,
-    data: { tours: tours },
+    requestAt: req.requestTime, // Include request timestamp in response
+    results: tours.length, // Total number of tours
+    data: { tours }, // Send tours data
   });
 };
 
-// GET /api/v1/tours/:id
-// Fetch a single tour by ID
+// GET /api/v1/tours/:id - fetch a single tour by ID
 const getSingleTour = (req, res) => {
   const id = Number(req.params.id); // Convert route param from string to number
-  const tour = tours.find(tour => tour.id === id);
+  const tour = tours.find(t => t.id === id); // Search tour by ID
 
-  // Handle case when tour is not found
+  // If no tour found with given ID, send 404 response
   if (!tour) {
     return res.status(404).json({
       status: 'fail',
@@ -74,34 +77,34 @@ const getSingleTour = (req, res) => {
     });
   }
 
-  return res.status(200).json({
+  // If found, send tour data
+  res.status(200).json({
     status: 'success',
-    data: { tour: tour },
+    data: { tour },
   });
 };
 
-// POST /api/v1/tours
-// Create a new tour
+// POST /api/v1/tours - create a new tour
 const createTour = (req, res) => {
-  const id = tours[tours.length - 1].id + 1; // Generate a new ID
-  const newTour = { id, ...req.body }; // Merge new ID with request body
+  const id = tours[tours.length - 1].id + 1; // Generate new ID
+  const newTour = { id, ...req.body }; // Merge ID with request body
   tours.push(newTour); // Add new tour to in-memory array
 
-  // Write the updated tours array back to the JSON file
+  // Write updated tours array back to JSON file asynchronously
   fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), err => {
-    return res.status(201).json({
+    // Respond after file write is complete
+    res.status(201).json({
       status: 'success',
       data: { tour: newTour },
     });
   });
 };
 
-// PATCH /api/v1/tours/:id
-// Update an existing tour (currently a placeholder)
+// PATCH /api/v1/tours/:id - update an existing tour
+// Currently a placeholder; does not modify data
 const updateTour = (req, res) => {
   const id = Number(req.params.id);
 
-  // Validate tour ID
   if (id > tours.length) {
     return res.status(404).json({
       status: 'fail',
@@ -109,19 +112,17 @@ const updateTour = (req, res) => {
     });
   }
 
-  // Placeholder response for update logic
+  // Placeholder response for future update logic
   res.status(200).json({
     status: 'success',
     data: { tour: 'UPDATE TOUR' },
   });
 };
 
-// DELETE /api/v1/tours/:id
-// Delete a tour by ID
+// DELETE /api/v1/tours/:id - delete a tour by ID
 const deleteTour = (req, res) => {
   const id = Number(req.params.id);
 
-  // Validate tour ID
   if (id > tours.length) {
     return res.status(404).json({
       status: 'fail',
@@ -129,31 +130,45 @@ const deleteTour = (req, res) => {
     });
   }
 
-  // 204 No Content indicates success with no response body
+  // Send 204 No Content to indicate successful deletion with no response body
   res.status(204).json({
     status: 'success',
     data: null,
   });
 };
 
+// Placeholder user controllers
+// Currently respond with 500 indicating not implemented
+const getAllUsers = (req, res) =>
+  res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
+const getSingleUser = (req, res) =>
+  res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
+const createUser = (req, res) =>
+  res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
+const updateUser = (req, res) =>
+  res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
+const deleteUser = (req, res) =>
+  res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
+
 // =======================
-// ROUTE HANDLING
+// ROUTES
 // =======================
 
-// Chain routes using Express route() for cleaner structure
+// Tours routes
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
-
 app.route('/api/v1/tours/:id').get(getSingleTour).patch(updateTour).delete(deleteTour);
 
+// Users routes (placeholders)
+app.route('/api/v1/users').get(getAllUsers).post(createUser);
+app.route('/api/v1/users/:id').get(getSingleUser).patch(updateUser).delete(deleteUser);
+
 // =======================
-// SERVER SETUP
+// SERVER
 // =======================
 
-// Define the port number the server will listen on
+// Port configuration
 const PORT = 3000;
 
-// Start the server and listen on the defined port
-// Logs a message to the console once the server is running
-app.listen(PORT, () => {
-  console.log(`App running on port ${PORT}...`);
-});
+// Start server and listen for incoming requests
+// Logs a message once server is running
+app.listen(PORT, () => console.log(`App running on port ${PORT}...`));
