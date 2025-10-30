@@ -153,14 +153,36 @@ const deleteUser = (req, res) =>
 // =======================
 // ROUTES
 // =======================
+// Create separate Express Router instances for modular routing
+const tourRouter = express.Router();
+const userRouter = express.Router();
 
-// Tours routes
-app.route('/api/v1/tours').get(getAllTours).post(createTour);
-app.route('/api/v1/tours/:id').get(getSingleTour).patch(updateTour).delete(deleteTour);
+// Mount routers on specific path prefixes
+// All tour routes will now start with /api/v1/tours
+app.use('/api/v1/tours', tourRouter);
 
-// Users routes (placeholders)
-app.route('/api/v1/users').get(getAllUsers).post(createUser);
-app.route('/api/v1/users/:id').get(getSingleUser).patch(updateUser).delete(deleteUser);
+// All user routes will now start with /api/v1/users
+app.use('/api/v1/users', userRouter);
+
+// =======================
+// TOUR ROUTES
+// =======================
+
+// '/' handles GET (all tours) and POST (create new tour)
+tourRouter.route('/').get(getAllTours).post(createTour);
+
+// '/:id' handles GET (single tour), PATCH (update), DELETE (remove)
+tourRouter.route('/:id').get(getSingleTour).patch(updateTour).delete(deleteTour);
+
+// =======================
+// USER ROUTES (placeholders)
+// =======================
+
+// '/' handles GET (all users) and POST (create user)
+userRouter.route('/').get(getAllUsers).post(createUser);
+
+// '/:id' handles GET (single user), PATCH (update), DELETE (remove)
+userRouter.route('/:id').get(getSingleUser).patch(updateUser).delete(deleteUser);
 
 // =======================
 // SERVER
