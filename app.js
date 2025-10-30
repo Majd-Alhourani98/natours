@@ -28,8 +28,8 @@ app.get('/api/v1/tours', (req, res) => {
 app.get('/api/v1/tours/:id', (req, res) => {
   const id = Number(req.params.id); // convert the ID param from string to number
 
-  // Basic validation for out-of-range IDs
-  if (id > tours.length) {
+  // Validate ID range
+  if (id > tours.length || id < 1) {
     return res.status(404).json({
       status: 'fail',
       message: 'Invalid ID',
@@ -39,7 +39,7 @@ app.get('/api/v1/tours/:id', (req, res) => {
   // Find the tour with the matching ID
   const tour = tours.find(tour => tour.id === id);
 
-  // Return the tour if found
+  // Return the found tour
   return res.status(200).json({
     status: 'success',
     data: { tour },
@@ -83,6 +83,25 @@ app.patch('/api/v1/tours/:id', (req, res) => {
   return res.status(200).json({
     status: 'success',
     data: { tour: 'Updated tour' },
+  });
+});
+
+// DELETE /api/v1/tours/:id → deletes a specific tour
+app.delete('/api/v1/tours/:id', (req, res) => {
+  const id = Number(req.params.id);
+
+  // Validate ID range
+  if (id > tours.length || id < 1) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
+  // Successful deletion — send 204 (No Content)
+  return res.status(204).json({
+    status: 'success',
+    data: null,
   });
 });
 
