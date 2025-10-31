@@ -16,6 +16,16 @@ const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-si
 // =======================
 // CONTROLLERS
 // =======================
+const checkID = (req, res, next, value) => {
+  if (Number(value) > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
+  next();
+};
 
 // GET /api/v1/tours
 // Fetch all tours and send them in the response
@@ -34,14 +44,6 @@ const getAllTours = (req, res) => {
 const getSingleTour = (req, res) => {
   const id = Number(req.params.id); // Convert ID from string to number
   const tour = tours.find(t => t.id === id); // Find tour with matching ID
-
-  if (!tour) {
-    // Send 404 if tour not found
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
-  }
 
   // Send the found tour
   res.status(200).json({
@@ -72,13 +74,6 @@ const createTour = (req, res) => {
 const updateTour = (req, res) => {
   const id = Number(req.params.id);
 
-  if (id > tours.length) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
-  }
-
   // Placeholder response for future update logic
   res.status(200).json({
     status: 'success',
@@ -90,13 +85,6 @@ const updateTour = (req, res) => {
 // Delete a tour by ID
 const deleteTour = (req, res) => {
   const id = Number(req.params.id);
-
-  if (id > tours.length) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
-  }
 
   // 204 No Content indicates successful deletion with no response body
   res.status(204).json({
@@ -112,4 +100,5 @@ module.exports = {
   createTour,
   updateTour,
   deleteTour,
+  checkID,
 };
