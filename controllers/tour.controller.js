@@ -16,11 +16,25 @@ const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-si
 // =======================
 // CONTROLLERS
 // =======================
+
+// PARAMETER VALIDATION MIDDLEWARE: checkID
 const checkID = (req, res, next, value) => {
   if (Number(value) > tours.length) {
     return res.status(404).json({
       status: 'fail',
       message: 'Invalid ID',
+    });
+  }
+
+  next();
+};
+
+// @desc Middleware to check if request body has required fields
+const checkBody = (req, res, next) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Missing name or price',
     });
   }
 
@@ -101,4 +115,5 @@ module.exports = {
   updateTour,
   deleteTour,
   checkID,
+  checkBody,
 };

@@ -13,7 +13,10 @@ router.param('id', tourController.checkID);
 // Route for '/' (root of tours)
 // GET  -> get all tours
 // POST -> create a new tour
-router.route('/').get(tourController.getAllTours).post(tourController.createTour);
+router
+  .route('/')
+  .get(tourController.getAllTours)
+  .post(tourController.checkBody, tourController.createTour);
 
 // Route for '/:id' (specific tour by ID)
 // GET    -> get a single tour by ID
