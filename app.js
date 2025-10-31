@@ -4,6 +4,8 @@ const express = require('express');
 // Import Morgan middleware for logging HTTP requests
 const morgan = require('morgan');
 
+const env = require('./config/env.config');
+
 // Import route handlers for tours and users
 const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
@@ -12,16 +14,15 @@ const userRouter = require('./routes/user.routes');
 const app = express();
 
 // Middleware: HTTP request logger using Morgan in 'dev' format
-app.use(morgan('dev'));
+if (env.FLAGS.isDevelopment) {
+  app.use(morgan('dev'));
+}
 
 // Middleware: Parse incoming JSON requests and put the data in req.body
 app.use(express.json());
 
-// Custom middleware: Logs a simple message for every request
-app.use((req, res, next) => {
-  console.log('Hello from the Middleware');
-  next(); // Pass control to the next middleware
-});
+// Serve all files inside the public folder
+app.use(express.static(`${__dirname}/public`));
 
 // Custom middleware: Adds a timestamp to the request object
 app.use((req, res, next) => {

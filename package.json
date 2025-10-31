@@ -4,13 +4,18 @@
   "description": "description: A modern web application for exploring, booking, and managing exciting nature tours around the world.",
   "main": "index.js",
   "scripts": {
-    "start": "node server",
-    "dev": "nodemon server"
+    "start": "node server.js",
+    "start:prod": "cross-env NODE_ENV=production nodemon server",
+    "start:dev": "cross-env NODE_ENV=development nodemon server",
+    "start:test": "cross-env NODE_ENV=test nodemon server"
   },
   "author": "Majd Aldein Alhourani",
   "license": "ISC",
   "dependencies": {
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "joi": "^18.0.1",
     "morgan": "^1.10.1"
   },
   "devDependencies": {

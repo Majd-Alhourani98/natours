@@ -1,8 +1,9 @@
 // Import the Express application instance from the 'app' module
+const env = require('./config/env.config');
 const app = require('./app');
 
 // Define the port number on which the server will listen
-const PORT = 3000;
+const PORT = env.SERVER.PORT;
 
 // Start the server and listen on the specified port
 // The callback function runs once the server is successfully running
