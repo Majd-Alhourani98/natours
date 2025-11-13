@@ -9,11 +9,27 @@ const Tour = require('./../models/tour.model');
 
 // GET /api/v1/tours
 // Fetch all tours and send them in the response
-const getAllTours = (req, res) => {};
+const getAllTours = async (req, res) => {
+  try {
+    const tours = await Tour.find();
+    res.status(200).json({
+      status: 'success',
+      results: tours.length,
+      data: {
+        tours: tours,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
 
 // GET /api/v1/tours/:id
 // Fetch a single tour by ID
-const getSingleTour = (req, res) => {};
+const getSingleTour = async (req, res) => {};
 
 // POST /api/v1/tours
 // Create a new tour
