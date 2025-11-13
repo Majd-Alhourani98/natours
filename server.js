@@ -28,9 +28,18 @@ const tourSchema = new mongoose.Schema({
   },
 });
 
-// create a model from a schema
-// a convention to use Uppercase for model
 const Tour = mongoose.model('Tour', tourSchema);
+
+const testTour = new Tour({
+  name: 'The Forest Hiker',
+  rating: 4.7,
+  price: 500,
+});
+
+testTour
+  .save()
+  .then(doc => console.log(doc))
+  .catch(err => console.log('ERROR 💥:', err));
 
 const PORT = env.SERVER.PORT;
 app.listen(PORT, () => console.log(`App running on port ${PORT}...`));
