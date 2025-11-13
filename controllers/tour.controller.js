@@ -93,7 +93,22 @@ const updateTour = async (req, res) => {
 
 // DELETE /api/v1/tours/:id
 // Delete a tour by ID
-const deleteTour = (req, res) => {};
+const deleteTour = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const tour = await Tour.findByIdAndDelete(id);
+
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: 'Invalid Data',
+    });
+  }
+};
 
 // Export all controller functions for use in routes
 module.exports = {
