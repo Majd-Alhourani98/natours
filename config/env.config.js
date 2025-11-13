@@ -7,6 +7,7 @@
 const path = require('path');
 const dotenv = require('dotenv');
 const Joi = require('joi');
+const { env } = require('process');
 
 // -------------------------------------------------
 // 1️⃣ Load environment file based on NODE_ENV
@@ -31,7 +32,15 @@ const envSchema = Joi.object({
     .label('NODE_ENV')
     .default('development'),
   PORT: Joi.number().port().default(3000).label('PORT'),
-  DATABASE_URL: Joi.string().uri().required().label('DATABASE_URL'),
+
+  DATABASE_URL: Joi.string()
+    .pattern(/^mongodb(\+srv)?:\/\/.+$/) // custom pattern for Mongo URIs
+    .required()
+    .label('DATABASE_URL'),
+
+  DATABASE_USERNAME: Joi.string().trim().min(3).required().label('DATABASE_USERNAME'),
+  DATABASE_PASSWORD: Joi.string().trim().min(6).required().label('DATABASE_PASSWORD'),
+
   JWT_SECRET: Joi.string().min(32).required().label('JWT_SECRET'),
   JWT_EXPIRES_IN: Joi.string().default('1d').label('JWT_EXPIRES_IN'),
 })
@@ -45,6 +54,8 @@ const envRaw = {
   NODE_ENV: process.env.NODE_ENV,
   PORT: process.env.PORT,
   DATABASE_URL: process.env.DATABASE_URL,
+  DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
+  DATABASE_USERNAME: process.env.DATABASE_USERNAME,
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
 };
@@ -74,6 +85,8 @@ const CONFIG = Object.freeze({
 
   DATABASE: Object.freeze({
     URL: envVars.DATABASE_URL,
+    PASSWORD: envVars.DATABASE_PASSWORD,
+    USERNAME: envVars.DATABASE_USERNAME,
   }),
 
   JWT: Object.freeze({
