@@ -7,16 +7,10 @@ const tourController = require('../controllers/tour.controller');
 // Create a new Express router instance
 const router = express.Router();
 
-router.param('id', tourController.checkID);
-// Define routes for '/api/v1/tours'
-
 // Route for '/' (root of tours)
 // GET  -> get all tours
 // POST -> create a new tour
-router
-  .route('/')
-  .get(tourController.getAllTours)
-  .post(tourController.checkBody, tourController.createTour);
+router.route('/').get(tourController.getAllTours).post(tourController.createTour);
 
 // Route for '/:id' (specific tour by ID)
 // GET    -> get a single tour by ID

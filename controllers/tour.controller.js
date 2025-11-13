@@ -1,111 +1,31 @@
 // =======================
 // IMPORTS
 // =======================
-
-// Node.js file system module for reading/writing files
-const fs = require('fs');
-
-// =======================
-// DATA
-// =======================
-
-// Synchronously read tours data from JSON file into memory
-// __dirname gives the absolute path of the current directory
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
+const Tour = require('./../models/tour.model');
 
 // =======================
 // CONTROLLERS
 // =======================
 
-// PARAMETER VALIDATION MIDDLEWARE: checkID
-const checkID = (req, res, next, value) => {
-  if (Number(value) > tours.length) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
-  }
-
-  next();
-};
-
-// @desc Middleware to check if request body has required fields
-const checkBody = (req, res, next) => {
-  if (!req.body.name || !req.body.price) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Missing name or price',
-    });
-  }
-
-  next();
-};
-
 // GET /api/v1/tours
 // Fetch all tours and send them in the response
-const getAllTours = (req, res) => {
-  console.log(req.requestTime); // Log timestamp added by middleware
-  res.status(200).json({
-    status: 'success',
-    requestAt: req.requestTime, // Include timestamp in response
-    results: tours.length, // Total number of tours
-    data: { tours }, // Actual tours data
-  });
-};
+const getAllTours = (req, res) => {};
 
 // GET /api/v1/tours/:id
 // Fetch a single tour by ID
-const getSingleTour = (req, res) => {
-  const id = Number(req.params.id); // Convert ID from string to number
-  const tour = tours.find(t => t.id === id); // Find tour with matching ID
-
-  // Send the found tour
-  res.status(200).json({
-    status: 'success',
-    data: { tour },
-  });
-};
+const getSingleTour = (req, res) => {};
 
 // POST /api/v1/tours
 // Create a new tour
-const createTour = (req, res) => {
-  const id = tours[tours.length - 1].id + 1; // Generate new ID
-  const newTour = { id, ...req.body }; // Merge ID with request data
-  tours.push(newTour); // Add to in-memory array
-
-  // Save updated tours array back to JSON file asynchronously
-  fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), err => {
-    // Respond after file write completes
-    res.status(201).json({
-      status: 'success',
-      data: { tour: newTour },
-    });
-  });
-};
+const createTour = (req, res) => {};
 
 // PATCH /api/v1/tours/:id
 // Update a tour (currently placeholder)
-const updateTour = (req, res) => {
-  const id = Number(req.params.id);
-
-  // Placeholder response for future update logic
-  res.status(200).json({
-    status: 'success',
-    data: { tour: 'UPDATE TOUR' },
-  });
-};
+const updateTour = (req, res) => {};
 
 // DELETE /api/v1/tours/:id
 // Delete a tour by ID
-const deleteTour = (req, res) => {
-  const id = Number(req.params.id);
-
-  // 204 No Content indicates successful deletion with no response body
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
-};
+const deleteTour = (req, res) => {};
 
 // Export all controller functions for use in routes
 module.exports = {
@@ -114,6 +34,4 @@ module.exports = {
   createTour,
   updateTour,
   deleteTour,
-  checkID,
-  checkBody,
 };
