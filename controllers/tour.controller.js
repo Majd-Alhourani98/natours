@@ -69,7 +69,27 @@ const createTour = async (req, res) => {
 
 // PATCH /api/v1/tours/:id
 // Update a tour (currently placeholder)
-const updateTour = (req, res) => {};
+const updateTour = async (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
+
+  try {
+    const tour = await Tour.findByIdAndUpdate(id, body, {
+      new: true, // return the new documnet
+      runValidators: true, // run validator
+    });
+
+    res.status(200).json({
+      status: 'success',
+      data: { tour },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: 'Invalid Data',
+    });
+  }
+};
 
 // DELETE /api/v1/tours/:id
 // Delete a tour by ID
