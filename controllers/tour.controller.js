@@ -22,14 +22,31 @@ const getAllTours = async (req, res) => {
   } catch (error) {
     res.status(404).json({
       status: 'fail',
-      message: err,
+      message: error,
     });
   }
 };
 
 // GET /api/v1/tours/:id
 // Fetch a single tour by ID
-const getSingleTour = async (req, res) => {};
+const getSingleTour = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const tour = await Tour.findById(id);
+    // Tour.findOne({ _id: id });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: tour,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: 'fail',
+      message: error,
+    });
+  }
+};
 
 // POST /api/v1/tours
 // Create a new tour
