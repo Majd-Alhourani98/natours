@@ -17,7 +17,10 @@ async function connectDB() {
   const { URL, USERNAME, PASSWORD } = env.DATABASE;
 
   // Replace placeholders in URL with actual credentials
-  const DATABASE_URI = URL.replace('<USERNAME>', USERNAME).replace('<PASSWORD>', PASSWORD);
+  const DATABASE_URI = URL.replace('<USERNAME>', USERNAME).replace(
+    '<PASSWORD>',
+    PASSWORD
+  );
 
   try {
     // Connect to MongoDB using Mongoose
@@ -77,9 +80,13 @@ async function connectDB() {
     console.error('❌ MongoDB Connection Error:', error.message);
 
     // Suggest common fixes
-    if (error.message.includes('authentication')) console.error('💡 Check DB username/password');
+    if (error.message.includes('authentication'))
+      console.error('💡 Check DB username/password');
 
-    if (error.message.includes('ENOTFOUND') || error.message.includes('ECONNREFUSED'))
+    if (
+      error.message.includes('ENOTFOUND') ||
+      error.message.includes('ECONNREFUSED')
+    )
       console.error('💡 Check that the DB server/cluster is running');
 
     // Exit the process if unable to connect

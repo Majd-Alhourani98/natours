@@ -74,20 +74,3 @@ const tourSchema = new mongoose.Schema(
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
-
-// const tourSchema = new mongoose.Schema(
-//   {
-//     name: {
-//       type: String,
-//       required: true
-//     },
-//     price: {
-//       type: Number,
-//       required: true
-//     }
-//     // other fields...
-//   },
-//   {
-//     timestamps: true // <-- automatically adds createdAt and updatedAt
-//   }
-// );

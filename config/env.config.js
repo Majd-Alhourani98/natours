@@ -7,7 +7,6 @@
 const path = require('path');
 const dotenv = require('dotenv');
 const Joi = require('joi');
-const { env } = require('process');
 
 // -------------------------------------------------
 // 1️⃣ Load environment file based on NODE_ENV
@@ -38,8 +37,16 @@ const envSchema = Joi.object({
     .required()
     .label('DATABASE_URL'),
 
-  DATABASE_USERNAME: Joi.string().trim().min(3).required().label('DATABASE_USERNAME'),
-  DATABASE_PASSWORD: Joi.string().trim().min(6).required().label('DATABASE_PASSWORD'),
+  DATABASE_USERNAME: Joi.string()
+    .trim()
+    .min(3)
+    .required()
+    .label('DATABASE_USERNAME'),
+  DATABASE_PASSWORD: Joi.string()
+    .trim()
+    .min(6)
+    .required()
+    .label('DATABASE_PASSWORD'),
 
   JWT_SECRET: Joi.string().min(32).required().label('JWT_SECRET'),
   JWT_EXPIRES_IN: Joi.string().default('1d').label('JWT_EXPIRES_IN'),
@@ -101,7 +108,9 @@ const CONFIG = Object.freeze({
   }),
 
   BASE_URL: Object.freeze(
-    envVars.NODE_ENV === 'production' ? 'https://myapp.com' : `http://localhost:${envVars.PORT}`
+    envVars.NODE_ENV === 'production'
+      ? 'https://myapp.com'
+      : `http://localhost:${envVars.PORT}`
   ),
 });
 
