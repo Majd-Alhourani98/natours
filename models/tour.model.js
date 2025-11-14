@@ -1,23 +1,93 @@
+const { required } = require('joi');
 const mongoose = require('mongoose');
 
-const tourSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'A tour must have a name'],
-    unique: true,
-  },
+const tourSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'A tour must have a name'],
+      unique: true,
+      trim: true,
+    },
 
-  rating: {
-    type: Number,
-    default: 4.5,
-  },
+    duration: {
+      type: Number,
+      required: [true, 'A tour must have a duration'],
+    },
 
-  price: {
-    type: Number,
-    required: [true, 'A tour must have a price'],
+    maxGroupSize: {
+      type: Number,
+      required: [true, 'A tour must have a group size'],
+    },
+
+    difficulty: {
+      type: String,
+      required: [true, 'A tour must have a difficulty'],
+    },
+
+    ratingsAverage: {
+      type: Number,
+      default: 4.5,
+    },
+
+    ratingsQuantity: {
+      type: Number,
+      default: 0,
+    },
+
+    price: {
+      type: Number,
+      required: [true, 'A tour must have a price'],
+    },
+
+    priceDiscount: Number,
+
+    summary: {
+      type: String,
+      trim: true, // only works for strings
+      required: [true, 'A tour must have a summary'],
+    },
+
+    description: {
+      type: String,
+      trime: true,
+    },
+
+    imageCover: {
+      type: String,
+      required: [true, 'A tour must have a cover image'],
+    },
+
+    images: [String],
+    // createdAt: {
+    //   type: Date,
+    //   default: Date.now(), // give timestamp ==> converted into today's date in mongoose
+    // },
+
+    startDates: [Date],
   },
-});
+  {
+    timestamps: true,
+  }
+);
 
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
+
+// const tourSchema = new mongoose.Schema(
+//   {
+//     name: {
+//       type: String,
+//       required: true
+//     },
+//     price: {
+//       type: Number,
+//       required: true
+//     }
+//     // other fields...
+//   },
+//   {
+//     timestamps: true // <-- automatically adds createdAt and updatedAt
+//   }
+// );
