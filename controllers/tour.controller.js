@@ -30,8 +30,20 @@ const getAllTours = async (req, res) => {
     // 2.3) Convert the string back to an object
     const mongoFilter = JSON.parse(queryStr);
 
+    let query = Tour.find(mongoFilter);
+
+    // 3) Sorting
+    if (req.query.sort) {
+      console.log(req.query);
+      const sortBy = req.query.sort.split(',').join(' ');
+      console.log(sortBy);
+      query = query.sort(sortBy);
+    } else {
+      // by default sort by newest
+      query = query.sort('-createdAt');
+    }
+
     // Execute the Query
-    const query = Tour.find(queryStr);
 
     const tours = await query;
 

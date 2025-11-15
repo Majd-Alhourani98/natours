@@ -62,12 +62,16 @@ const tourSchema = new mongoose.Schema(
     // createdAt: {
     //   type: Date,
     //   default: Date.now(), // give timestamp ==> converted into today's date in mongoose
+    // select: false
     // },
 
     startDates: [Date],
   },
   {
-    timestamps: true,
+    timestamps: {
+      createdAt: { select: false },
+      updatedAt: { select: false },
+    },
   }
 );
 
