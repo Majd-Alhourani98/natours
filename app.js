@@ -12,7 +12,7 @@ const userRouter = require('./routes/user.routes');
 
 // Create an instance of an Express application
 const app = express();
-app.set('query parser', 'extended');
+// app.set('query parser', 'extended');
 
 // Middleware: HTTP request logger using Morgan in 'dev' format
 if (env.FLAGS.isDevelopment) {

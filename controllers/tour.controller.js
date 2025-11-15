@@ -2,6 +2,7 @@
 // IMPORTS
 // =======================
 const Tour = require('./../models/tour.model');
+const APIFeatures = require('./../utils/apiFeatures');
 
 // =======================
 // CONTROLLERS
@@ -19,85 +20,27 @@ const aliasTopTours = (req, res, next) => {
 // GET /api/v1/tours
 // Fetch all tours and send them in the response
 const getAllTours = async (req, res) => {
-  console.log(req.query);
   try {
-    // ================================
-    // BUILD THE QUERY
-    // ================================
+    // Build query using APIFeatures class with method chaining
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
 
-    // 1) Clone query and remove non-filter fields
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields', 'search'];
-    excludedFields.forEach(field => delete queryObj[field]);
+    // Execute the query
+    const tours = await features.query;
 
-    // 2) Advanced Filtering: convert gte, gt, lte, lt to MongoDB operators
-    // 2.1) Convert query object to a string
-    let queryStr = JSON.stringify(queryObj);
-    // 2.2) Replace operators like gte, gt, lte, lt with MongoDB operators
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt|ne|in)\b/g, match => `$${match}`);
-    // 2.3) Convert the string back to an object
-    const mongoFilter = JSON.parse(queryStr);
+    // Get pagination metadata
+    const pagination = await features.getPaginationMetadata(Tour);
 
-    // 2.4) Text search support
-    if (req.query.search) {
-      mongoFilter.$or = [
-        { name: { $regex: req.query.search, $options: 'i' } },
-        { description: { $regex: req.query.search, $options: 'i' } },
-      ];
-    }
-
-    let query = Tour.find(mongoFilter);
-
-    // 3) Sorting
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      // by default sort by newest
-      query = query.sort('-createdAt');
-    }
-
-    // 4) Field Limiting
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-      console.log(fields);
-    } else {
-      query = query.select('-__v -createdAt -updatedAt');
-    }
-
-    // 5) Pagination
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 100;
-    const skip = (page - 1) * limit;
-
-    query = query.skip(skip).limit(limit);
-
-    const totalDocs = await Tour.countDocuments(mongoFilter);
-    const totalPages = Math.ceil(totalDocs / limit);
-    const hasNextPage = page < totalPages;
-    const hasPrevPage = page > 1;
-
-    if (skip >= totalDocs && totalDocs > 0) {
-      throw new Error('This page does not exist');
-    }
-
-    // Execute the Query
-    const tours = await query;
-
+    // Send response
     res.status(200).json({
       status: 'success',
       results: tours.length,
-      pagination: {
-        currentPage: page,
-        totalPages,
-        totalResults: totalDocs,
-        resultsPerPage: limit,
-        hasNextPage,
-        hasPrevPage,
-      },
+      pagination,
       data: {
-        tours: tours,
+        tours,
       },
     });
   } catch (error) {
