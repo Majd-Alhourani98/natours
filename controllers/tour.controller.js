@@ -17,18 +17,24 @@ const getAllTours = async (req, res) => {
 
     // 1) Clone query and remove non-filter fields
     const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    const excludedFields = ['page', 'sort', 'limit', 'fields', 'search'];
     excludedFields.forEach(field => delete queryObj[field]);
 
     // 2) Advanced Filtering: convert gte, gt, lte, lt to MongoDB operators
     // 2.1) Convert query object to a string
     let queryStr = JSON.stringify(queryObj);
-
     // 2.2) Replace operators like gte, gt, lte, lt with MongoDB operators
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt|ne|in)\b/g, match => `$${match}`);
     // 2.3) Convert the string back to an object
     const mongoFilter = JSON.parse(queryStr);
+
+    // 2.4) Text search support
+    if (req.query.search) {
+      mongoFilter.$or = [
+        { name: { $regex: req.query.search, $options: 'i' } },
+        { description: { $regex: req.query.search, $options: 'i' } },
+      ];
+    }
 
     let query = Tour.find(mongoFilter);
 
@@ -56,16 +62,29 @@ const getAllTours = async (req, res) => {
 
     query = query.skip(skip).limit(limit);
 
-    const totalDocs = await Tour.countDocuments();
-    if (skip >= totalDocs) {
+    const totalDocs = await Tour.countDocuments(mongoFilter);
+    const totalPages = Math.ceil(totalDocs / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+
+    if (skip >= totalDocs && totalDocs > 0) {
       throw new Error('This page does not exist');
     }
+
     // Execute the Query
     const tours = await query;
 
     res.status(200).json({
       status: 'success',
       results: tours.length,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalResults: totalDocs,
+        resultsPerPage: limit,
+        hasNextPage,
+        hasPrevPage,
+      },
       data: {
         tours: tours,
       },
