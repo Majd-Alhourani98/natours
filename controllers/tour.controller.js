@@ -138,39 +138,51 @@ const getTourStats = async (req, res) => {
   try {
     const stats = await Tour.aggregate([
       {
-        $match: { ratingsAverage: { $gte: 4.5 } },
-      },
+        $facet: {
+          // Overall stats for all tours
+          overall: [
+            {
+              $group: {
+                _id: null,
+                avgRating: { $avg: '$ratingsAverage' },
+                avgPrice: { $avg: '$price' },
+                minPrice: { $min: '$price' },
+                maxPrice: { $max: '$price' },
+                numRating: { $sum: '$ratingsQuantity' },
+                numTours: { $sum: 1 },
+              },
+            },
+            { $project: { _id: 0 } }, // clean output
+          ],
 
-      {
-        $group: {
-          _id: { $toUpper: '$difficulty' },
-          avgRating: { $avg: '$ratingsAverage' },
-          avgPrice: { $avg: '$price' },
-          minPrice: { $min: '$price' },
-          maxPrice: { $max: '$price' },
-          numRating: { $sum: '$ratingsQuantity' },
-          numTours: { $sum: 1 },
+          // Stats grouped by difficulty
+          byDifficulty: [
+            {
+              $group: {
+                _id: { $toUpper: '$difficulty' },
+                avgRating: { $avg: '$ratingsAverage' },
+                avgPrice: { $avg: '$price' },
+                minPrice: { $min: '$price' },
+                maxPrice: { $max: '$price' },
+                numRating: { $sum: '$ratingsQuantity' },
+                numTours: { $sum: 1 },
+              },
+            },
+
+            { $sort: { _id: 1 } }, // optional: sort by difficulty name
+          ],
         },
       },
-
-      // in the sort we should use the fields that we specificy above before at this point they are already gone
-      {
-        $sort: { avgPrice: 1 },
-      },
-
-      // {
-      //   $match: { _id: { $ne: 'EASY' } },
-      // },
     ]);
 
     res.status(200).json({
       status: 'success',
-      data: { stats },
+      data: stats[0], // $facet returns an array with one object
     });
   } catch (error) {
     res.status(400).json({
       status: 'fail',
-      message: error,
+      message: error.message,
     });
   }
 };
