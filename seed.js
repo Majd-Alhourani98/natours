@@ -22,17 +22,15 @@ if (!DATABASE_URL || !DATABASE_USERNAME || !DATABASE_PASSWORD) {
 }
 
 // Build full database URI
-const DATABASE_URI = DATABASE_URL.replace(
-  '<USERNAME>',
-  DATABASE_USERNAME
-).replace('<PASSWORD>', DATABASE_PASSWORD);
+const DATABASE_URI = DATABASE_URL.replace('<USERNAME>', DATABASE_USERNAME).replace(
+  '<PASSWORD>',
+  DATABASE_PASSWORD
+);
 
 // Load local JSON data
 let tours = [];
 try {
-  tours = JSON.parse(
-    fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`, 'utf-8')
-  );
+  tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`, 'utf-8'));
 } catch (error) {
   console.error('❌ Failed to load local data file.');
   process.exit(1);

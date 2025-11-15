@@ -7,9 +7,19 @@ const Tour = require('./../models/tour.model');
 // CONTROLLERS
 // =======================
 
+const aliasTopTours = (req, res, next) => {
+  // Set query parameters
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+
+  next();
+};
+
 // GET /api/v1/tours
 // Fetch all tours and send them in the response
 const getAllTours = async (req, res) => {
+  console.log(req.query);
   try {
     // ================================
     // BUILD THE QUERY
@@ -50,7 +60,8 @@ const getAllTours = async (req, res) => {
     // 4) Field Limiting
     if (req.query.fields) {
       const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields + ' ' + '-createdAt -updatedAt'); // projecting
+      query = query.select(fields);
+      console.log(fields);
     } else {
       query = query.select('-__v -createdAt -updatedAt');
     }
@@ -187,4 +198,5 @@ module.exports = {
   createTour,
   updateTour,
   deleteTour,
+  aliasTopTours,
 };
