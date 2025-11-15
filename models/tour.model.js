@@ -1,4 +1,3 @@
-const { required } = require('joi');
 const mongoose = require('mongoose');
 
 const tourSchema = new mongoose.Schema(
@@ -50,7 +49,7 @@ const tourSchema = new mongoose.Schema(
 
     description: {
       type: String,
-      trime: true,
+      trim: true,
     },
 
     imageCover: {

@@ -8,7 +8,7 @@ const tourController = require('../controllers/tour.controller');
 const router = express.Router();
 
 router.route('/top-5-cheap').get(tourController.aliasTopTours, tourController.getAllTours);
-
+router.route('/tours-stats').get(tourController.getTourStats);
 // Route for '/' (root of tours)
 // GET  -> get all tours
 // POST -> create a new tour

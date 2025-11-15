@@ -134,6 +134,47 @@ const deleteTour = async (req, res) => {
   }
 };
 
+const getTourStats = async (req, res) => {
+  try {
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } },
+      },
+
+      {
+        $group: {
+          _id: { $toUpper: '$difficulty' },
+          avgRating: { $avg: '$ratingsAverage' },
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+          numRating: { $sum: '$ratingsQuantity' },
+          numTours: { $sum: 1 },
+        },
+      },
+
+      // in the sort we should use the fields that we specificy above before at this point they are already gone
+      {
+        $sort: { avgPrice: 1 },
+      },
+
+      // {
+      //   $match: { _id: { $ne: 'EASY' } },
+      // },
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      data: { stats },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error,
+    });
+  }
+};
+
 // Export all controller functions for use in routes
 module.exports = {
   getAllTours,
@@ -142,4 +183,5 @@ module.exports = {
   updateTour,
   deleteTour,
   aliasTopTours,
+  getTourStats,
 };

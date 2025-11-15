@@ -28,7 +28,7 @@ async function connectDB() {
     // ============================================================
     // 2a. DEVELOPMENT INFO (only if not in production)
     // ============================================================
-    if (process.env.NODE_ENV !== 'production') {
+    if (env.FLAGS.isDevelopment) {
       console.log(`📍 Host: ${conn.connection.host}`);
       console.log(`🗄️  DB: ${conn.connection.name}`);
     }
