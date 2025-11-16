@@ -54,8 +54,10 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       validate: {
         validator: function (value) {
-          console.log(value < this.price);
-          return value < this.price;
+          if (!value) return true;
+          console.log(!this.price);
+
+          return !this.price || value < this.price;
         },
 
         message: 'Discount price {VALUE} should be below regular price',
@@ -116,6 +118,22 @@ tourSchema.pre(/^find/, function (next) {
 
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  next();
+});
+
+tourSchema.pre('findOneAndUpdate', async function (next) {
+  const update = this.getUpdate();
+
+  // Get the current document from DB
+  const docToUpdate = await this.model.findOne(this.getQuery());
+
+  const newPrice = update.price ?? docToUpdate.price;
+  const newDiscount = update.priceDiscount ?? docToUpdate.priceDiscount;
+
+  if (newDiscount >= newPrice) {
+    return next(new Error('Discount price should be below regular price on update'));
+  }
+
   next();
 });
 
