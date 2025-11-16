@@ -1,4 +1,3 @@
-const { func } = require('joi');
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 
@@ -92,7 +91,11 @@ tourSchema.pre('save', function (next) {
 
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
+  next();
+});
 
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
   next();
 });
 
