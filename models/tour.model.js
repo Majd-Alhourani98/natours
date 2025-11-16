@@ -1,3 +1,4 @@
+const { func } = require('joi');
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 
@@ -66,7 +67,13 @@ const tourSchema = new mongoose.Schema(
     // },
 
     startDates: [Date],
+
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
+
   {
     timestamps: true,
     toJSON: { virtuals: true },
@@ -80,6 +87,12 @@ tourSchema.virtual('durationWeeks').get(function () {
 
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
+
   next();
 });
 
