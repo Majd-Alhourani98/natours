@@ -37,5 +37,12 @@ app.use('/api/v1/tours', tourRouter);
 // Mount the userRouter on the /api/v1/users path
 app.use('/api/v1/users', userRouter);
 
+app.all('*', (req, res, next) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Can't find ${req.originalUrl} on this server`,
+  });
+});
+
 // Export the app so it can be used by the server (e.g., in server.js)
 module.exports = app;

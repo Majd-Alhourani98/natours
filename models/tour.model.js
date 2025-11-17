@@ -55,8 +55,6 @@ const tourSchema = new mongoose.Schema(
       validate: {
         validator: function (value) {
           if (!value) return true;
-          console.log(!this.price);
-
           return !this.price || value < this.price;
         },
 
@@ -99,6 +97,7 @@ const tourSchema = new mongoose.Schema(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
+    id: false,
   }
 );
 
