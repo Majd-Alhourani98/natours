@@ -9,4 +9,12 @@ connectDB();
 // The callback function runs once the server is successfully running
 
 const PORT = env.SERVER.PORT;
-app.listen(PORT, () => console.log(`App running on port ${PORT}...`));
+const server = app.listen(PORT, () => console.log(`App running on port ${PORT}...`));
+
+process.on('unhandledRejection', err => {
+  console.log(err.name, err.message);
+  console.log('UNHANDELED REJECTION! 💥 Shutting down...');
+  server.close(() => {
+    process.exit(1);
+  });
+});
