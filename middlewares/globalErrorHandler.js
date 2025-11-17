@@ -1,7 +1,13 @@
+const AppError = require('../utils/appError');
 const env = require('./../config/env.config');
 
 const isDevelopment = env.FLAGS.isDevelopment;
 const isProduction = env.FLAGS.isProduction;
+
+const handleCastErrorDB = err => {
+  const message = `Invalid ${err.path}: ${err.value}`;
+  return new AppError(message, 400);
+};
 
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -37,5 +43,9 @@ module.exports = (err, req, res, next) => {
   err.status = err.status || 'err';
 
   if (isDevelopment) sendErrorDev(err, res);
-  else if (isProduction) sendErrorProd(err, res);
+  else if (isProduction) {
+    let error = { ...err };
+    if (err.name === 'CastError') error = handleCastErrorDB(error);
+    sendErrorProd(error, res);
+  }
 };
