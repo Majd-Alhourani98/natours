@@ -10,6 +10,9 @@ const env = require('./config/env.config');
 const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
 
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./middlewares/globalErrorHandler');
+
 // Create an instance of an Express application
 const app = express();
 // app.set('query parser', 'extended');
@@ -38,22 +41,16 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
 app.all('*', (req, res, next) => {
-  const err = new Error(`Can't find ${req.originalUrl} on this server`);
-  err.status = 'fail';
-  err.statusCode = 404;
+  // const err = new Error(`Can't find ${req.originalUrl} on this server`);
+  // err.status = 'fail';
+  // err.statusCode = 404;
 
-  next(err);
+  // next(err);
+
+  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
 
-app.use((err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'err';
-
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
-});
+app.use(globalErrorHandler);
 
 // Export the app so it can be used by the server (e.g., in server.js)
 module.exports = app;
