@@ -12,6 +12,7 @@ const userRouter = require('./routes/user.routes');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./middlewares/globalErrorHandler');
+const notFound = require('./middlewares/notFound');
 
 // Create an instance of an Express application
 const app = express();
@@ -40,15 +41,7 @@ app.use('/api/v1/tours', tourRouter);
 // Mount the userRouter on the /api/v1/users path
 app.use('/api/v1/users', userRouter);
 
-app.all('*', (req, res, next) => {
-  // const err = new Error(`Can't find ${req.originalUrl} on this server`);
-  // err.status = 'fail';
-  // err.statusCode = 404;
-
-  // next(err);
-
-  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
-});
+app.all('*', notFound);
 
 app.use(globalErrorHandler);
 
