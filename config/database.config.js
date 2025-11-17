@@ -1,95 +1,144 @@
-// ============================================================
+// ======================================================================
 // 1️⃣  IMPORTS & CONFIGURATION
-// ============================================================
+// ======================================================================
 
-// Import Mongoose for MongoDB interaction
 const mongoose = require('mongoose');
-
-// Import environment variables for DB credentials and URL
 const env = require('./env.config.js');
 
-// ============================================================
-// 2️⃣  CONNECT TO MONGODB FUNCTION
-// ============================================================
+// ======================================================================
+// 2️⃣  GLOBAL EVENT LISTENERS (attach once)
+// ======================================================================
+
+mongoose.connection.on('error', err => {
+  console.error('❌ MongoDB runtime error:', err.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️  MongoDB disconnected');
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('🔄 MongoDB reconnected');
+});
+
+// ======================================================================
+// 2a️⃣  HANDLE MONGOOSE ERRORS
+// ======================================================================
+
+function handleMongoError(error) {
+  console.error('❌ MongoDB Connection Error:', error.message);
+
+  // AUTHENTICATION ERRORS
+  if (error.message.includes('authentication') || error.message.includes('Authentication failed')) {
+    console.error('💡 Tip: Check DB username/password');
+    console.error('💡 Ensure user has proper database permissions');
+  }
+
+  // NETWORK ERRORS
+  if (error.message.includes('ENOTFOUND')) {
+    console.error('💡 Tip: DNS resolution failed - check your connection string');
+  }
+  if (error.message.includes('ECONNREFUSED')) {
+    console.error('💡 Tip: Connection refused - database server may be down');
+  }
+  if (error.message.includes('ETIMEDOUT') || error.message.includes('connection timed out')) {
+    console.error('💡 Tip: Connection timeout - check network/firewall');
+  }
+  if (error.message.includes('ECONNRESET')) {
+    console.error('💡 Tip: Connection reset - network unstable or server restart');
+  }
+
+  // MONGODB-SPECIFIC ERRORS
+  if (error.message.includes('MongoServerSelectionError')) {
+    console.error('💡 Tip: Cannot connect to any MongoDB server');
+  }
+  if (error.message.includes('bad auth')) {
+    console.error('💡 Tip: Username or password incorrect');
+  }
+  if (error.message.includes('not authorized')) {
+    console.error('💡 Tip: User lacks permissions for this database');
+  }
+  if (error.message.includes('querySrv ENOTFOUND')) {
+    console.error('💡 Tip: SRV record not found - check connection string format');
+  }
+
+  // SSL/TLS ERRORS
+  if (error.message.includes('SSL') || error.message.includes('certificate')) {
+    console.error('💡 Tip: SSL/TLS certificate error');
+  }
+
+  // DATABASE/COLLECTION ERRORS
+  if (error.message.includes('database does not exist')) {
+    console.error('💡 Tip: Database will be created on first write operation');
+  }
+  if (error.message.includes('no suitable servers found')) {
+    console.error('💡 Tip: No matching MongoDB servers found');
+  }
+
+  // CONFIGURATION ERRORS
+  if (error.message.includes('Invalid connection string')) {
+    console.error('💡 Tip: Malformed MongoDB URI');
+  }
+  if (error.message.includes('topology was destroyed')) {
+    console.error('💡 Tip: Connection pool closed - app may be shutting down');
+  }
+
+  // ATLAS-SPECIFIC ERRORS
+  if (error.message.includes('IP') && error.message.includes('not in whitelist')) {
+    console.error('💡 Tip: Your IP is not whitelisted in MongoDB Atlas');
+  }
+  if (error.message.includes('cluster is paused')) {
+    console.error('💡 Tip: MongoDB Atlas cluster is paused');
+  }
+
+  // DEVELOPMENT FULL DETAILS
+  if (env.FLAGS.isDevelopment) {
+    console.error('📋 Full error details:', error);
+  }
+}
+
+// ======================================================================
+// 3️⃣  MONGODB CONNECTION FUNCTION
+// ======================================================================
 
 async function connectDB() {
-  // Extract database URL, username, and password from env
-  const { URL, USERNAME, PASSWORD } = env.DATABASE;
+  if (mongoose.connection.readyState === 1) {
+    console.log('✅ MongoDB already connected');
+    return;
+  }
 
-  // Replace placeholders in URL with actual credentials
-  const DATABASE_URI = URL.replace('<USERNAME>', USERNAME).replace('<PASSWORD>', PASSWORD);
+  const { URL, USERNAME, PASSWORD } = env.DATABASE;
+  const DATABASE_URI = URL.replace('<USERNAME>', encodeURIComponent(USERNAME)).replace(
+    '<PASSWORD>',
+    encodeURIComponent(PASSWORD)
+  );
 
   try {
-    // Connect to MongoDB using Mongoose
     const conn = await mongoose.connect(DATABASE_URI);
+    console.log('✅ MongoDB connected successfully');
 
-    console.log(`✅ MongoDB Connected`);
-
-    // ============================================================
-    // 2a. DEVELOPMENT INFO (only if not in production)
-    // ============================================================
     if (env.FLAGS.isDevelopment) {
       console.log(`📍 Host: ${conn.connection.host}`);
-      console.log(`🗄️  DB: ${conn.connection.name}`);
+      console.log(`🗄️ DB: ${conn.connection.name}`);
     }
 
-    // ============================================================
-    // 2b. RUNTIME EVENT MONITORING
-    // ============================================================
-
-    // Detect runtime errors
-    mongoose.connection.on('error', err => {
-      console.error('❌ MongoDB runtime error:', err.message);
-    });
-
-    // Detect disconnections
-    mongoose.connection.on('disconnected', () => {
-      console.warn('⚠️  MongoDB disconnected');
-    });
-
-    // Detect reconnections
-    mongoose.connection.on('reconnected', () => {
-      console.log('🔄 MongoDB reconnected');
-    });
-
-    // ============================================================
-    // 2c. GRACEFUL SHUTDOWN HANDLERS
-    // ============================================================
-
-    // Handle Ctrl+C or terminal stop
-    process.on('SIGINT', async () => {
+    // Graceful shutdown
+    const closeConnection = async signal => {
+      console.log(`🔌 MongoDB connection closing (${signal})...`);
       await mongoose.connection.close();
-      console.log('🔌 MongoDB connection closed (SIGINT)');
+      console.log('🛑 Connection closed, exiting...');
       process.exit(0);
-    });
-
-    // Handle system termination (e.g., Docker, Heroku)
-    process.on('SIGTERM', async () => {
-      await mongoose.connection.close();
-      console.log('🔌 MongoDB connection closed (SIGTERM)');
-      process.exit(0);
-    });
+    };
+    process.once('SIGINT', () => closeConnection('SIGINT'));
+    process.once('SIGTERM', () => closeConnection('SIGTERM'));
   } catch (error) {
-    // ============================================================
-    // 2d. ERROR HANDLING
-    // ============================================================
-
-    console.error('❌ MongoDB Connection Error:', error.message);
-
-    // Suggest common fixes
-    if (error.message.includes('authentication')) console.error('💡 Check DB username/password');
-
-    if (error.message.includes('ENOTFOUND') || error.message.includes('ECONNREFUSED'))
-      console.error('💡 Check that the DB server/cluster is running');
-
-    // Exit the process if unable to connect
+    handleMongoError(error);
     process.exit(1);
   }
 }
 
-// ============================================================
-// 3️⃣  EXPORT
-// ============================================================
+// ======================================================================
+// 4️⃣  EXPORT
+// ======================================================================
 
-// Export the function to use in server or other modules
 module.exports = connectDB;

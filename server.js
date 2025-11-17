@@ -5,6 +5,7 @@ const app = require('./app');
 const connectDB = require('./config/database.config');
 
 connectDB();
+
 // Start the server and listen on the specified port
 // The callback function runs once the server is successfully running
 
