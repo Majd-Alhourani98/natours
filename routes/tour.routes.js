@@ -3,7 +3,7 @@ const express = require('express');
 
 // Import tour controller functions to handle requests
 const tourController = require('../controllers/tour.controller');
-
+const authMiddleware = require('./../middlewares/auth.middleware');
 // Create a new Express router instance
 const router = express.Router();
 
@@ -13,7 +13,10 @@ router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
 // Route for '/' (root of tours)
 // GET  -> get all tours
 // POST -> create a new tour
-router.route('/').get(tourController.getAllTours).post(tourController.createTour);
+router
+  .route('/')
+  .get(authMiddleware.protect, tourController.getAllTours)
+  .post(tourController.createTour);
 
 // Route for '/:id' (specific tour by ID)
 // GET    -> get a single tour by ID

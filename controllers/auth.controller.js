@@ -10,12 +10,7 @@ const generateToken = require('../utils/tokens');
 const signup = catchAsync(async (req, res, next) => {
   const { name, email, password, passwordConfirm } = req.body;
 
-  const user = await User.create({
-    name,
-    email,
-    password,
-    passwordConfirm,
-  });
+  const user = await User.create(req.body);
 
   const token = generateToken(user._id);
 
