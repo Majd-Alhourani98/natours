@@ -9,6 +9,7 @@ const env = require('./config/env.config');
 // Import route handlers for tours and users
 const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
+const authRouter = require('./routes/auth.routes');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./middlewares/globalErrorHandler');
@@ -39,6 +40,7 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 // Mount the userRouter on the /api/v1/users path
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/auth', authRouter);
 
 app.all('*', notFound);
 
