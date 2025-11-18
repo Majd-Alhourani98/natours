@@ -1,5 +1,6 @@
 const { required } = require('joi');
 const mongoose = require('mongoose');
+const { validate } = require('./tour.model');
 
 const userSchema = mongoose.Schema({
   name: {
@@ -38,6 +39,14 @@ const userSchema = mongoose.Schema({
   passwordConfirm: {
     type: String,
     required: [true, 'Please confirm your password'],
+    validate: {
+      // this only work on SAVE AND CREATE
+      validator: function (value) {
+        return value === this.password;
+      },
+
+      message: 'passwords are not the same',
+    },
   },
 });
 
