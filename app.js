@@ -37,7 +37,6 @@ app.use((req, res, next) => {
 
 // Mount the tourRouter on the /api/v1/tours path
 app.use('/api/v1/tours', tourRouter);
-
 // Mount the userRouter on the /api/v1/users path
 app.use('/api/v1/users', userRouter);
 
