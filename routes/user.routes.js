@@ -3,6 +3,7 @@ const express = require('express');
 
 // Import user controller functions to handle requests
 const userController = require('./../controllers/user.controller');
+const authMiddleware = require('./../middlewares/auth.middleware.js');
 
 // Create a new Express router instance
 const router = express.Router();
@@ -24,7 +25,11 @@ router
   .route('/:id')
   .get(userController.getSingleUser)
   .patch(userController.updateUser)
-  .delete(userController.deleteUser);
+  .delete(
+    authMiddleware.protect,
+    authMiddleware.restrictTo('admin', 'lead-guide'),
+    userController.deleteUser
+  );
 
 // Export the router to be used in the main app
 module.exports = router;
