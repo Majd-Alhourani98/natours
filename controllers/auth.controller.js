@@ -10,7 +10,7 @@ const generateToken = require('../utils/tokens');
 const signup = catchAsync(async (req, res, next) => {
   const { name, email, password, passwordConfirm } = req.body;
 
-  const user = await User.create(req.body);
+  const user = await User.create({ name, email, password, passwordConfirm });
 
   const token = generateToken(user._id);
 
@@ -46,7 +46,24 @@ const login = catchAsync(async (req, res, next) => {
   });
 });
 
+const forgotPassword = catchAsync(async (req, res, next) => {
+  // 1) Get User based on Posted email
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user)
+    return next(new AppError('there is no user with email address', HTTP_STATUS.NOT_FOUND));
+
+  // 2) Generate the random reset token
+
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+});
+
+const resetPassword = () => {};
+
 module.exports = {
   signup,
   login,
+  forgotPassword,
+  resetPassword,
 };
