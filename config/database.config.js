@@ -63,9 +63,8 @@ mongoose.connection.on('error', err => {
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.warn('⚠️  MongoDB disconnected');
-  // Reset connection promise on disconnect to allow reconnection
-  connectionPromise = null;
+  if (mongoose.connection.readyState !== 0) return;
+  console.warn('⚠️ MongoDB disconnected');
 });
 
 mongoose.connection.on('reconnected', () => {

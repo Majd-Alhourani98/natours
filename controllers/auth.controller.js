@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user.model');
@@ -50,7 +52,9 @@ const login = catchAsync(async (req, res, next) => {
 const forgotPassword = catchAsync(async (req, res, next) => {
   // 1) Get User based on Posted email
   const { email } = req.body;
+
   const user = await User.findOne({ email });
+
   if (!user)
     return next(new AppError('there is no user with email address', HTTP_STATUS.NOT_FOUND));
 
@@ -88,7 +92,37 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-const resetPassword = () => {};
+const resetPassword = catchAsync(async (req, res, next) => {
+  // 1) get user based on the token
+  const { token } = req.params;
+  const { password, passwordConfirm } = req.body;
+
+  const hashedPToken = crypto.createHash('sha256').update(token).digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hashedPToken,
+    passwordResetExpires: { $gte: Date.now() },
+  });
+
+  // 2) if toekn has not expired, ad there is user, set the new password
+  if (!user) {
+    return next(new AppError('Token is invalid or has expired', HTTP_STATUS.BAD_REQUEST));
+  }
+
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  // 3) update changedPasswordAt property for the user
+
+  sendSuccess(res, {
+    statusCode: HTTP_STATUS.ok,
+    message: 'Password has been reset successfully.',
+    token: generateToken(user._id),
+  });
+});
 
 module.exports = {
   signup,

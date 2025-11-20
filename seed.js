@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 
 // Mongoose model
 const Tour = require('./models/tour.model');
+const User = require('./models/user.model');
 
 // Load environment variables
 dotenv.config({ path: `${__dirname}/.env.development` });
@@ -70,6 +71,7 @@ const importData = async () => {
 const deleteData = async () => {
   try {
     await Tour.deleteMany();
+    await User.deleteMany();
     console.log('✅ Data successfully deleted!');
   } catch (error) {
     console.error('❌ Delete Error:', error);
@@ -85,6 +87,7 @@ const deleteData = async () => {
 const run = async () => {
   const command = (process.argv[2] || '').toLowerCase();
 
+  console.log(command);
   await connectDB();
 
   switch (command) {
