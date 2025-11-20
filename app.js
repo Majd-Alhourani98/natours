@@ -4,6 +4,7 @@ const express = require('express');
 // Import Morgan middleware for logging HTTP requests
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const env = require('./config/env.config');
 const cookieParser = require('cookie-parser');
@@ -27,10 +28,12 @@ if (env.FLAGS.isDevelopment) {
   app.use(morgan('dev'));
 }
 
+app.use(helmet());
+
 if (env.FLAGS.isProduction) app.set('trust proxy', true);
 
 // Middleware: Parse incoming JSON requests and put the data in req.body
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
