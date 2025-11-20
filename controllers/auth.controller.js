@@ -148,10 +148,50 @@ const updatePassword = catchAsync(async (req, res, next) => {
   });
 });
 
+const filterObj = (obj, ...allowedFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach(el => {
+    if (allowedFields.includes(el)) newObj[el] = obj[el];
+  });
+
+  return newObj;
+};
+
+const updateMe = catchAsync(async (req, res, next) => {
+  // 1) Create error if user Posts passwords data
+  const { password, passwordConfirm } = req.body;
+  const { id } = req.user;
+
+  if (password || passwordConfirm)
+    return next(
+      new AppError(
+        'This route is not for password updates. please use `/update-my-password`',
+        HTTP_STATUS.BAD_REQUEST
+      )
+    );
+
+  // 2) Update user document
+  // Note: We should never take all the req.body becuase someone may set the role
+
+  const filteredBody = filterObj(req.body, 'name', 'email');
+  console.log(filteredBody);
+  const user = await User.findByIdAndUpdate(id, filteredBody, {
+    new: true,
+    runValidators: true,
+  });
+
+  sendSuccess(res, {
+    statusCode: HTTP_STATUS.ok,
+    message: 'Profile updated successfully.',
+    data: { user },
+  });
+});
+
 module.exports = {
   signup,
   login,
   forgotPassword,
   resetPassword,
   updatePassword,
+  updateMe,
 };
