@@ -339,9 +339,9 @@ async function connectDB() {
 
       // Development mode: Log connection details
       if (env.FLAGS.isDevelopment) {
-        console.log(`-> Host: ${conn.connection.host}`);
-        console.log(`-> DB: ${conn.connection.name}`);
-        console.log(`-> Pool size: ${MONGOOSE_OPTIONS.maxPoolSize}`);
+        console.log(` -> Host: ${conn.connection.host}`);
+        console.log(` -> DB: ${conn.connection.name}`);
+        console.log(` -> Pool size: ${MONGOOSE_OPTIONS.maxPoolSize}`);
       }
 
       // Set up graceful shutdown handlers (only once)

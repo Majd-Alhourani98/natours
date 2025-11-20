@@ -116,10 +116,34 @@ const resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   // 3) update changedPasswordAt property for the user
-
   sendSuccess(res, {
     statusCode: HTTP_STATUS.ok,
     message: 'Password has been reset successfully.',
+    token: generateToken(user._id),
+  });
+});
+
+const updatePassword = catchAsync(async (req, res, next) => {
+  // 1) Get the user from collection
+  const id = req.user._id;
+  const { currentPassword, newPassword, passwordConfirm } = req.body;
+
+  const user = await User.findById(id).select('+password');
+
+  // 2) Check if Posted current password is correct
+  if (!(await user.isCorrectPassword(currentPassword)))
+    return next(new AppError('Your current password is wrong', HTTP_STATUS.BAD_REQUEST));
+
+  // 3) if so, update password
+  user.password = newPassword;
+  user.passwordConfirm = passwordConfirm;
+  await user.save();
+
+  // 4) Login user in, send JWT
+
+  sendSuccess(res, {
+    statusCode: HTTP_STATUS.ok,
+    message: 'Password updated successfully.',
     token: generateToken(user._id),
   });
 });
@@ -129,4 +153,5 @@ module.exports = {
   login,
   forgotPassword,
   resetPassword,
+  updatePassword,
 };
