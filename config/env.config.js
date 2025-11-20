@@ -36,12 +36,19 @@ const envSchema = Joi.object({
     .pattern(/^mongodb(\+srv)?:\/\/.+$/) // custom pattern for Mongo URIs
     .required()
     .label('DATABASE_URL'),
-
   DATABASE_USERNAME: Joi.string().trim().min(3).required().label('DATABASE_USERNAME'),
   DATABASE_PASSWORD: Joi.string().trim().min(6).required().label('DATABASE_PASSWORD'),
 
   JWT_SECRET: Joi.string().min(32).required().label('JWT_SECRET'),
   JWT_EXPIRES_IN: Joi.string().default('1d').label('JWT_EXPIRES_IN'),
+
+  EMAIL_HOST: Joi.string().required().hostname().label('EMAIL_HOST'),
+  EMAIL_PORT: Joi.number()
+    .valid(25, 465, 587, 2525) // restrict to known SMTP ports
+    .required()
+    .label('EMAIL_PORT'),
+  EMAIL_USERNAME: Joi.string().required().label('EMAIL_USERNAME'),
+  EMAIL_PASSWORD: Joi.string().min(8).required().label('EMAIL_PASSWORD'),
 })
   .unknown(false)
   .prefs({ errors: { label: 'key' } });
@@ -57,6 +64,10 @@ const envRaw = {
   DATABASE_USERNAME: process.env.DATABASE_USERNAME,
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
+  EMAIL_HOST: process.env.EMAIL_HOST,
+  EMAIL_PORT: process.env.EMAIL_PORT,
+  EMAIL_USERNAME: process.env.EMAIL_USERNAME,
+  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
 };
 
 // -------------------------------------------------
@@ -102,6 +113,13 @@ const CONFIG = Object.freeze({
   BASE_URL: Object.freeze(
     envVars.NODE_ENV === 'production' ? 'https://myapp.com' : `http://localhost:${envVars.PORT}`
   ),
+
+  EMAIL: {
+    HOST: envVars.EMAIL_HOST,
+    PORT: envVars.EMAIL_PORT,
+    USERNAME: envVars.EMAIL_USERNAME,
+    PASSWORD: envVars.EMAIL_PASSWORD,
+  },
 });
 
 // -------------------------------------------------
