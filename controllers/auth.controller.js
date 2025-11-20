@@ -25,22 +25,44 @@ const signup = catchAsync(async (req, res, next) => {
     token,
   });
 });
-
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  // 1) Check if email and password exist
+
+  // 1️⃣ Check if email and password exist
   if (!email || !password) {
     return next(new AppError('Please provide email and password', HTTP_STATUS.BAD_REQUEST));
   }
 
-  // 2) Check if user exists && password is correct
+  // 2️⃣ Find user and include password
   const user = await User.findOne({ email }).select('+password');
 
-  if (!user || !(await user.isCorrectPassword(password))) {
+  // 2a️⃣ If user does not exist
+  if (!user) {
     return next(new AppError('Incorrect email or password', HTTP_STATUS.UNAUTHORIZED));
   }
 
-  // 3) if everthing ok, send token to client
+  // 2b️⃣ Check if account is locked
+  if (user.isLocked) {
+    const unlockIn = Math.ceil((user.lockUntil - Date.now()) / 1000 / 60);
+    return next(new AppError(`Account locked. Try again in ${unlockIn} minutes`, 423));
+  }
+
+  // 3️⃣ Check password
+  if (!(await user.isCorrectPassword(password))) {
+    // ❌ Wrong password → increment loginAttempts
+    await user.incrementLoginAttempts();
+    return next(new AppError('Incorrect email or password', HTTP_STATUS.UNAUTHORIZED));
+  }
+
+  // 4️⃣ Successful login → reset attempts & save IP + agent
+  user.loginAttempts = 0;
+  user.lockUntil = undefined;
+  user.lastLogin = Date.now();
+  user.lastLoginIP = req.ip; // save client IP
+  user.lastLoginAgent = req.headers['user-agent']; // save user agent
+  await user.save({ validateBeforeSave: false });
+
+  // 5️⃣ Generate token
   const token = generateToken(user._id);
 
   sendSuccess(res, {

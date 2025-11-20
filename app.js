@@ -24,6 +24,8 @@ if (env.FLAGS.isDevelopment) {
   app.use(morgan('dev'));
 }
 
+if (env.FLAGS.isProduction) app.set('trust proxy', true);
+
 // Middleware: Parse incoming JSON requests and put the data in req.body
 app.use(express.json());
 
