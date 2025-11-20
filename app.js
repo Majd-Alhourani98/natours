@@ -3,6 +3,7 @@ const express = require('express');
 
 // Import Morgan middleware for logging HTTP requests
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 
 const env = require('./config/env.config');
 const cookieParser = require('cookie-parser');
@@ -17,6 +18,7 @@ const notFound = require('./middlewares/notFound');
 
 // Create an instance of an Express application
 const app = express();
+
 // app.set('query parser', 'extended');
 // Parse cookies
 app.use(cookieParser());
@@ -30,6 +32,13 @@ if (env.FLAGS.isProduction) app.set('trust proxy', true);
 // Middleware: Parse incoming JSON requests and put the data in req.body
 app.use(express.json());
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+});
+
+app.use('api', limiter);
 // Serve all files inside the public folder
 app.use(express.static(`${__dirname}/public`));
 
