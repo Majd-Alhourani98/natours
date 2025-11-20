@@ -187,6 +187,17 @@ const updateMe = catchAsync(async (req, res, next) => {
   });
 });
 
+const deleteMe = catchAsync(async (req, res, next) => {
+  const id = req.user.id;
+  await User.findByIdAndUpdate(id, { active: false });
+
+  sendSuccess(res, {
+    statusCode: HTTP_STATUS.NO_CONTENT,
+    message: 'User account has been deactivated.',
+    data: null,
+  });
+});
+
 module.exports = {
   signup,
   login,
@@ -194,4 +205,5 @@ module.exports = {
   resetPassword,
   updatePassword,
   updateMe,
+  deleteMe,
 };

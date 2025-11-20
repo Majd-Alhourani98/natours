@@ -1,3 +1,9 @@
+const User = require('./../models/user.model');
+const HTTP_STATUS = require('./../constants/httpStatus');
+const sendSuccess = require('./../utils/responseHandler');
+const catchAsync = require('./../utils/catchAsync');
+const AppError = require('./../utils/appError');
+
 // =======================
 // USERS CONTROLLERS (PLACEHOLDERS)
 // =======================
@@ -6,11 +12,13 @@
 // indicating that the functionality is not yet implemented
 
 // GET /api/v1/users - fetch all users
-const getAllUsers = (req, res) =>
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined', // Placeholder message
+const getAllUsers = catchAsync(async (req, res, next) => {
+  const users = await User.find();
+  sendSuccess(res, {
+    message: 'users retrieved successfully',
+    data: { users },
   });
+});
 
 // GET /api/v1/users/:id - fetch a single user by ID
 const getSingleUser = (req, res) =>
