@@ -5,7 +5,7 @@ const express = require('express');
 const morgan = require('morgan');
 
 const env = require('./config/env.config');
-
+const cookieParser = require('cookie-parser');
 // Import route handlers for tours and users
 const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
@@ -18,7 +18,8 @@ const notFound = require('./middlewares/notFound');
 // Create an instance of an Express application
 const app = express();
 // app.set('query parser', 'extended');
-
+// Parse cookies
+app.use(cookieParser());
 // Middleware: HTTP request logger using Morgan in 'dev' format
 if (env.FLAGS.isDevelopment) {
   app.use(morgan('dev'));

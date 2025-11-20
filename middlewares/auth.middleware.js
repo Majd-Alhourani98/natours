@@ -6,38 +6,49 @@ const env = require('./../config/env.config');
 const User = require('./../models/user.model');
 
 const protect = catchAsync(async (req, res, next) => {
-  // 1) Getting token and check if it's there(in the headers)
-
+  // 1) Getting token from headers OR cookies
   let token = null;
-  if (req.headers?.authorization?.startsWith('Bearer'))
-    token = req.headers.authorization.split(' ')[1];
 
-  if (!token)
+  // From Authorization header
+  if (req.headers?.authorization?.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  // From cookie
+  if (req.cookies?.jwt) {
+    token = req.cookies.jwt;
+  }
+
+  console.log(token);
+  if (!token) {
     return next(
       new AppError('You are not logged in! Please log in to get access', HTTP_STATUS.UNAUTHORIZED)
     );
+  }
 
-  // 2) verification token
+  console.log(token);
+  // 2) Verification token
   const decoded = jwt.verify(token, env.JWT.SECRET);
 
   // 3) Check if user still exists
   const user = await User.findById(decoded.id);
-  if (!user)
+  if (!user) {
     return next(
       new AppError(
         'The user belonging to this token no longer exists. Please log in again.',
         HTTP_STATUS.UNAUTHORIZED
       )
     );
+  }
 
   // 4) Check if user changed password after the token was issued
   if (user.isChangedPasswordAfter(decoded.iat)) {
     return next(
-      new AppError('User recently changed password! Please log in again,', HTTP_STATUS.UNAUTHORIZED)
+      new AppError('User recently changed password! Please log in again.', HTTP_STATUS.UNAUTHORIZED)
     );
   }
 
-  // GRANT ACCESS TO PRTOTECTED ROUTE
+  // GRANT ACCESS TO PROTECTED ROUTE
   req.user = user;
   next();
 });

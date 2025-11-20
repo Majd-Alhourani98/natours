@@ -44,7 +44,9 @@ const login = catchAsync(async (req, res, next) => {
   // 2b️⃣ Check if account is locked
   if (user.isLocked) {
     const unlockIn = Math.ceil((user.lockUntil - Date.now()) / 1000 / 60);
-    return next(new AppError(`Account locked. Try again in ${unlockIn} minutes`, 423));
+    return next(
+      new AppError(`Account locked. Try again in ${unlockIn} minutes`, HTTP_STATUS.LOCKED)
+    );
   }
 
   // 3️⃣ Check password
@@ -67,6 +69,7 @@ const login = catchAsync(async (req, res, next) => {
 
   sendSuccess(res, {
     statusCode: HTTP_STATUS.ok,
+    message: 'Logged in successfully',
     token,
   });
 });

@@ -41,6 +41,10 @@ const envSchema = Joi.object({
 
   JWT_SECRET: Joi.string().min(32).required().label('JWT_SECRET'),
   JWT_EXPIRES_IN: Joi.string().default('1d').label('JWT_EXPIRES_IN'),
+  JWT_COOKIE_EXPIRES_IN: Joi.number()
+    .integer()
+    .valid(90) // exactly 90 days
+    .required(),
 
   EMAIL_HOST: Joi.string().required().hostname().label('EMAIL_HOST'),
   EMAIL_PORT: Joi.number()
@@ -68,6 +72,7 @@ const envRaw = {
   EMAIL_PORT: process.env.EMAIL_PORT,
   EMAIL_USERNAME: process.env.EMAIL_USERNAME,
   EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
+  JWT_COOKIE_EXPIRES_IN: process.env.JWT_COOKIE_EXPIRES_IN,
 };
 
 // -------------------------------------------------
@@ -102,6 +107,7 @@ const CONFIG = Object.freeze({
   JWT: Object.freeze({
     SECRET: envVars.JWT_SECRET,
     EXPIRES_IN: envVars.JWT_EXPIRES_IN,
+    JWT_COOKIE_EXPIRES_IN: envVars.JWT_COOKIE_EXPIRES_IN,
   }),
 
   FLAGS: Object.freeze({
