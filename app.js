@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 
+app.use(express.json());
+
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
@@ -17,6 +19,19 @@ app.get('/api/v1/tours', (req, res) => {
     results: '<number_of_tours>',
     data: {
       tours: '<list_of_tours>',
+    },
+  });
+});
+
+app.post('/api/v1/tours', (req, res) => {
+  console.log(req.body);
+
+  res.status(201).json({
+    success: true,
+    status: 'success',
+    message: 'Tour created successfully',
+    data: {
+      tours: '<newly_created_tour>',
     },
   });
 });
