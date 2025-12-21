@@ -63,6 +63,12 @@ app.patch('/api/v1/tours/:id', (req, res) => {
   });
 });
 
+app.delete('/api/v1/tours/:id', (req, res) => {
+  const { id } = req.params;
+
+  res.status(204).json();
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`\n${'━'.repeat(20)} 🔥 SERVER ${'━'.repeat(20)}`);
