@@ -10,8 +10,17 @@ const getAllTours = async (req, res) => {
 
   const mongoFilter = JSON.parse(queryString);
 
+  let query = Tour.find(mongoFilter);
+
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(',').join(' ');
+    query = query.sort(sortBy);
+  } else {
+    query.sort('-createdAt _id');
+  }
+
   try {
-    const tours = await Tour.find(mongoFilter);
+    const tours = await query;
     res.status(200).json({
       success: true,
       message: 'Tours retrieved successfully',
