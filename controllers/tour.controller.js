@@ -1,15 +1,20 @@
-const User = require('../models/tour.model');
+const Tour = require('../models/tour.model');
 
-const getAllTours = (req, res) => {
-  res.status(200).json({
-    success: true,
-    status: 'success',
-    message: 'Tours retrieved successfully',
-    results: '<number_of_tours>',
-    data: {
-      tours: '<list_of_tours>',
-    },
-  });
+const getAllTours = async (req, res) => {
+  try {
+    const tours = await Tour.find();
+    res.status(200).json({
+      success: true,
+      message: 'Tours retrieved successfully',
+      results: tours.length,
+      data: { tours },
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      data: error.message,
+    });
+  }
 };
 
 const getTour = (req, res) => {
@@ -17,7 +22,6 @@ const getTour = (req, res) => {
 
   res.status(200).json({
     success: true,
-    status: 'success',
     message: 'Tour retrieved successfully',
     data: {
       tour: `<tour with id: ${id}>`,
@@ -31,14 +35,12 @@ const createTour = async (req, res) => {
     const tour = await User.create(data);
     res.status(201).json({
       success: true,
-      status: 'success',
       message: 'Tour created successfully',
       data: { tour },
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      status: 'fail',
       data: error.message,
     });
   }
@@ -71,3 +73,5 @@ module.exports = {
   updateTour,
   deleteTour,
 };
+
+// envelope pattern
