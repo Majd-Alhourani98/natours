@@ -23,6 +23,19 @@ app.get('/api/v1/tours', (req, res) => {
   });
 });
 
+app.get('/api/v1/tours/:id', (req, res) => {
+  const { id } = req.params;
+
+  res.status(200).json({
+    success: true,
+    status: 'success',
+    message: 'Tour retrieved successfully',
+    data: {
+      tours: `tour with id: ${id}`,
+    },
+  });
+});
+
 app.post('/api/v1/tours', (req, res) => {
   console.log(req.body);
 
