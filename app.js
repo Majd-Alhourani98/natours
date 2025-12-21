@@ -31,7 +31,7 @@ app.get('/api/v1/tours/:id', (req, res) => {
     status: 'success',
     message: 'Tour retrieved successfully',
     data: {
-      tours: `tour with id: ${id}`,
+      tour: `tour with id: ${id}`,
     },
   });
 });
@@ -44,7 +44,21 @@ app.post('/api/v1/tours', (req, res) => {
     status: 'success',
     message: 'Tour created successfully',
     data: {
-      tours: '<newly_created_tour>',
+      tour: '<newly_created_tour>',
+    },
+  });
+});
+
+app.patch('/api/v1/tours/:id', (req, res) => {
+  const { id } = req.params;
+  console.log(req.body);
+
+  res.status(200).json({
+    success: true,
+    status: 'success',
+    message: 'Tour updated successfully',
+    data: {
+      tour: `<updated_tour_with_id_${id}>`,
     },
   });
 });
