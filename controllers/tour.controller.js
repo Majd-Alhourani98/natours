@@ -26,6 +26,19 @@ const getAllTours = async (req, res) => {
     query = query.select('-__v -createdAt -updatedAt');
   }
 
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(Number(req.query.limit) || 100, 100);
+
+  const skip = (page - 1) * limit;
+
+  query = query.skip(skip).limit(limit);
+
+  const totalDocs = await Tour.countDocuments(mongoFilter);
+  const totalPages = Math.ceil(totalDocs / limit);
+  const hasNextPage = page < totalPages;
+  const hasPrevPage = page > 1;
+  const currentPage = page;
+
   try {
     const tours = await query;
     res.status(200).json({
@@ -33,6 +46,12 @@ const getAllTours = async (req, res) => {
       message: 'Tours retrieved successfully',
       results: tours.length,
       data: { tours },
+      paginationMetaData: {
+        currentPage,
+        totalPages,
+        hasNextPage,
+        hasPrevPage,
+      },
     });
   } catch (error) {
     res.status(400).json({
