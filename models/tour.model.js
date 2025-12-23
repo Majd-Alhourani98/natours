@@ -72,11 +72,17 @@ const tourSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 
 tourSchema.plugin(paginationMetaPlugin);
 // Mongoose internally calls: paginationMeta(postSchema);
+
+tourSchema.virtual('durationInWeeks').get(function () {
+  if (this.duration) return Number((this.duration / 7).toFixed(1));
+});
 
 const Tour = mongoose.model('Tour', tourSchema);
 
