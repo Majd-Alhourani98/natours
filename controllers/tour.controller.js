@@ -46,7 +46,7 @@ const getTour = async (req, res) => {
 const createTour = async (req, res) => {
   const data = req.body;
   try {
-    const tour = await User.create(data);
+    const tour = await Tour.create(data);
     res.status(201).json({
       success: true,
       message: 'Tour created successfully',

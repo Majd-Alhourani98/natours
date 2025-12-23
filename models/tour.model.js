@@ -71,6 +71,11 @@ const tourSchema = new mongoose.Schema(
       type: [Date],
       default: [],
     },
+
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -88,6 +93,10 @@ tourSchema.virtual('durationInWeeks').get(function () {
 
 tourSchema.pre('save', function () {
   this.slug = slugify(this.name, { lower: true });
+});
+
+tourSchema.pre(/^find/, function () {
+  this.find({ secretTour: { $ne: true } });
 });
 
 const Tour = mongoose.model('Tour', tourSchema);
