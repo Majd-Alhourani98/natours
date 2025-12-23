@@ -72,7 +72,6 @@ const updateTour = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      status: 'success',
       message: 'Tour updated successfully',
       data: { tour },
     });
@@ -105,6 +104,57 @@ const getTopFiveCheapTours = (req, res, next) => {
   next();
 };
 
+const getToursStats = async (req, res) => {
+  try {
+    const stats = await Tour.aggregate([
+      {
+        $facet: {
+          overall: [
+            {
+              $group: {
+                _id: null,
+                avgRatings: { $avg: '$ratingsAverage' },
+                minRatings: { $min: '$ratingsAverage' },
+                maxRatings: { $max: '$ratingsAverage' },
+
+                avgPrice: { $avg: '$price' },
+                minPrice: { $min: '$price' },
+                maxPrice: { $max: '$price' },
+
+                numRating: { $sum: '$ratingsQuantity' },
+                numTours: { $sum: 1 },
+              },
+            },
+          ],
+          byDifficulty: [
+            {
+              $group: {
+                _id: '$difficulty',
+                avgRatings: { $avg: '$ratingsAverage' },
+                minRatings: { $min: '$ratingsAverage' },
+                maxRatings: { $max: '$ratingsAverage' },
+
+                avgPrice: { $avg: '$price' },
+                minPrice: { $min: '$price' },
+                maxPrice: { $max: '$price' },
+
+                numRating: { $sum: '$ratingsQuantity' },
+                numTours: { $sum: 1 },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+    res.status(200).json({ success: true, data: { stats } });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      data: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllTours,
   getTour,
@@ -112,6 +162,5 @@ module.exports = {
   updateTour,
   deleteTour,
   getTopFiveCheapTours,
+  getToursStats,
 };
-
-// envelope pattern

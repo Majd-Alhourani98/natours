@@ -81,8 +81,3 @@ tourSchema.plugin(paginationMetaPlugin);
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
-
-// Mental Model (Very Important)
-// Plugin = schema extender: Plugin function → receives schema → attaches things to schema
-
-// “A Mongoose plugin always receives the schema because its job is to extend it. The methods added by the plugin receive only their own arguments and use this to access the model.”

@@ -14,7 +14,6 @@ class APIFeatures {
     queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
     this.mongoFilter = JSON.parse(queryString);
-    console.log(this.mongoFilter);
     this.query = this.query.find(this.mongoFilter);
 
     return this;
