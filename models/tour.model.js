@@ -53,6 +53,31 @@ const tourSchema = new mongoose.Schema(
 
     priceDiscount: {
       type: Number,
+      validate: {
+        validator: async function (value) {
+          // 1. If no discount is provided, it's valid
+          if (value === undefined || value === null) return true;
+
+          // 2. Handle Update context (this is a Query)
+          if (this instanceof mongoose.Query) {
+            const update = this.getUpdate();
+
+            // Find the current document to get the existing price
+            const doc = await this.model.findOne(this.getQuery());
+            if (!doc) return true;
+
+            // Use the new price if it's being updated, otherwise use the existing price
+            const currentPrice = update.$set?.price || update.price || doc.price;
+
+            return value < currentPrice;
+          }
+
+          // 3. Handle Create/Save context (this is a Document)
+          // 'this' refers to the document being saved
+          return value < this.price;
+        },
+        message: 'Discount price ({VALUE}) should be below regular price',
+      },
     },
 
     summary: {
