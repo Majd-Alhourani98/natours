@@ -1,57 +1,21 @@
 const Tour = require('../models/tour.model');
+const APIFeatures = require('../utils/apiFeatures');
 
 const getAllTours = async (req, res) => {
-  const queryObject = { ...req.query };
-  const excludedFields = ['page', 'limit', 'sort', 'fields'];
-  excludedFields.forEach((field) => delete queryObject[field]);
-
-  let queryString = JSON.stringify(queryObject);
-  queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-
-  const mongoFilter = JSON.parse(queryString);
-
-  let query = Tour.find(mongoFilter);
-
-  if (req.query.sort) {
-    const sortBy = req.query.sort.split(',').join(' ');
-    query = query.sort(sortBy);
-  } else {
-    query.sort('-createdAt _id');
-  }
-
-  if (req.query.fields) {
-    const fields = req.query.fields.split(',').join(' ');
-    query = query.select(fields);
-  } else {
-    query = query.select('-__v -createdAt -updatedAt');
-  }
-
-  const page = Math.max(1, Number(req.query.page) || 1);
-  const limit = Math.min(Number(req.query.limit) || 100, 100);
-
-  const skip = (page - 1) * limit;
-
-  query = query.skip(skip).limit(limit);
-
-  const totalDocs = await Tour.countDocuments(mongoFilter);
-  const totalPages = Math.ceil(totalDocs / limit);
-  const hasNextPage = page < totalPages;
-  const hasPrevPage = page > 1;
-  const currentPage = page;
+  const features = new APIFeatures(Tour.find(), req.query).filter().sort().limitFields().paginate();
 
   try {
-    const tours = await query;
+    const [tours, paginationMetaData] = await Promise.all([
+      features.query,
+      Tour.getPaginationMeta({ filter: features.mongoFilter }),
+    ]);
+
     res.status(200).json({
       success: true,
       message: 'Tours retrieved successfully',
       results: tours.length,
+      paginationMetaData: paginationMetaData,
       data: { tours },
-      paginationMetaData: {
-        currentPage,
-        totalPages,
-        hasNextPage,
-        hasPrevPage,
-      },
     });
   } catch (error) {
     res.status(400).json({
