@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
 const authRouter = require('./routes/auth.routes');
+const AppError = require('./errors/classes/appError');
 
 const app = express();
 
@@ -30,11 +31,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
 
 app.all('*', (req, res, next) => {
-  const err = new Error(`Can't find ${req.originalUrl} on this server`);
-  err.status = 'fail';
-  err.statusCode = 404;
-
-  next(err);
+  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
 
 app.use((err, req, res, next) => {
