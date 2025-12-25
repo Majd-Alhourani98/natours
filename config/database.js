@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
 const buildDatabaseURI = require('../utils/buildDatabaseURI');
 
-// const DB_URI = 'mongodb://localhost:27017/natours';
+const DB_URI = 'mongodb://localhost:27017/natours';
 
-const { DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_NAME } = process.env;
-const DB_URI = buildDatabaseURI(
-  DATABASE_USERNAME,
-  DATABASE_PASSWORD,
-  DATABASE_USERNAME,
-  DATABASE_URL
-);
+// const { DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_NAME } = process.env;
+// const DB_URI = buildDatabaseURI(
+//   DATABASE_USERNAME,
+//   DATABASE_PASSWORD,
+//   DATABASE_USERNAME,
+//   DATABASE_URL
+// );
 
 const connectDB = async () => {
   try {
