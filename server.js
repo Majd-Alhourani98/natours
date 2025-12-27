@@ -1,3 +1,8 @@
+process.on('uncaughtException', (err) => {
+  console.error('💥 Uncaught Exception:', err);
+  process.exit(1);
+});
+
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -16,7 +21,7 @@ const server = app.listen(PORT, () => {
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ Unhandled Rejection at:', promise);
+  console.error('💥 Unhandled Rejection at:', promise);
   console.error('Reason:', reason instanceof Error ? reason.stack : reason);
   server.close(() => {
     process.exit(1);
