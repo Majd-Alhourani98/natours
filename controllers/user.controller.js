@@ -1,5 +1,7 @@
+const httpStatus = require('../constants/httpStatus');
+
 const getAllUsers = (req, res) => {
-  res.status(200).json({
+  res.status(httpStatus.OK).json({
     success: true,
     status: 'success',
     message: 'Users retrieved successfully',
@@ -13,7 +15,7 @@ const getAllUsers = (req, res) => {
 const getUser = (req, res) => {
   const { id } = req.params;
 
-  res.status(200).json({
+  res.status(httpStatus.OK).json({
     success: true,
     status: 'success',
     message: 'User retrieved successfully',
@@ -26,7 +28,7 @@ const getUser = (req, res) => {
 const createUser = (req, res) => {
   console.log(req.body);
 
-  res.status(201).json({
+  res.status(httpStatus.CREATED).json({
     success: true,
     status: 'success',
     message: 'User created successfully',
@@ -40,7 +42,7 @@ const updateUser = (req, res) => {
   const { id } = req.params;
   console.log(req.body);
 
-  res.status(200).json({
+  res.status(httpStatus.OK).json({
     success: true,
     status: 'success',
     message: 'User updated successfully',
@@ -53,7 +55,7 @@ const updateUser = (req, res) => {
 const deleteUser = (req, res) => {
   const { id } = req.params;
 
-  res.status(204).json();
+  res.status(httpStatus.NO_CONTENT).json();
 };
 
 module.exports = {

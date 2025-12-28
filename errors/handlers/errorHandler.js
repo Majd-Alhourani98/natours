@@ -1,13 +1,15 @@
-const AppError = require('../classes/appError');
+const { AppError, BadRequestError, ConflictError, ValidationError } = require('../classes/appError');
+const httpStatus = require('../../constants/httpStatus');
+
 
 const handleCastErrorDB = (err) => {
-  return new AppError(`Invalid ${err.path}: ${err.value}.`, 400);
+  return new BadRequestError(`Invalid ${err.path}: ${err.value}.`);
 };
 
 const handleDuplicateFieldsDB = (err) => {
   const field = Object.keys(err.keyValue)[0];
   const value = err.keyValue[field];
-  return new AppError(`Duplicate field: ${field}: "${value}". Please use another value.`, 400);
+  return new ConflictError(`Duplicate field: ${field}: "${value}". Please use another value.`);
 };
 
 const handleValidationErrorDB = (err) => {
@@ -15,7 +17,7 @@ const handleValidationErrorDB = (err) => {
     .map((el) => el.message)
     .join('. ');
 
-  return new AppError(err.message || messages, 400);
+  return new ValidationError(err.message || messages);
 };
 
 const sendErrorDev = (err, res) => {
@@ -34,7 +36,7 @@ const sendErrorProd = (err, res) => {
       message: err.message,
     });
   } else {
-    return res.status(500).json({
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       status: 'error',
       message: 'Something went very wrong, Please try again later',
     });

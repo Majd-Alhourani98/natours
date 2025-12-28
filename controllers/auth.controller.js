@@ -1,3 +1,5 @@
+const httpStatus = require('../constants/httpStatus');
+const responseStatus = require('../constants/responseStatus');
 const catchAsync = require('../errors/handlers/catchAsyncHandler');
 const User = require('../models/user.model');
 
@@ -6,8 +8,8 @@ const signup = catchAsync(async (req, res) => {
 
   const user = await User.create({ name, email, password, passwordConfirm });
 
-  res.status(201).json({
-    status: 'success',
+  res.status(httpStatus.CREATED).json({
+    status: responseStatus.SUCCESS,
     data: { user: user },
   });
 });

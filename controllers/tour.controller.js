@@ -1,3 +1,5 @@
+const httpStatus = require('../constants/httpStatus');
+const responseStatus = require('../constants/responseStatus');
 const catchAsync = require('../errors/handlers/catchAsyncHandler');
 const Tour = require('../models/tour.model');
 const APIFeatures = require('../utils/apiFeatures');
@@ -10,8 +12,8 @@ const getAllTours = catchAsync(async (req, res) => {
     Tour.getPaginationMeta({ filter: features.mongoFilter }),
   ]);
 
-  res.status(200).json({
-    success: true,
+  res.status(httpStatus.OK).json({
+    status: responseStatus.SUCCESS,
     message: 'Tours retrieved successfully',
     results: tours.length,
     paginationMetaData: paginationMetaData,
@@ -23,8 +25,8 @@ const getTour = catchAsync(async (req, res) => {
   const { id } = req.params;
 
   const tour = await Tour.findById(id);
-  res.status(200).json({
-    success: true,
+  res.status(httpStatus.OK).json({
+    status: responseStatus.SUCCESS,
     message: 'Tour retrieved successfully',
     data: { tour },
   });
@@ -34,8 +36,8 @@ const createTour = catchAsync(async (req, res) => {
   const data = req.body;
 
   const tour = await Tour.create(data);
-  res.status(201).json({
-    success: true,
+  res.status(httpStatus.CREATED).json({
+    status: responseStatus.SUCCESS,
     message: 'Tour created successfully',
     data: { tour },
   });
@@ -50,8 +52,8 @@ const updateTour = catchAsync(async (req, res) => {
     new: true,
   });
 
-  res.status(200).json({
-    success: true,
+  res.status(httpStatus.OK).json({
+    status: responseStatus.SUCCESS,
     message: 'Tour updated successfully',
     data: { tour },
   });
@@ -61,7 +63,7 @@ const deleteTour = catchAsync(async (req, res) => {
   const { id } = req.params;
 
   await Tour.findByIdAndDelete(id);
-  res.status(204).json();
+  res.status(httpStatus.NO_CONTENT).json();
 });
 
 const getTopFiveCheapTours = (req, res, next) => {
@@ -113,7 +115,7 @@ const getToursStats = catchAsync(async (req, res) => {
       },
     },
   ]);
-  res.status(200).json({ success: true, data: { stats } });
+  res.status(httpStatus.OK).json({ success: true, data: { stats } });
 });
 
 const getMonthlyPlan = catchAsync(async (req, res) => {
@@ -159,7 +161,7 @@ const getMonthlyPlan = catchAsync(async (req, res) => {
     },
   ]);
 
-  res.status(200).json({ success: true, data: { plan } });
+  res.status(httpStatus.OK).json({ success: true, data: { plan } });
 });
 
 module.exports = {

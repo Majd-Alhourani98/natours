@@ -6,7 +6,10 @@ const morgan = require('morgan');
 const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
 const authRouter = require('./routes/auth.routes');
-const AppError = require('./errors/classes/appError');
+
+const httpStatus = require('./constants/httpStatus');
+const { AppError } = require('./errors/classes/appError');
+
 const notFoundHandler = require('./errors/handlers/notFoundHandler');
 const errorHandler = require('./errors/handlers/errorHandler');
 
@@ -20,7 +23,7 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/health', (req, res) => {
-  res.status(200).json({
+  res.status(httpStatus.OK).json({
     success: true,
     startedAt: new Date(Date.now() - process.uptime() * 1000).toLocaleString(),
     message: 'OK',

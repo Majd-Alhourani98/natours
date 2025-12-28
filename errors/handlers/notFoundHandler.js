@@ -1,7 +1,7 @@
-const AppError = require('../classes/appError');
+const { NotFoundError } = require('../classes/appError');
 
-const notFoundHandler = (req, res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
+function notFoundHandler(req, res, next) {
+  next(new NotFoundError(`Can't find ${req.originalUrl} on this server`));
 };
 
 module.exports = notFoundHandler;
