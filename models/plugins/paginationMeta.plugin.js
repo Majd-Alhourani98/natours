@@ -7,7 +7,7 @@ function paginationMeta(schema) {
     const totalPages = Math.ceil(totalDocs / limit) || 1;
 
     return {
-      totalDocs,
+      // totalDocs,
       page,
       limit,
       totalPages,

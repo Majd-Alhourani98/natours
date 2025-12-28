@@ -1,7 +1,4 @@
-const httpStatus = require('../constants/httpStatus');
-const responseStatus = require('../constants/responseStatus');
 const catchAsync = require('../errors/handlers/catchAsyncHandler');
-const User = require('../models/user.model');
 
 const signup = catchAsync(async (req, res) => {
   const { name, email, password, passwordConfirm } = req.body;

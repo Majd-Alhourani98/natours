@@ -1,6 +1,5 @@
-const { AppError, BadRequestError, ConflictError, ValidationError } = require('../classes/appError');
+const { BadRequestError, ConflictError, ValidationError } = require('../classes/customClasses');
 const httpStatus = require('../../constants/httpStatus');
-
 
 const handleCastErrorDB = (err) => {
   return new BadRequestError(`Invalid ${err.path}: ${err.value}.`);
