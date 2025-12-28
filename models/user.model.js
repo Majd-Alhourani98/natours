@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide a password'],
       minlength: [8, 'Password must be at least 8 characters'],
+      select: false,
     },
 
     passwordConfirm: {
@@ -41,6 +42,22 @@ const userSchema = new mongoose.Schema(
     timestamp: true,
   }
 );
+
+userSchema.set('toJSON', {
+  transform: function (doc, ret) {
+    delete ret.password;
+    delete ret.passwordConfirm;
+    delete ret.emailVerificationToken;
+    delete ret.emailVerificationTokenExpires;
+    delete ret.passwordResetToken;
+    delete ret.passwordResetExpires;
+    delete ret.emailVerificationOTP;
+    delete ret.emailVerificationOTPExpires;
+    delete ret.__v;
+    delete ret.createdAt;
+    delete ret.updatedAt;
+  },
+});
 
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
