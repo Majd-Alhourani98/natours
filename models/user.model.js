@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const argon2 = require('argon2');
+const { nanoid, customAlphabet } = require('nanoid');
 
 const userSchema = new mongoose.Schema(
   {
@@ -11,6 +12,7 @@ const userSchema = new mongoose.Schema(
       maxlength: [50, 'Name must be less than 50 characters'],
     },
 
+    username: { type: String, trim: true, unique: true, index: true },
     email: {
       type: String,
       required: [true, 'Please provide your email'],
@@ -64,6 +66,19 @@ userSchema.pre('save', async function () {
 
   this.password = await argon2.hash(this.password);
   this.passwordConfirm = undefined;
+});
+
+const nanoidLetters = customAlphabet('abcdefghijklmnopqrstuvwxyz1234567890', 5);
+userSchema.pre('save', async function () {
+  if (!this.username) {
+    const base = this.name.replace(/\s+/g, '-').toLowerCase();
+    let username = base;
+    while (await User.findOne({ username }).lean()) {
+      username = `${base}_${nanoidLetters()}`.toLowerCase();
+    }
+
+    this.username = username;
+  }
 });
 
 const User = mongoose.model('User', userSchema);
