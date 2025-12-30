@@ -39,6 +39,15 @@ const userSchema = new mongoose.Schema(
         message: 'Passwords do not match',
       },
     },
+
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationToken: String,
+    emailVerificationTokenExpires: Date,
+    emailVerificationOTP: String,
+    emailVerificationOTPExpires: Date,
   },
   {
     timestamp: true,
