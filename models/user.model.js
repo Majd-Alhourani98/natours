@@ -1,6 +1,9 @@
+const crypto = require('crypto');
+
 const mongoose = require('mongoose');
 const argon2 = require('argon2');
 const { nanoid, customAlphabet } = require('nanoid');
+const getExpiryTimestamp = require('../utils/getExpiryTimestamp');
 
 const userSchema = new mongoose.Schema(
   {
@@ -90,6 +93,27 @@ userSchema.pre('save', async function () {
   }
 });
 
+userSchema.methods.generateToken = function (length = 32, expiryDurationsMs = 10 * 60 * 1000) {
+  const token = crypto.randomBytes(length).toString('hex');
+  this.emailVerificationToken = crypto.createHash('sha256').update(token).digest('hex');
+  this.emailVerificationTokenExpires = getExpiryTimestamp(expiryDurationsMs);
+
+  return token;
+};
+
+userSchema.methods.generateToken = function (length = 6, expiryDurationsMs = 10 * 60 * 1000) {
+  let otp = '';
+  for (let i = 0; i < length; i++) {
+    otp += crypto.randomInt(0, 10);
+  }
+
+  this.emailVerificationOTP = crypto.createHash('sha256').update(otp).digest('hex');
+  this.emailVerificationOTPExpires = getExpiryTimestamp(expiryDurationsMs);
+
+  return otp;
+};
+
+userSchema.methods.generateOTP = function () {};
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
