@@ -101,7 +101,7 @@ userSchema.methods.generateToken = function (length = 32, expiryDurationsMs = 10
   return token;
 };
 
-userSchema.methods.generateToken = function (length = 6, expiryDurationsMs = 10 * 60 * 1000) {
+userSchema.methods.generateOTP = function (length = 6, expiryDurationsMs = 10 * 60 * 1000) {
   let otp = '';
   for (let i = 0; i < length; i++) {
     otp += crypto.randomInt(0, 10);
@@ -113,7 +113,6 @@ userSchema.methods.generateToken = function (length = 6, expiryDurationsMs = 10 
   return otp;
 };
 
-userSchema.methods.generateOTP = function () {};
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;

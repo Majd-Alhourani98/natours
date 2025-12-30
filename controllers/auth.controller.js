@@ -2,12 +2,11 @@ const User = require('../models/user.model');
 const httpStatus = require('../constants/httpStatus');
 const responseStatus = require('../constants/responseStatus');
 const catchAsync = require('../errors/handlers/catchAsyncHandler');
-const { generateToken, generateOTP } = require('../utils/crypto');
 
 const signup = catchAsync(async (req, res) => {
   const { name, email, password, passwordConfirm } = req.body;
 
-  const user = await User.create({
+  const user = new User({
     name,
     email,
     password,
@@ -17,7 +16,8 @@ const signup = catchAsync(async (req, res) => {
 
   const token = user.generateToken();
   const otp = user.generateOTP();
-  user.save({ validateBeforeSave: false });
+
+  user.save();
 
   res.status(httpStatus.CREATED).json({
     status: responseStatus.SUCCESS,
