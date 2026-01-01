@@ -49,6 +49,20 @@ app.post("/api/v1/tours", (req, res) => {
   });
 });
 
+// PATCH /api/v1/tours/:id → update tour
+app.patch("/api/v1/tours/:id", (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+
+  res.status(200).json({
+    status: "success",
+    message: "Tour updated successfully",
+    data: {
+      tour: data, // In a real app, this would be the merged updated tour
+    },
+  });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`\n${"━".repeat(20)} 🔥 SERVER ${"━".repeat(20)}`);
