@@ -13,18 +13,16 @@ app.get("/health", (req, res) => {
   });
 });
 
-// GET /api/v1/tours → returns all tours
-app.get("/api/v1/tours", (req, res) => {
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: "success",
     results: "<number_of_tours>",
     message: "Tours retrieved successfully",
     data: { tours: "<list_of_tours>" },
   });
-});
+};
 
-// GET /api/v1/tours/:id → returns a specific tour
-app.get("/api/v1/tours/:id", (req, res) => {
+const getTour = (req, res) => {
   const { id } = req.params;
 
   res.status(200).json({
@@ -34,10 +32,9 @@ app.get("/api/v1/tours/:id", (req, res) => {
       tour: `<tour_with_${id}>`,
     },
   });
-});
+};
 
-// POST /api/v1/tours → creates a new tour
-app.post("/api/v1/tours", (req, res) => {
+const createTour = (req, res) => {
   const tour = req.body;
 
   res.status(201).json({
@@ -47,10 +44,9 @@ app.post("/api/v1/tours", (req, res) => {
       tour: tour,
     },
   });
-});
+};
 
-// PATCH /api/v1/tours/:id → update tour
-app.patch("/api/v1/tours/:id", (req, res) => {
+const updateTour = (req, res) => {
   const { id } = req.params;
   const data = req.body;
 
@@ -61,14 +57,28 @@ app.patch("/api/v1/tours/:id", (req, res) => {
       tour: data, // In a real app, this would be the merged updated tour
     },
   });
-});
+};
 
-// DELETE /api/v1/tours/:id → delete tour
-app.delete("/api/v1/tours/:id", (req, res) => {
+const deleteTour = (req, res) => {
   const { id } = req.params;
 
   res.status(204).send();
-});
+};
+
+// GET /api/v1/tours → returns all tours
+app.get("/api/v1/tours", getAllTours);
+
+// GET /api/v1/tours/:id → returns a specific tour
+app.get("/api/v1/tours/:id", getTour);
+
+// POST /api/v1/tours → creates a new tour
+app.post("/api/v1/tours", createTour);
+
+// PATCH /api/v1/tours/:id → update tour
+app.patch("/api/v1/tours/:id", updateTour);
+
+// DELETE /api/v1/tours/:id → delete tour
+app.delete("/api/v1/tours/:id", deleteTour);
 
 const PORT = 3000;
 app.listen(PORT, () => {
