@@ -1,17 +1,17 @@
-// 1. Import Express
+// app.js
+
 const express = require('express');
+const morgan = require('morgan');
 
 // 2. Create an Express app
 const app = express();
 
 app.use(express.json());
 
+app.use(morgan('dev'));
+
 app.use((req, res, next) => {
-  // new Date() → exact moment (UTC internally)
-  // Logging → shows local time (your computer timezone)
-  // .toISOString() → shows UTC, universal for everyone
   req.requestTime = new Date().toISOString();
-  console.log(req.requestTime);
   next();
 });
 
