@@ -2,11 +2,26 @@ const express = require('express');
 
 const app = express();
 
+app.use(express.json());
+
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'success',
     startedAt: new Date(Date.now() - process.uptime() * 1000).toLocaleString(),
-    message: 'API is healthy and running smoothly 🚀',
+    message: 'API is healthy and running smoothly',
+  });
+});
+
+// GET request to retrieve all tours
+app.get('/api/v1/tours', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    results: 'number of tours',
+    requestedAt: new Date().toISOString(),
+    message: 'Tours retrieved successfully',
+    data: {
+      tours: 'list of tours',
+    },
   });
 });
 
