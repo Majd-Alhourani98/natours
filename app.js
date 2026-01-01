@@ -18,7 +18,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.get('/api/v1/tours', (req, res) => {
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
     results: '<number_of_tours_placeholder>',
@@ -27,9 +27,9 @@ app.get('/api/v1/tours', (req, res) => {
       tours: '<tours_list_placeholder>',
     },
   });
-});
+};
 
-app.post('/api/v1/tours', (req, res) => {
+const createTour = (req, res) => {
   const payload = req.body;
 
   // Placeholder for creation logic (DB, validation, etc.)
@@ -42,9 +42,9 @@ app.post('/api/v1/tours', (req, res) => {
       tour: '<created_tour_placeholder>',
     },
   });
-});
+};
 
-app.get('/api/v1/tours/:id', (req, res) => {
+const getTour = (req, res) => {
   const { id } = req.params;
 
   res.status(200).json({
@@ -54,9 +54,9 @@ app.get('/api/v1/tours/:id', (req, res) => {
       tour: '<tour_placeholder>',
     },
   });
-});
+};
 
-app.patch('/api/v1/tours/:id', (req, res) => {
+const updateTour = (req, res) => {
   const { id } = req.params;
 
   res.status(200).json({
@@ -66,19 +66,19 @@ app.patch('/api/v1/tours/:id', (req, res) => {
       tour: '<updated_tour_placeholder>',
     },
   });
-});
+};
 
-app.delete('/api/v1/tours/:id', (req, res) => {
+const deleteTour = (req, res) => {
   const { id } = req.params;
 
-  res.status(200).json({
-    status: 'success',
-    message: `Tour with id "${id}" deleted successfully.`,
-    data: {
-      tour: '<deleted_tour_placeholder>',
-    },
-  });
-});
+  res.status(204).json();
+};
+
+app.get('/api/v1/tours', getAllTours);
+app.post('/api/v1/tours', createTour);
+app.get('/api/v1/tours/:id', getTour);
+app.patch('/api/v1/tours/:id', updateTour);
+app.delete('/api/v1/tours/:id', deleteTour);
 
 // 4. Start the server
 app.listen(PORT, () => {
