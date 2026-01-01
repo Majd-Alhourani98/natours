@@ -45,6 +45,20 @@ app.get('/api/v1/tours/:id', (req, res) => {
   });
 });
 
+app.patch('/api/v1/tours/:id', (req, res) => {
+  const { id } = req.params;
+  const { body: data } = req;
+
+  console.log(id);
+  console.log(data);
+
+  return res.status(200).json({
+    status: 'success',
+    message: 'Tour updated successfully',
+    data: { tour: '<tour>' },
+  });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`\n${'━'.repeat(15)} 🖥️  SERVER ${'━'.repeat(15)}`);
