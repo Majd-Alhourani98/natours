@@ -6,6 +6,15 @@ const app = express();
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+  // new Date() → exact moment (UTC internally)
+  // Logging → shows local time (your computer timezone)
+  // .toISOString() → shows UTC, universal for everyone
+  req.requestTime = new Date().toISOString();
+  console.log(req.requestTime);
+  next();
+});
+
 // 3. Define the port
 const PORT = 3000;
 
