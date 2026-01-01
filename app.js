@@ -16,6 +16,17 @@ app.get('/health', (req, res) => {
   });
 });
 
+app.get('/api/v1/tours', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    results: '<number_of_tours_placeholder>',
+    message: 'Tours retrieved successfully.',
+    data: {
+      tours: '<tours_list_placeholder>',
+    },
+  });
+});
+
 // 4. Start the server
 app.listen(PORT, () => {
   console.log(`\n${'━'.repeat(15)} 🔥 SERVER ${'━'.repeat(15)}`);
