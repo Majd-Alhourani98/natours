@@ -24,7 +24,6 @@ app.get("/api/v1/tours", (req, res) => {
 });
 
 // GET /api/v1/tours/:id → returns a specific tour
-// GET /api/v1/tours/:id → returns a specific tour
 app.get("/api/v1/tours/:id", (req, res) => {
   const { id } = req.params;
 
@@ -32,10 +31,24 @@ app.get("/api/v1/tours/:id", (req, res) => {
     status: "success",
     message: "Tour retrieved successfully",
     data: {
-      tour: `<tour_with_${id}>`, // Changed key to singular 'tour'
+      tour: `<tour_with_${id}>`,
     },
   });
 });
+
+// POST /api/v1/tours → creates a new tour
+app.post("/api/v1/tours", (req, res) => {
+  const tour = req.body;
+
+  res.status(201).json({
+    status: "success",
+    message: "Tour created successfully",
+    data: {
+      tour: tour,
+    },
+  });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`\n${"━".repeat(20)} 🔥 SERVER ${"━".repeat(20)}`);
