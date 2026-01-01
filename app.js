@@ -44,6 +44,18 @@ app.post('/api/v1/tours', (req, res) => {
   });
 });
 
+app.get('/api/v1/tours/:id', (req, res) => {
+  const { id } = req.params;
+
+  res.status(200).json({
+    status: 'success',
+    message: `Tour with id "${id}" retrieved successfully.`,
+    data: {
+      tour: '<tour_placeholder>',
+    },
+  });
+});
+
 // 4. Start the server
 app.listen(PORT, () => {
   console.log(`\n${'━'.repeat(15)} 🔥 SERVER ${'━'.repeat(15)}`);
