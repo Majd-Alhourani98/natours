@@ -10,6 +10,15 @@ app.get('/health', (req, res) => {
   });
 });
 
+app.get('/api/v1/tours', (req, res) => {
+  return res.status(200).json({
+    status: 'success',
+    result: '<number_of_tours>',
+    message: 'Tours retrieved successfully',
+    data: { tours: '<list_of_tours>' },
+  });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`\n${'━'.repeat(15)} 🖥️  SERVER ${'━'.repeat(15)}`);
