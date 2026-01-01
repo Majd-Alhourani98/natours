@@ -4,6 +4,8 @@ const express = require('express');
 // 2. Create an Express app
 const app = express();
 
+app.use(express.json());
+
 // 3. Define the port
 const PORT = 3000;
 
@@ -23,6 +25,21 @@ app.get('/api/v1/tours', (req, res) => {
     message: 'Tours retrieved successfully.',
     data: {
       tours: '<tours_list_placeholder>',
+    },
+  });
+});
+
+app.post('/api/v1/tours', (req, res) => {
+  const payload = req.body;
+
+  // Placeholder for creation logic (DB, validation, etc.)
+  const createdTour = payload;
+
+  res.status(201).json({
+    status: 'success',
+    message: 'Tour created successfully.',
+    data: {
+      tour: '<created_tour_placeholder>',
     },
   });
 });
