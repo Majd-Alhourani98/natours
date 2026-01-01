@@ -58,6 +58,23 @@ app.get('/api/v1/tours/:id', (req, res) => {
   });
 });
 
+// PATCH request to update a single tour by ID
+app.patch('/api/v1/tours/:id', (req, res) => {
+  const id = req.params.id;
+  const updates = req.body;
+
+  console.log(`Updating tour ${id} with:`, updates);
+
+  res.status(200).json({
+    status: 'success',
+    requestedAt: new Date().toISOString(),
+    message: `Tour ${id} updated successfully`,
+    data: {
+      tour: 'updated tour details',
+    },
+  });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`\n${'━'.repeat(15)} 🔥 SERVER ${'━'.repeat(15)}`);
