@@ -41,6 +41,23 @@ app.post('/api/v1/tours', (req, res) => {
   });
 });
 
+// GET request to retrieve a single tour by ID
+app.get('/api/v1/tours/:id', (req, res) => {
+  // Access the ID from the URL parameters
+  const id = req.params.id;
+
+  console.log(`Searching for tour with ID: ${id}`);
+
+  res.status(200).json({
+    status: 'success',
+    requestedAt: new Date().toISOString(),
+    message: `Tour ${id} retrieved successfully!`,
+    data: {
+      tour: `Details for tour ${id}`,
+    },
+  });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`\n${'━'.repeat(15)} 🔥 SERVER ${'━'.repeat(15)}`);
