@@ -23,6 +23,19 @@ app.get("/api/v1/tours", (req, res) => {
   });
 });
 
+// GET /api/v1/tours/:id → returns a specific tour
+// GET /api/v1/tours/:id → returns a specific tour
+app.get("/api/v1/tours/:id", (req, res) => {
+  const { id } = req.params;
+
+  res.status(200).json({
+    status: "success",
+    message: "Tour retrieved successfully",
+    data: {
+      tour: `<tour_with_${id}>`, // Changed key to singular 'tour'
+    },
+  });
+});
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`\n${"━".repeat(20)} 🔥 SERVER ${"━".repeat(20)}`);
