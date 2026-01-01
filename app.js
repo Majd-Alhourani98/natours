@@ -25,6 +25,22 @@ app.get('/api/v1/tours', (req, res) => {
   });
 });
 
+// POST request to create a new tour
+app.post('/api/v1/tours', (req, res) => {
+  const data = req.body;
+
+  console.log('New Tour Data Received:', data);
+
+  res.status(201).json({
+    status: 'success',
+    requestedAt: new Date().toISOString(),
+    message: 'Tour created successfully!',
+    data: {
+      tour: data,
+    },
+  });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`\n${'━'.repeat(15)} 🔥 SERVER ${'━'.repeat(15)}`);
