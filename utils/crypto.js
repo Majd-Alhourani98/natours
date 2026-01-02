@@ -11,12 +11,13 @@ const generateToken = (length = 32, expiryDurationsMs = 10 * 60 * 1000) => {
 };
 
 const generateOTP = (length = 6, expiryDurationsMs = 10 * 60 * 1000) => {
-  let otp = '';
+  // let otp = '';
 
-  for (let i = 0; i < length; i++) {
-    otp += crypto.randomInt(0, 10);
-  }
+  // for (let i = 0; i < length; i++) {
+  //   otp += crypto.randomInt(0, 10);
+  // }
 
+  const otp = crypto.randomInt(0, 1000000).toString().padStart(6, '0');
   const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
   const otpExpires = getExpiryTimestamp(expiryDurationsMs);
 
