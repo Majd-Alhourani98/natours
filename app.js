@@ -97,6 +97,21 @@ const getAllUsers = (req, res) => {
   });
 };
 
+const createUser = (req, res) => {
+  const userData = req.body;
+
+  console.log('Registering new user:', userData);
+
+  res.status(201).json({
+    status: 'success',
+    requestedAt: new Date().toISOString(),
+    message: 'User created successfully',
+    data: {
+      user: userData,
+    },
+  });
+};
+
 app.get('/api/v1/tours', getAllTours);
 app.post('/api/v1/tours', createTour);
 app.get('/api/v1/tours/:id', getTour);
@@ -104,6 +119,7 @@ app.patch('/api/v1/tours/:id', updateTour);
 app.delete('/api/v1/tours/:id', deleteTour);
 
 app.get('/api/v1/users', getAllUsers);
+app.post('/api/v1/users', createUser);
 
 const PORT = 3000;
 app.listen(PORT, () => {
