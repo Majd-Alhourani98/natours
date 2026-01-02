@@ -133,11 +133,17 @@ const updateUser = (req, res) => {
   });
 };
 
+const deleteUser = (req, res) => {
+  const { id } = req.params;
+
+  res.status(204).json();
+};
+
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
 app.route('/api/v1/users').get(getAllUsers).post(createUser);
-app.route('/api/v1/users/:id').get(getUser).patch(updateUser);
+app.route('/api/v1/users/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
 // 4. Start the server
 app.listen(PORT, () => {
