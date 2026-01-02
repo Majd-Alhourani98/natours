@@ -77,6 +77,13 @@ const updateUser = (req, res) => {
   });
 };
 
+const deleteUser = (req, res) => {
+  res.status(500).json({
+    status: "error",
+    message: "delete user: This route is not yet defined",
+  });
+};
+
 const updateTour = (req, res) => {
   const { id } = req.params;
   const data = req.body;
@@ -105,7 +112,12 @@ app
   .delete(deleteTour);
 
 app.route("/api/v1/users").get(getAllUsers).post(createUser);
-app.route("/api/v1/users/:id").get(getUser).patch(updateUser);
+
+app
+  .route("/api/v1/users/:id")
+  .get(getUser)
+  .patch(updateUser)
+  .delete(deleteUser);
 
 const PORT = 3000;
 app.listen(PORT, () => {
