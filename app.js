@@ -3,6 +3,10 @@
 const express = require('express');
 const morgan = require('morgan');
 
+// Routers
+const tourRouter = require('./routes/tour.routes');
+const userRouter = require('./routes/user.routes');
+
 // 2. Create an Express app
 const app = express();
 
