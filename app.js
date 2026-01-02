@@ -27,13 +27,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-const userRouter = express.Router();
-
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
-
-userRouter.route('/').get(getAllUsers).post(createUser);
-userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
 // 4. Start the server
 app.listen(PORT, () => {
