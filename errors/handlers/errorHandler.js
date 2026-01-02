@@ -23,6 +23,7 @@ const sendErrorDev = (err, res) => {
   return res.status(err.statusCode).json({
     status: err.status,
     message: err.message,
+    code: err.code,
     stack: err.stack,
     error: err,
   });
@@ -33,6 +34,7 @@ const sendErrorProd = (err, res) => {
     return res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
+      code: err.code,
     });
   } else {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
