@@ -1,4 +1,24 @@
 const transporter = require('../config/transporter');
+const sleep = require('../utils/sleep');
+
+const isRetryable = (error) => error.code === 'ETIMEDOUT' || error.code === 'ECONNECTION' || error.responseCode >= 500;
+
+const sendEmailWithRetry = async (options, retries = 3, delay = 2000) => {
+  for (let attempts = 1; attempts <= 3; attempts++) {
+    try {
+      await sendEmail(options);
+      return;
+    } catch (error) {
+      console.error(`Attempt ${attempts} failed`, error.message);
+
+      if (!isRetryable(error) || attempts === retries) {
+        throw error; // preserve original error
+      }
+
+      await sleep(delay * attempts);
+    }
+  }
+};
 
 const sendEmail = async ({ to, subject, text, html }) => {
   await transporter.sendMail({
@@ -11,7 +31,7 @@ const sendEmail = async ({ to, subject, text, html }) => {
 };
 
 const sendVerificationEmail = async ({ email, verifyMethod, token, otp }) => {
-  await sendEmail({
+  await sendEmailWithRetry({
     to: email,
     subject: 'Verify your email',
     text:

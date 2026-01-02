@@ -2,7 +2,7 @@ const User = require('../models/user.model');
 const httpStatus = require('../constants/httpStatus');
 const responseStatus = require('../constants/responseStatus');
 const catchAsync = require('../errors/handlers/catchAsyncHandler');
-const { ValidationError, ConflictError, ServiceUnavailableError } = require('../errors/classes/customClasses');
+const { ValidationError, ConflictError } = require('../errors/classes/customClasses');
 const { sendVerificationEmail } = require('../services/email.service');
 
 const signup = catchAsync(async (req, res, next) => {
@@ -24,28 +24,24 @@ const signup = catchAsync(async (req, res, next) => {
     token = user.createEmailVerificationToken();
   }
 
+  await user.save();
+
   try {
     await sendVerificationEmail({ email: user.email, verifyMethod, otp, token });
-    await user.save();
-
-    res.status(httpStatus.CREATED).json({
-      status: responseStatus.SUCCESS,
-      message:
-        verifyMethod === 'otp'
-          ? 'Signup successful! An OTP has been sent to your email.'
-          : 'Signup successful! A verification link has been sent to your email.',
-
-      data: { user },
-      token,
-      otp,
-    });
   } catch (error) {
-    next(
-      new ServiceUnavailableError(
-        "We couldn't send the verification email right now. Please try again in a few minutes."
-      )
-    );
+    user.rollbackEmailVerification();
+    await user.save({ validateBeforeSave: false });
   }
+
+  res.status(httpStatus.CREATED).json({
+    status: responseStatus.SUCCESS,
+    message:
+      verifyMethod === 'otp'
+        ? 'Signup successful! An OTP has been sent to your email.'
+        : 'Signup successful! A verification link has been sent to your email.',
+
+    data: { user },
+  });
 });
 
 module.exports = { signup };
