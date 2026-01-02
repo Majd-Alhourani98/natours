@@ -56,8 +56,25 @@ const resendVerification = catchAsync(async (req, res, next) => {
       message: 'Email is already verified.',
     });
 
-  user.rollbackEmailVerification();
-  await user.save({ validateBeforeSave: false });
+  const now = Date.now();
+  const RESEND_DELAY_MS = 30 * 1000;
+  if (user.lastVerificationEmailSentAt && now - user.lastVerificationEmailSentAt.getTime() < RESEND_DELAY_MS) {
+    const remainingSeconds = Math.ceil((RESEND_DELAY_MS - (now - user.lastVerificationEmailSentAt.getTime())) / 1000);
+    return res.status(httpStatus.TOO_MANY_REQUESTS).json({
+      status: responseStatus.ERROR,
+      message: `Please wait ${remainingSeconds} seconds before requesting another verification email.`,
+    });
+  }
+
+  if (
+    user.emailVerificationOTP ||
+    user.emailVerificationOTPExpires ||
+    user.emailVerificationToken ||
+    user.emailVerificationTokenExpires
+  ) {
+    user.rollbackEmailVerification();
+    await user.save({ validateBeforeSave: false });
+  }
 
   let otp, token;
   if (verifyMethod === 'otp') {
@@ -66,6 +83,7 @@ const resendVerification = catchAsync(async (req, res, next) => {
     token = user.createEmailVerificationToken();
   }
 
+  user.lastVerificationEmailSentAt = Date.now();
   await user.save({ validateBeforeSave: false });
 
   try {

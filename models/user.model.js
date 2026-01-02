@@ -50,6 +50,7 @@ const userSchema = new mongoose.Schema(
     emailVerificationTokenExpires: Date,
     emailVerificationOTP: String,
     emailVerificationOTPExpires: Date,
+    lastVerificationEmailSentAt: Date,
   },
   {
     timestamp: true,
