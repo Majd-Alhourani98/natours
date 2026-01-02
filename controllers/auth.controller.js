@@ -34,11 +34,7 @@ const signup = catchAsync(async (req, res, next) => {
           : `Click this link to verify your email: ${process.env.FRONTEND_URL}api/v1/verify-email?token=${token}&email=${user.email} `,
     });
   } catch (error) {
-    user.emailVerificationToken = undefined;
-    user.emailVerificationTokenExpires = undefined;
-    user.emailVerificationOTP = undefined;
-    user.emailVerificationOTPExpires = undefined;
-
+    user.rollbackEmailVerification();
     await user.save({ validateBeforeSave: false });
   }
 

@@ -110,6 +110,13 @@ userSchema.methods.createEmailVerificationOTP = function (length = 6, expiryDura
   return otp;
 };
 
+userSchema.methods.rollbackEmailVerification = function () {
+  this.emailVerificationOTP = undefined;
+  this.emailVerificationOTPExpires = undefined;
+  this.emailVerificationToken = undefined;
+  this.emailVerificationTokenExpires = undefined;
+};
+
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
