@@ -109,10 +109,23 @@ const createUser = (req, res) => {
   });
 };
 
+const getUser = (req, res) => {
+  const { id } = req.params;
+
+  res.status(200).json({
+    status: 'success',
+    message: `User with id "${id}" retrieved successfully.`,
+    data: {
+      user: '<user_placeholder>',
+    },
+  });
+};
+
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
 app.route('/api/v1/users').get(getAllUsers).post(createUser);
+app.route('/api/v1/users/:id').get(getUser);
 
 // 4. Start the server
 app.listen(PORT, () => {
