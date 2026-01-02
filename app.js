@@ -83,8 +83,21 @@ const deleteTour = (req, res) => {
   res.status(204).json();
 };
 
+const getAllUsers = (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    results: '<number_of_users_placeholder>',
+    message: 'Users retrieved successfully.',
+    data: {
+      users: '<users_list_placeholder>',
+    },
+  });
+};
+
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
+
+app.route('/api/v1/users').get(getAllUsers);
 
 // 4. Start the server
 app.listen(PORT, () => {
