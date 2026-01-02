@@ -94,10 +94,25 @@ const getAllUsers = (req, res) => {
   });
 };
 
+const createUser = (req, res) => {
+  const payload = req.body;
+
+  // Placeholder for creation logic (DB, validation, etc.)
+  const createdUser = payload;
+
+  res.status(201).json({
+    status: 'success',
+    message: 'User created successfully.',
+    data: {
+      user: '<created_user_placeholder>',
+    },
+  });
+};
+
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
-app.route('/api/v1/users').get(getAllUsers);
+app.route('/api/v1/users').get(getAllUsers).post(createUser);
 
 // 4. Start the server
 app.listen(PORT, () => {
