@@ -2,7 +2,7 @@ const User = require('../models/user.model');
 const httpStatus = require('../constants/httpStatus');
 const responseStatus = require('../constants/responseStatus');
 const catchAsync = require('../errors/handlers/catchAsyncHandler');
-const { ValidationError } = require('../errors/classes/customClasses');
+const { ValidationError, ConflictError } = require('../errors/classes/customClasses');
 const { sendVerificationEmail } = require('../services/email.service');
 
 const signup = catchAsync(async (req, res, next) => {
@@ -11,6 +11,9 @@ const signup = catchAsync(async (req, res, next) => {
   if (verifyMethod !== 'otp' && verifyMethod !== 'link') {
     return next(new ValidationError('verifyMethod must be either `link` or `otp`'));
   }
+
+  const isExistingUser = await User.findOne({ email });
+  if (isExistingUser) return next(new ConflictError('Email already is use'));
 
   const user = new User({ name, email, password, passwordConfirm, isEmailVerified: false });
 

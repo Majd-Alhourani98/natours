@@ -11,7 +11,6 @@ const sendEmail = async ({ to, subject, text, html }) => {
 };
 
 const sendVerificationEmail = async ({ email, verifyMethod, token, otp }) => {
-  console.log(email, verifyMethod, otp, token);
   await sendEmail({
     to: email,
     subject: 'Verify your email',
