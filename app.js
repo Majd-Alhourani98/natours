@@ -71,11 +71,22 @@ const deleteTour = (req, res) => {
   });
 };
 
+const getAllUsers = (req, res) => {
+  return res.status(200).json({
+    status: 'success',
+    result: '<number_of_users>',
+    message: 'Users retrieved successfully',
+    data: { users: '<list_of_users>' },
+  });
+};
+
 app.get('/api/v1/tours', getAllTours);
 app.post('/api/v1/tours', createTour);
 app.get('/api/v1/tours/:id', getTour);
 app.patch('/api/v1/tours/:id', updateTour);
 app.delete('/api/v1/tours/:id', deleteTour);
+
+app.get('/api/v1/users', getAllUsers);
 
 const PORT = 3000;
 app.listen(PORT, () => {
