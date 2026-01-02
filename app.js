@@ -118,6 +118,18 @@ const updateUser = (req, res) => {
   });
 };
 
+const deleteUser = (req, res) => {
+  const { id } = req.params;
+
+  console.log(id);
+
+  return res.status(204).json({
+    status: 'success',
+    message: 'User deleted successfully',
+    data: null,
+  });
+};
+
 app.get('/api/v1/tours', getAllTours);
 app.post('/api/v1/tours', createTour);
 app.get('/api/v1/tours/:id', getTour);
@@ -128,6 +140,7 @@ app.get('/api/v1/users', getAllUsers);
 app.post('/api/v1/users', createUser);
 app.get('/api/v1/users/:id', getUser);
 app.patch('/api/v1/users/:id', updateUser);
+app.delete('/api/v1/users/:id', deleteUser);
 
 const PORT = 3000;
 app.listen(PORT, () => {
