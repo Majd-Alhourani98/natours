@@ -63,6 +63,13 @@ const getUser = (req, res) => {
   });
 };
 
+const createUser = (req, res) => {
+  res.status(500).json({
+    status: "error",
+    message: "create user: This route is not yet defined",
+  });
+};
+
 const updateTour = (req, res) => {
   const { id } = req.params;
   const data = req.body;
@@ -90,7 +97,7 @@ app
   .patch(updateTour)
   .delete(deleteTour);
 
-app.route("/api/v1/users").get(getAllUsers);
+app.route("/api/v1/users").get(getAllUsers).post(createUser);
 app.route("/api/v1/users/:id").get(getUser);
 
 const PORT = 3000;
