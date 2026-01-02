@@ -154,17 +154,11 @@ const deleteUser = (req, res) => {
   });
 };
 
-app.get('/api/v1/tours', getAllTours);
-app.post('/api/v1/tours', createTour);
-app.get('/api/v1/tours/:id', getTour);
-app.patch('/api/v1/tours/:id', updateTour);
-app.delete('/api/v1/tours/:id', deleteTour);
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
-app.get('/api/v1/users', getAllUsers);
-app.post('/api/v1/users', createUser);
-app.get('/api/v1/users/:id', getUser);
-app.patch('/api/v1/users/:id', updateUser);
-app.delete('/api/v1/users/:id', deleteUser);
+app.route('/api/v1/users').get(getAllUsers).post(createUser);
+app.route('/api/v1/users/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
 const PORT = 3000;
 app.listen(PORT, () => {
