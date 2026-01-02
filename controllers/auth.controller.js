@@ -3,7 +3,7 @@ const httpStatus = require('../constants/httpStatus');
 const responseStatus = require('../constants/responseStatus');
 const catchAsync = require('../errors/handlers/catchAsyncHandler');
 const { ValidationError } = require('../errors/classes/customClasses');
-const { sendEmail } = require('../services/email.service');
+const { sendVerificationEmail } = require('../services/email.service');
 
 const signup = catchAsync(async (req, res, next) => {
   const { name, email, password, passwordConfirm, verifyMethod = 'otp' } = req.body;
@@ -16,7 +16,6 @@ const signup = catchAsync(async (req, res, next) => {
 
   let otp, token;
   if (verifyMethod === 'otp') {
-    q;
     otp = user.createEmailVerificationOTP();
   } else if (verifyMethod === 'link') {
     token = user.createEmailVerificationToken();
@@ -25,14 +24,7 @@ const signup = catchAsync(async (req, res, next) => {
   await user.save();
 
   try {
-    await sendEmail({
-      to: user.email,
-      subject: 'Verify your email',
-      text:
-        verifyMethod === 'otp'
-          ? `Your OTP from email verification is: ${otp}`
-          : `Click this link to verify your email: ${process.env.FRONTEND_URL}api/v1/verify-email?token=${token}&email=${user.email} `,
-    });
+    await sendVerificationEmail({ email: user.email, verifyMethod, otp, token });
   } catch (error) {
     user.rollbackEmailVerification();
     await user.save({ validateBeforeSave: false });
