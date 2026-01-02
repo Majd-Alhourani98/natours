@@ -112,6 +112,21 @@ const createUser = (req, res) => {
   });
 };
 
+const getUser = (req, res) => {
+  const id = req.params.id;
+
+  console.log(`Fetching profile for user ID: ${id}`);
+
+  res.status(200).json({
+    status: 'success',
+    requestedAt: new Date().toISOString(),
+    message: `User ${id} profile retrieved successfully`,
+    data: {
+      user: `Data for user ${id}`,
+    },
+  });
+};
+
 app.get('/api/v1/tours', getAllTours);
 app.post('/api/v1/tours', createTour);
 app.get('/api/v1/tours/:id', getTour);
@@ -120,6 +135,7 @@ app.delete('/api/v1/tours/:id', deleteTour);
 
 app.get('/api/v1/users', getAllUsers);
 app.post('/api/v1/users', createUser);
+app.get('/api/v1/users/:id', getUser);
 
 const PORT = 3000;
 app.listen(PORT, () => {
