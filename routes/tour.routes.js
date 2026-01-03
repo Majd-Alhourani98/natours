@@ -3,6 +3,12 @@ const express = require('express');
 const tourController = require('../controllers/tour.controller');
 const router = express.Router();
 
+router.param('id', (req, res, next, value) => {
+  console.log(`Tour id: ${value}`);
+
+  next();
+});
+
 router.route('/').get(tourController.getAllTours).post(tourController.createTour);
 router.route('/:id').get(tourController.getTour).patch(tourController.updateTour).delete(tourController.deleteTour);
 
