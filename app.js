@@ -1,6 +1,9 @@
 const express = require("express");
 const morgan = require("morgan");
 
+const tourRouter = require("./routes/tour.routes");
+const userRouter = require("./routes/user.routes");
+
 const app = express();
 
 app.use(morgan("dev"));
@@ -16,106 +19,8 @@ app.get("/health", (req, res) => {
   });
 });
 
-const getAllTours = (req, res) => {
-  res.status(200).json({
-    status: "success",
-    results: "<number_of_tours>",
-    message: "Tours retrieved successfully",
-    data: { tours: "<list_of_tours>" },
-  });
-};
-
-const getTour = (req, res) => {
-  const { id } = req.params;
-
-  res.status(200).json({
-    status: "success",
-    message: "Tour retrieved successfully",
-    data: {
-      tour: `<tour_with_${id}>`,
-    },
-  });
-};
-
-const createTour = (req, res) => {
-  const tour = req.body;
-
-  res.status(201).json({
-    status: "success",
-    message: "Tour created successfully",
-    data: {
-      tour: tour,
-    },
-  });
-};
-
-const getAllUsers = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "Get all users: This route is not yet defined",
-  });
-};
-
-const getUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "Get user: This route is not yet defined",
-  });
-};
-
-const createUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "create user: This route is not yet defined",
-  });
-};
-
-const updateUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "update user: This route is not yet defined",
-  });
-};
-
-const deleteUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "delete user: This route is not yet defined",
-  });
-};
-
-const updateTour = (req, res) => {
-  const { id } = req.params;
-  const data = req.body;
-
-  res.status(200).json({
-    status: "success",
-    message: "Tour updated successfully",
-    data: {
-      tour: data, // In a real app, this would be the merged updated tour
-    },
-  });
-};
-
-const deleteTour = (req, res) => {
-  const { id } = req.params;
-
-  res.status(204).send();
-};
-
-const tourRouter = express.Router();
-const userRouter = express.Router();
-
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
-
-tourRouter.route("/").get(getAllTours).post(createTour);
-
-tourRouter.route("/:id").get(getTour).patch(updateTour).delete(deleteTour);
-
-userRouter.route("/").get(getAllUsers).post(createUser);
-
-userRouter.route("/:id").get(getUser).patch(updateUser).delete(deleteUser);
 
 const PORT = 3000;
 app.listen(PORT, () => {
