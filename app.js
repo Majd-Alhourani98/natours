@@ -18,9 +18,6 @@ const userRouter = express.Router();
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
-userRouter.route('/').get(getAllUsers).post(createUser);
-userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
-
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`\n${'━'.repeat(15)} 🔥 SERVER ${'━'.repeat(15)}`);
