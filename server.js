@@ -1,5 +1,23 @@
 const app = require('./app');
 
+const mongoose = require('mongoose');
+
+const DB_URI = 'mongodb://localhost:27017/natours';
+mongoose
+  .connect(DB_URI)
+  .then(conn => {
+    console.log(
+      `✅ MongoDB connected successfully
+       📦 Database: ${mongoose.connection.name}
+       🌐 Host: ${mongoose.connection.host}
+      `
+    );
+  })
+  .catch(error => {
+    console.error('❌ MongoDB connection failed:', error.message);
+    process.exit(1);
+  });
+
 // 4. Start the server
 const PORT = 3000;
 app.listen(PORT, () => {
