@@ -1,5 +1,8 @@
 const express = require('express');
 
+const tourRouter = require('./routes/tour.routes');
+const userRouter = require('./routes/user.routes');
+
 const app = express();
 
 app.use(express.json());
@@ -12,15 +15,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-const tourRouter = express.Router();
-const userRouter = express.Router();
-
-app.use('/api/v1/tours', userRouter);
-app.use('/api/v1/users', tourRouter);
-
-// Users routes
-userRouter.route('/').get(getAllUsers).post(createUser);
-userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
 
 const PORT = 3000;
 app.listen(PORT, () => {
