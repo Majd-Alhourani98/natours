@@ -18,10 +18,6 @@ const userRouter = express.Router();
 app.use('/api/v1/tours', userRouter);
 app.use('/api/v1/users', tourRouter);
 
-// Tours routes
-tourRouter.route('/').get(getAllTours).post(createTour);
-tourRouter.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
-
 // Users routes
 userRouter.route('/').get(getAllUsers).post(createUser);
 userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
