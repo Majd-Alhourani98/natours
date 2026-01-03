@@ -1,22 +1,5 @@
 const app = require('./app');
-
-const mongoose = require('mongoose');
-
-const DB_URI = 'mongodb://localhost:27017/natours';
-const connectDB = async () => {
-  try {
-    await mongoose.connect(DB_URI);
-    console.log(
-      `✅ MongoDB connected successfully
-       📦 Database: ${mongoose.connection.name}
-       🌐 Host: ${mongoose.connection.host}
-      `
-    );
-  } catch (error) {
-    console.error('❌ MongoDB connection failed:', error.message);
-    process.exit(1);
-  }
-};
+const connectDB = require('./config/database');
 
 connectDB();
 
