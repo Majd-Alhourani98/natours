@@ -1,5 +1,8 @@
 const express = require('express');
 
+const tourRouter = require('./routes/tour.routes');
+const userRouter = require('./routes/user.routes');
+
 const app = express();
 
 app.use(express.json());
@@ -11,9 +14,6 @@ app.get('/health', (req, res) => {
     message: 'API is healthy and running smoothly',
   });
 });
-
-const tourRouter = express.Router();
-const userRouter = express.Router();
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
