@@ -45,6 +45,13 @@ const getTour = async (req, res) => {
 
     const tour = await Tour.findById(id);
 
+    if (!tour) {
+      res.status(404).json({
+        status: 'fail',
+        message: `No tour found with id "${id}".`,
+      });
+    }
+
     res.status(200).json({
       status: 'success',
       message: `Tour retrieved successfully.`,
