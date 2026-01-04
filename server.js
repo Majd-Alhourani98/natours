@@ -7,16 +7,18 @@ const app = require('./app');
 
 const DB_URL = 'mongodb://localhost:27017/natours';
 
-mongoose
-  .connect(DB_URL)
-  .then(conn => {
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(DB_URL);
     console.log('✅ Database connected successfully');
-  })
-  .catch(err => {
+  } catch (error) {
     console.error(`❌ MongoDB connection failed`);
-    console.error(`Error: ${err.message}`);
+    console.error(`Error: ${error.message}`);
     process.exit(1);
-  });
+  }
+};
+
+connectDB();
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
