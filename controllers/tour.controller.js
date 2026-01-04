@@ -3,7 +3,7 @@ const Tour = require('../models/tour.model');
 const getAllTours = async (req, res) => {
   try {
     const tours = await Tour.find();
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       result: tours.length,
       message: 'Tours retrieved successfully.',
@@ -12,7 +12,7 @@ const getAllTours = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       status: 'fail',
       message: error.message,
     });
@@ -24,7 +24,7 @@ const createTour = async (req, res) => {
     const { body: payload } = req;
     const tour = await Tour.create(payload);
 
-    res.status(201).json({
+    return res.status(201).json({
       status: 'success',
       message: 'Tour created successfully.',
       data: {
@@ -32,7 +32,7 @@ const createTour = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       status: 'fail',
       message: error.message,
     });
@@ -46,15 +46,47 @@ const getTour = async (req, res) => {
     const tour = await Tour.findById(id);
 
     if (!tour) {
-      res.status(404).json({
+      return res.status(404).json({
         status: 'fail',
         message: `No tour found with id "${id}".`,
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       message: `Tour retrieved successfully.`,
+      data: {
+        tour: tour,
+      },
+    });
+  } catch (error) {
+    return res.status(400).json({
+      status: 'fail',
+      message: error.message,
+    });
+  }
+};
+
+const updateTour = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { body: payload } = req;
+
+    const tour = await Tour.findByIdAndUpdate(id, payload, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!tour) {
+      return res.status(404).json({
+        status: 'fail',
+        message: `No tour found with id "${id}".`,
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: `Tour updated successfully.`,
       data: {
         tour: tour,
       },
@@ -65,18 +97,6 @@ const getTour = async (req, res) => {
       message: error.message,
     });
   }
-};
-
-const updateTour = (req, res) => {
-  const { id } = req.params;
-
-  res.status(200).json({
-    status: 'success',
-    message: `Tour with id "${id}" updated successfully.`,
-    data: {
-      tour: '<updated_tour_placeholder>',
-    },
-  });
 };
 
 const deleteTour = (req, res) => {
