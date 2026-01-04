@@ -1,21 +1,7 @@
 const mongoose = require("mongoose");
+const connectDB = require("./config/db");
 
 const app = require("./app");
-
-const DB_URI = "mongodb://lsocalhost:27017/natours";
-
-const connectDB = async () => {
-  try {
-    await mongoose.connect(DB_URI);
-    console.log(`\n${"━".repeat(20)} 💾 DATABASE ${"━".repeat(20)}`);
-    console.log(`🟢 STATUS      → Connected`);
-    console.log(`📦 Database:   → ${mongoose.connection.name}`);
-    console.log(`🌐 Host        → ${mongoose.connection.host}`);
-  } catch (error) {
-    console.error("❌ MongoDB connection failed:", error.message);
-    process.exit(1);
-  }
-};
 
 connectDB();
 
