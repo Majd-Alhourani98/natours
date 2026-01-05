@@ -4,7 +4,7 @@ const getAllTours = async (req, res) => {
   try {
     const tours = await Tour.find();
 
-    res.status(201).json({
+    return res.status(201).json({
       status: "success",
       result: tours.length,
       message: "Tours retrieved successfully",
@@ -13,7 +13,7 @@ const getAllTours = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "fail",
       message: error.message,
     });
@@ -25,7 +25,7 @@ const createTour = async (req, res) => {
     const data = req.body;
     const tour = await Tour.create(data);
 
-    res.status(201).json({
+    return res.status(201).json({
       status: "success",
       message: "Tour created successfully",
       data: {
@@ -33,7 +33,7 @@ const createTour = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "fail",
       message: error.message,
     });
@@ -45,13 +45,13 @@ const getTour = async (req, res) => {
     const { id } = req.params;
 
     const tour = await Tour.findById(id);
-    res.status(201).json({
+    return res.status(200).json({
       status: "success",
       message: "Tour retrieved successfully",
       data: { tour },
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "fail",
       message: error.message,
     });
@@ -68,23 +68,31 @@ const updateTour = async (req, res) => {
       runValidators: true,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       status: "success",
       message: "Tour updated successfully",
       data: { tour },
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "fail",
       message: error.message,
     });
   }
 };
 
-const deleteTour = (req, res) => {
-  const { id } = req.params;
+const deleteTour = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Tour.findByIdAndDelete(id);
 
-  res.status(204).send();
+    return res.status(204).send();
+  } catch (error) {
+    return res.status(400).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
 };
 
 module.exports = {
