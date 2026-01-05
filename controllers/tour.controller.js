@@ -10,6 +10,11 @@ const getAllTours = async (req, res) => {
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
     const mongoFilter = JSON.parse(queryStr);
 
+    if (req.query.search) {
+      const searchRegex = new RegExp(req.query.search, 'i'); // 'i' = case-insensitive
+      mongoFilter.$or = [{ name: searchRegex }, { description: searchRegex }, { summary: searchRegex }];
+    }
+
     let query = Tour.find(mongoFilter);
 
     if (req.query.sort) {
