@@ -1,63 +1,100 @@
 const Tour = require('../models/tour.model');
 
-const getAllTours = async (req, res) => {
-  try {
-    const queryObj = { ...req.query };
+// const totalDocs = await Tour.countDocuments(mongoFilter);
+// const totalPages = Math.ceil(totalDocs / limit);
+// const hasNextPage = page < totalPages;
+// const hasPrevPage = page > 1;
+
+// const tours = await query;
+
+class APIFeatures {
+  constructor(query, queryString) {
+    this.query = query;
+    this.queryString = queryString;
+    this.mongoFilter = {};
+  }
+
+  filter() {
+    const queryObj = { ...this.queryString };
     const excludedFields = ['page', 'sort', 'limit', 'fields', 'search'];
     excludedFields.forEach(field => delete queryObj[field]);
 
     let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-    const mongoFilter = JSON.parse(queryStr);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt|in|ne)\b/g, match => `$${match}`);
 
-    if (req.query.search) {
-      const searchTerm = req.query.search;
-      mongoFilter.$text = { $search: searchTerm };
+    this.mongoFilter = JSON.parse(queryStr);
+
+    this.query = this.query.find(this.mongoFilter);
+    return this;
+  }
+
+  search() {
+    if (this.queryString.search) {
+      const searchTerm = this.queryString.search;
+      this.mongoFilter.$text = { $search: searchTerm };
+
+      console.log(this.mongoFilter);
+
+      this.query = this.query.find(this.mongoFilter);
+
+      return this;
     }
+  }
 
-    let query = Tour.find(mongoFilter);
+  sort() {
+    if (this.queryString.sort) {
+      console.log('sort');
+      const sortBy = this.queryString.sort.split(',').join(' ');
+      this.query = this.query.sort(sortBy);
+    } else if (this.queryString.search) {
+      console.log('sort 1');
 
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else if (req.query.search) {
-      query = query.sort({ score: { $meta: 'textScore' } });
+      this.query = this.query.sort({ score: { $meta: 'textScore' } });
     } else {
-      query = query.sort('-createdAt _id');
+      this.query = this.query.sort('-createdAt _id');
     }
 
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
+    return this;
+  }
+
+  limitFields() {
+    if (this.queryString.fields) {
+      const fields = this.queryString.fields.split(',').join(' ');
+      this.query = this.query.select(fields);
     } else {
-      query = query.select('-__v -createdAt -updatedAt');
+      this.query = this.query.select('-__v -createdAt -updatedAt');
     }
 
-    // pagination
-    const page = Math.max(Number(req.query.page) || 1, 1);
-    const limit = Math.min(Number(req.query.limit) || 12, 24); // default 12, max 100
+    return this;
+  }
+
+  paginate() {
+    const page = Math.max(Number(this.queryString.page) || 1, 1);
+    const limit = Math.min(Number(this.queryString.limit) || 12, 24); // default 12, max 100
     const skipBy = (page - 1) * limit;
-    query = query.skip(skipBy).limit(limit);
+    this.query = this.query.skip(skipBy).limit(limit);
 
-    const totalDocs = await Tour.countDocuments(mongoFilter);
-    const totalPages = Math.ceil(totalDocs / limit);
-    const hasNextPage = page < totalPages;
-    const hasPrevPage = page > 1;
+    return this;
+  }
+}
 
+const getAllTours = async (req, res) => {
+  try {
+    const { query } = new APIFeatures(Tour.find(), req.query).filter().search().sort().limitFields().paginate();
     const tours = await query;
 
     return res.status(200).json({
       status: 'success',
       result: tours.length,
       message: 'Tours retrieved successfully.',
-      paginationMetaData: {
-        currentPage: page,
-        totalPages,
-        totalResults: totalDocs,
-        resultsPerPage: limit,
-        hasNextPage,
-        hasPrevPage,
-      },
+      //   paginationMetaData: {
+      //     currentPage: page,
+      //     totalPages,
+      //     totalResults: totalDocs,
+      //     resultsPerPage: limit,
+      //     hasNextPage,
+      //     hasPrevPage,
+      //   },
       data: {
         tours: tours,
       },
