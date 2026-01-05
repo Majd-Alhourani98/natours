@@ -43,8 +43,15 @@ const createTour = async (req, res) => {
 const getTour = async (req, res) => {
   try {
     const { id } = req.params;
-
     const tour = await Tour.findById(id);
+
+    if (!tour) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No tour found with that ID",
+      });
+    }
+
     return res.status(200).json({
       status: "success",
       message: "Tour retrieved successfully",
@@ -68,6 +75,13 @@ const updateTour = async (req, res) => {
       runValidators: true,
     });
 
+    if (!tour) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No tour found with that ID",
+      });
+    }
+
     return res.status(200).json({
       status: "success",
       message: "Tour updated successfully",
@@ -84,7 +98,14 @@ const updateTour = async (req, res) => {
 const deleteTour = async (req, res) => {
   try {
     const { id } = req.params;
-    await Tour.findByIdAndDelete(id);
+
+    const tour = await Tour.findByIdAndDelete(id);
+    if (!tour) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No tour found with that ID",
+      });
+    }
 
     return res.status(204).send();
   } catch (error) {
