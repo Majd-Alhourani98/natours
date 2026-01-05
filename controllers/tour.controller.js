@@ -32,12 +32,25 @@ const getAllTours = async (req, res) => {
     const skipBy = (page - 1) * limit;
     query = query.skip(skipBy).limit(limit);
 
+    const totalDocs = await Tour.countDocuments(mongoFilter);
+    const totalPages = Math.ceil(totalDocs / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+
     const tours = await query;
 
     return res.status(200).json({
       status: 'success',
       result: tours.length,
       message: 'Tours retrieved successfully.',
+      paginationMetaData: {
+        currentPage: page,
+        totalPages,
+        totalResults: totalDocs,
+        resultsPerPage: limit,
+        hasNextPage,
+        hasPrevPage,
+      },
       data: {
         tours: tours,
       },
