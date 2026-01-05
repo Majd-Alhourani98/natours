@@ -26,6 +26,12 @@ const getAllTours = async (req, res) => {
       query = query.select('-__v -createdAt -updatedAt');
     }
 
+    // pagination
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 12;
+    const skipBy = (page - 1) * limit;
+    query = query.skip(skipBy).limit(limit);
+
     const tours = await query;
 
     return res.status(200).json({
