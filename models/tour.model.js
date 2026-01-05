@@ -66,6 +66,16 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+// Text index for search functionality
+// Weights prioritize name/summary over description
+tourSchema.index(
+  { name: 'text', description: 'text', summary: 'text' },
+  {
+    weights: { name: 10, summary: 5, description: 1 },
+    name: 'TourTextIndex',
+  }
+);
+
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
