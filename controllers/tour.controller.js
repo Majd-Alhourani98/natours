@@ -11,8 +11,8 @@ const getAllTours = async (req, res) => {
     const mongoFilter = JSON.parse(queryStr);
 
     if (req.query.search) {
-      const searchRegex = new RegExp(req.query.search, 'i'); // 'i' = case-insensitive
-      mongoFilter.$or = [{ name: searchRegex }, { description: searchRegex }, { summary: searchRegex }];
+      const searchTerm = req.query.search;
+      mongoFilter.$text = { $search: searchTerm, $caseSensitive: false };
     }
 
     let query = Tour.find(mongoFilter);
@@ -20,6 +20,8 @@ const getAllTours = async (req, res) => {
     if (req.query.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
       query = query.sort(sortBy);
+    } else if (req.query.search) {
+      this.query = query.sort({ score: { $meta: 'textScore' } });
     } else {
       query = query.sort('-createdAt _id');
     }
@@ -32,8 +34,8 @@ const getAllTours = async (req, res) => {
     }
 
     // pagination
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 12;
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Number(req.query.limit) || 12, 24); // default 12, max 100
     const skipBy = (page - 1) * limit;
     query = query.skip(skipBy).limit(limit);
 
