@@ -12,7 +12,7 @@ const getAllTours = async (req, res) => {
 
     if (req.query.search) {
       const searchTerm = req.query.search;
-      mongoFilter.$text = { $search: searchTerm, $caseSensitive: false };
+      mongoFilter.$text = { $search: searchTerm };
     }
 
     let query = Tour.find(mongoFilter);
@@ -21,7 +21,7 @@ const getAllTours = async (req, res) => {
       const sortBy = req.query.sort.split(',').join(' ');
       query = query.sort(sortBy);
     } else if (req.query.search) {
-      this.query = query.sort({ score: { $meta: 'textScore' } });
+      query = query.sort({ score: { $meta: 'textScore' } });
     } else {
       query = query.sort('-createdAt _id');
     }
