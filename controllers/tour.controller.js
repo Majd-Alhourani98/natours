@@ -1,12 +1,20 @@
 const Tour = require('../models/tour.model');
 
-const getAllTours = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    results: 'number of tours',
-    data: { tours: 'list_of_all_tours' },
-    message: 'Tours retrieved successfully',
-  });
+const getAllTours = async (req, res) => {
+  try {
+    const tours = await Tour.find();
+    res.status(200).json({
+      status: 'success',
+      message: 'Tours retrieved successfully',
+      results: tours.length,
+      data: { tours },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error,
+    });
+  }
 };
 
 const createTour = async (req, res) => {
