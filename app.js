@@ -48,6 +48,19 @@ app.post('/api/v1/tours', (req, res) => {
   });
 });
 
+// GET /api/v1/tours/:id - Retrieves a specific tour by its ID
+app.get('/api/v1/tours/:id', (req, res) => {
+  const { id } = req.params;
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour: 'tour_data_for_id',
+    },
+    message: `Tour with ID ${id} retrieved successfully`,
+  });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   // Visual separator for better terminal readability
