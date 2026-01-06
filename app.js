@@ -85,11 +85,28 @@ const deleteUser = (req, res) => {
  * --- Route Definitions ---
  */
 
-app.route('/api/v1/tours').get(getAllTours).post(createTour);
-app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
+// --- Routers ---
+const tourRouter = express.Router();
+const userRouter = express.Router();
 
-app.route('/api/v1/users').get(getAllUsers).post(createUser);
-app.route('/api/v1/users/:id').get(getUser).patch(updateUser).delete(deleteUser);
+/**
+ * --- Mounting Routers ---
+ * Mounts sub-routers to their specific base paths
+ */
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
+
+/**
+ * --- Tour Routes ---
+ */
+tourRouter.route('/').get(getAllTours).post(createTour);
+tourRouter.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
+
+/**
+ * --- User Routes ---
+ */
+userRouter.route('/').get(getAllUsers).post(createUser);
+userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
 // --- Server Initialization ---
 
