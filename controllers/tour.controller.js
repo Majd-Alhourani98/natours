@@ -44,6 +44,9 @@ const getTour = async (req, res) => {
     const id = req.params.id;
 
     const tour = await Tour.findById(id);
+
+    if (!tour) throw new Error('No tour found with that ID');
+
     res.status(200).json({
       status: 'success',
       requestedAt: new Date().toISOString(),
@@ -69,6 +72,8 @@ const updateTour = async (req, res) => {
       runValidators: true,
     });
 
+    if (!tour) throw new Error('No tour found with that ID');
+
     res.status(200).json({
       status: 'success',
       requestedAt: new Date().toISOString(),
@@ -88,6 +93,8 @@ const deleteTour = async (req, res) => {
     const id = req.params.id;
 
     const tour = await Tour.findByIdAndDelete(id);
+
+    if (!tour) throw new Error('No tour found with that ID');
 
     // 204 status means 'No Content' - the request was successful but there is no data to send back
     res.status(204).json({
