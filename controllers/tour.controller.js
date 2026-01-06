@@ -1,17 +1,12 @@
 const Tour = require('../models/tour.model');
 
-// const totalDocs = await Tour.countDocuments(mongoFilter);
-// const totalPages = Math.ceil(totalDocs / limit);
-// const hasNextPage = page < totalPages;
-// const hasPrevPage = page > 1;
-
-// const tours = await query;
-
 class APIFeatures {
-  constructor(query, queryString) {
+  constructor(query, queryString, model) {
     this.query = query;
     this.queryString = queryString;
     this.mongoFilter = {};
+    this.paginationInfo = {};
+    this.model = model;
   }
 
   filter() {
@@ -74,27 +69,46 @@ class APIFeatures {
     const skipBy = (page - 1) * limit;
     this.query = this.query.skip(skipBy).limit(limit);
 
+    this.paginationInfo = { page, limit };
+
     return this;
+  }
+
+  async getPaginateMetaData() {
+    const { page, limit } = this.paginationInfo;
+    const totalDocs = await this.model.countDocuments(this.mongoFilter);
+    const totalPages = Math.ceil(totalDocs / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+
+    return {
+      currentPage: page,
+      totalPages,
+      totalResults: totalDocs,
+      resultsPerPage: limit,
+      hasNextPage,
+      hasPrevPage,
+    };
   }
 }
 
 const getAllTours = async (req, res) => {
   try {
-    const { query } = new APIFeatures(Tour.find(), req.query).filter().search().sort().limitFields().paginate();
-    const tours = await query;
+    const features = new APIFeatures(Tour.find(), req.query, Tour)
+      .filter()
+      .search()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const tours = await features.query;
+    const paginateMetaData = await features.getPaginateMetaData();
 
     return res.status(200).json({
       status: 'success',
       result: tours.length,
       message: 'Tours retrieved successfully.',
-      //   paginationMetaData: {
-      //     currentPage: page,
-      //     totalPages,
-      //     totalResults: totalDocs,
-      //     resultsPerPage: limit,
-      //     hasNextPage,
-      //     hasPrevPage,
-      //   },
+      paginateMetaData,
       data: {
         tours: tours,
       },
