@@ -21,7 +21,7 @@ app.use(express.json());
  * Configures the port and starts the listening process.
  */
 
-// GET /api/v1/tours - Retrieves all tours and sends them in a JSON response
+// GET /api/v1/tours - Retrieves all tours
 app.get('/api/v1/tours', (req, res) => {
   const tours = 'list_of_all_tours';
 
@@ -32,6 +32,19 @@ app.get('/api/v1/tours', (req, res) => {
       tours: 'list_of_all_tours',
     },
     message: 'Tours retrieved successfully',
+  });
+});
+
+// POST /api/v1/tours - Creates a new tour
+app.post('/api/v1/tours', (req, res) => {
+  const newTour = req.body;
+
+  res.status(201).json({
+    status: 'success',
+    data: {
+      tour: 'newly_created_tour',
+    },
+    message: 'Tour created successfully',
   });
 });
 
