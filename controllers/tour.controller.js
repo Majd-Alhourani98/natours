@@ -4,7 +4,7 @@ const getAllTours = async (req, res) => {
   try {
     const tours = await Tour.find();
 
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       results: tours.length,
       requestedAt: new Date().toISOString(),
@@ -12,7 +12,7 @@ const getAllTours = async (req, res) => {
       data: { tours },
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       status: 'fail',
       message: error.message,
     });
@@ -25,14 +25,14 @@ const createTour = async (req, res) => {
 
     const tour = await Tour.create(data);
 
-    res.status(201).json({
+    return res.status(201).json({
       status: 'success',
       requestedAt: new Date().toISOString(),
       message: 'Tour created successfully!',
       data: { tour },
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       status: 'fail',
       message: error.message,
     });
@@ -47,14 +47,14 @@ const getTour = async (req, res) => {
 
     if (!tour) throw new Error('No tour found with that ID');
 
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       requestedAt: new Date().toISOString(),
       message: `Tour retrieved successfully!`,
       data: { tour },
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       status: 'fail',
       message: error.message,
     });
@@ -74,14 +74,14 @@ const updateTour = async (req, res) => {
 
     if (!tour) throw new Error('No tour found with that ID');
 
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       requestedAt: new Date().toISOString(),
       message: `Tour updated successfully`,
       data: { tour },
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       status: 'fail',
       message: error.message,
     });
@@ -97,14 +97,14 @@ const deleteTour = async (req, res) => {
     if (!tour) throw new Error('No tour found with that ID');
 
     // 204 status means 'No Content' - the request was successful but there is no data to send back
-    res.status(204).json({
+    return res.status(204).json({
       status: 'success',
       requestedAt: new Date().toISOString(),
       message: `Tour deleted successfully`,
       data: null,
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       status: 'fail',
       message: error.message,
     });
