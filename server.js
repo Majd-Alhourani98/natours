@@ -5,7 +5,6 @@ const app = require('./app');
 const bootstrap = async () => {
   try {
     // 1. Await Database Connection
-
     await connectDB();
 
     // 2. Start Server
