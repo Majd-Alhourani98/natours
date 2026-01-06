@@ -61,13 +61,22 @@ const getTour = async (req, res) => {
   }
 };
 
-const updateTour = (req, res) => {
+const updateTour = async (req, res) => {
   const { id } = req.params;
-  res.status(200).json({
-    status: 'success',
-    data: { tour: 'updated_tour_data_for_id' },
-    message: `Tour with ID ${id} updated successfully`,
-  });
+  const { body } = req;
+  const tour = await Tour.findByIdAndUpdate(id, body, { new: true, runValidators: true });
+  try {
+    res.status(200).json({
+      status: 'success',
+      data: { tour },
+      message: 'Tour updated successfully',
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error,
+    });
+  }
 };
 
 const deleteTour = (req, res) => {
