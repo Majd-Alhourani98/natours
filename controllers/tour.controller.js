@@ -39,20 +39,23 @@ const createTour = async (req, res) => {
   }
 };
 
-const getTour = (req, res) => {
-  // Access the ID from the URL parameters
-  const id = req.params.id;
+const getTour = async (req, res) => {
+  try {
+    const id = req.params.id;
 
-  console.log(`Searching for tour with ID: ${id}`);
-
-  res.status(200).json({
-    status: 'success',
-    requestedAt: new Date().toISOString(),
-    message: `Tour ${id} retrieved successfully!`,
-    data: {
-      tour: `Details for tour ${id}`,
-    },
-  });
+    const tour = await Tour.findById(id);
+    res.status(200).json({
+      status: 'success',
+      requestedAt: new Date().toISOString(),
+      message: `Tour retrieved successfully!`,
+      data: { tour },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error.message,
+    });
+  }
 };
 
 const updateTour = (req, res) => {
