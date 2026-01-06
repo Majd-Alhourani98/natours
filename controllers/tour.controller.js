@@ -35,13 +35,30 @@ const createTour = async (req, res) => {
   }
 };
 
-const getTour = (req, res) => {
+const getTour = async (req, res) => {
   const { id } = req.params;
-  res.status(200).json({
-    status: 'success',
-    data: { tour: 'tour_data_for_id' },
-    message: `Tour with ID ${id} retrieved successfully`,
-  });
+  const tour = await Tour.findById(id);
+
+  // Handle case where ID is valid format but tour doesn't exist
+  if (!tour) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'No tour found with that ID',
+    });
+  }
+
+  try {
+    res.status(200).json({
+      status: 'success',
+      message: `Tour retrieved successfully`,
+      data: { tour },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error,
+    });
+  }
 };
 
 const updateTour = (req, res) => {
