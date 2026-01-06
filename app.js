@@ -74,6 +74,17 @@ app.patch('/api/v1/tours/:id', (req, res) => {
   });
 });
 
+// DELETE /api/v1/tours/:id - Deletes a specific tour by its ID
+app.delete('/api/v1/tours/:id', (req, res) => {
+  const { id } = req.params;
+
+  // 204 status indicates success but returns no content to the client
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   // Visual separator for better terminal readability
