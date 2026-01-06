@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 /**
- * --- Route Handlers ---
+ * --- Tours Route Handlers ---
  * Logic separated from the route definitions
  */
 
@@ -54,6 +54,15 @@ const deleteTour = (req, res) => {
     status: 'success',
     data: null,
   });
+};
+
+/**
+ * --- Users Route Handlers ---
+ * Logic separated from the route definitions
+ */
+
+const getAllUsers = (req, res) => {
+  res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
 };
 
 /**
