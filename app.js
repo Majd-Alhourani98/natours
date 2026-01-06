@@ -61,6 +61,19 @@ app.get('/api/v1/tours/:id', (req, res) => {
   });
 });
 
+// PATCH /api/v1/tours/:id - Updates a specific tour by its ID
+app.patch('/api/v1/tours/:id', (req, res) => {
+  const { id } = req.params;
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour: 'updated_tour_data_for_id',
+    },
+    message: `Tour with ID ${id} updated successfully`,
+  });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   // Visual separator for better terminal readability
