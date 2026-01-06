@@ -36,18 +36,18 @@ const createTour = async (req, res) => {
 };
 
 const getTour = async (req, res) => {
-  const { id } = req.params;
-  const tour = await Tour.findById(id);
-
-  // Handle case where ID is valid format but tour doesn't exist
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'No tour found with that ID',
-    });
-  }
-
   try {
+    const { id } = req.params;
+    const tour = await Tour.findById(id);
+
+    // Handle case where ID is valid format but tour doesn't exist
+    if (!tour) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No tour found with that ID',
+      });
+    }
+
     res.status(200).json({
       status: 'success',
       message: `Tour retrieved successfully`,
@@ -62,10 +62,19 @@ const getTour = async (req, res) => {
 };
 
 const updateTour = async (req, res) => {
-  const { id } = req.params;
-  const { body } = req;
-  const tour = await Tour.findByIdAndUpdate(id, body, { new: true, runValidators: true });
   try {
+    const { id } = req.params;
+    const { body } = req;
+    const tour = await Tour.findByIdAndUpdate(id, body, { new: true, runValidators: true });
+
+    // Handle case where ID is valid format but tour doesn't exist
+    if (!tour) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No tour found with that ID',
+      });
+    }
+
     res.status(200).json({
       status: 'success',
       data: { tour },
@@ -79,11 +88,29 @@ const updateTour = async (req, res) => {
   }
 };
 
-const deleteTour = (req, res) => {
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
+const deleteTour = async (req, res) => {
+  const { id } = req.params;
+  const tour = await Tour.findByIdAndDelete(id);
+
+  // Handle case where ID is valid format but tour doesn't exist
+  if (!tour) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'No tour found with that ID',
+    });
+  }
+
+  try {
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error,
+    });
+  }
 };
 
 module.exports = {
