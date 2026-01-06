@@ -55,12 +55,8 @@ const deleteTour = (req, res) => {
  * --- Route Definitions ---
  */
 
-app.get('/api/v1/tours', getAllTours);
-app.post('/api/v1/tours', createTour);
-
-app.get('/api/v1/tours/:id', getTour);
-app.patch('/api/v1/tours/:id', updateTour);
-app.delete('/api/v1/tours/:id', deleteTour);
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
 // --- Server Initialization ---
 
