@@ -69,23 +69,6 @@ class APIFeatures {
 
     return this;
   }
-
-  async getPaginateMetaData() {
-    const { page, limit } = this.paginationInfo;
-    const totalDocs = await this.model.countDocuments(this.mongoFilter);
-    const totalPages = Math.ceil(totalDocs / limit);
-    const hasNextPage = page < totalPages;
-    const hasPrevPage = page > 1;
-
-    return {
-      currentPage: page,
-      totalPages,
-      totalResults: totalDocs,
-      resultsPerPage: limit,
-      hasNextPage,
-      hasPrevPage,
-    };
-  }
 }
 
 module.exports = { APIFeatures };
