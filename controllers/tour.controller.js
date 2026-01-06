@@ -83,18 +83,25 @@ const updateTour = async (req, res) => {
   }
 };
 
-const deleteTour = (req, res) => {
-  const id = req.params.id;
+const deleteTour = async (req, res) => {
+  try {
+    const id = req.params.id;
 
-  console.log(`Deleting tour with ID: ${id}`);
+    const tour = await Tour.findByIdAndDelete(id);
 
-  // 204 status means 'No Content' - the request was successful but there is no data to send back
-  res.status(204).json({
-    status: 'success',
-    requestedAt: new Date().toISOString(),
-    message: `Tour ${id} deleted successfully`,
-    data: null,
-  });
+    // 204 status means 'No Content' - the request was successful but there is no data to send back
+    res.status(204).json({
+      status: 'success',
+      requestedAt: new Date().toISOString(),
+      message: `Tour deleted successfully`,
+      data: null,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error.message,
+    });
+  }
 };
 
 module.exports = {
