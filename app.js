@@ -9,6 +9,9 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+// Serving static files
+app.use(express.static(`${__dirname}/public`));
+
 // HTTP request logger middleware
 app.use(morgan('dev'));
 
