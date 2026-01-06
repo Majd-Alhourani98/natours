@@ -1,98 +1,72 @@
-/**
- * Express Server Configuration
- * This script initializes a basic web server using the Express framework.
- */
-
-// Import the Express framework
 const express = require('express');
-
-// Initialize the Express application instance
 const app = express();
 
-/**
- * Middleware: JSON Parser
- * Intercepts incoming requests with JSON payloads and parses them into
- * a JavaScript object accessible via req.body.
- */
+// Middleware
 app.use(express.json());
 
 /**
- * Server Initialization
- * Configures the port and starts the listening process.
+ * --- Route Handlers ---
+ * Logic separated from the route definitions
  */
 
-// GET /api/v1/tours - Retrieves all tours
-app.get('/api/v1/tours', (req, res) => {
-  const tours = 'list_of_all_tours';
-
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
     results: 'number of tours',
-    data: {
-      tours: 'list_of_all_tours',
-    },
+    data: { tours: 'list_of_all_tours' },
     message: 'Tours retrieved successfully',
   });
-});
+};
 
-// POST /api/v1/tours - Creates a new tour
-app.post('/api/v1/tours', (req, res) => {
-  const newTour = req.body;
-
+const createTour = (req, res) => {
   res.status(201).json({
     status: 'success',
-    data: {
-      tour: 'newly_created_tour',
-    },
+    data: { tour: 'newly_created_tour' },
     message: 'Tour created successfully',
   });
-});
+};
 
-// GET /api/v1/tours/:id - Retrieves a specific tour by its ID
-app.get('/api/v1/tours/:id', (req, res) => {
+const getTour = (req, res) => {
   const { id } = req.params;
-
   res.status(200).json({
     status: 'success',
-    data: {
-      tour: 'tour_data_for_id',
-    },
+    data: { tour: 'tour_data_for_id' },
     message: `Tour with ID ${id} retrieved successfully`,
   });
-});
+};
 
-// PATCH /api/v1/tours/:id - Updates a specific tour by its ID
-app.patch('/api/v1/tours/:id', (req, res) => {
+const updateTour = (req, res) => {
   const { id } = req.params;
-
   res.status(200).json({
     status: 'success',
-    data: {
-      tour: 'updated_tour_data_for_id',
-    },
+    data: { tour: 'updated_tour_data_for_id' },
     message: `Tour with ID ${id} updated successfully`,
   });
-});
+};
 
-// DELETE /api/v1/tours/:id - Deletes a specific tour by its ID
-app.delete('/api/v1/tours/:id', (req, res) => {
-  const { id } = req.params;
-
-  // 204 status indicates success but returns no content to the client
+const deleteTour = (req, res) => {
   res.status(204).json({
     status: 'success',
     data: null,
   });
-});
+};
+
+/**
+ * --- Route Definitions ---
+ */
+
+app.get('/api/v1/tours', getAllTours);
+app.post('/api/v1/tours', createTour);
+
+app.get('/api/v1/tours/:id', getTour);
+app.patch('/api/v1/tours/:id', updateTour);
+app.delete('/api/v1/tours/:id', deleteTour);
+
+// --- Server Initialization ---
 
 const PORT = 3000;
 app.listen(PORT, () => {
-  // Visual separator for better terminal readability
   console.log(`\n${'━'.repeat(21)} SERVER ${'━'.repeat(21)}`);
-
-  // Log operational metadata
-  console.log(`🟢 STATUS         → Running `);
-  console.log(`🔗 LINK           → http://localhost:${PORT}`);
-  console.log(`🌍 ENVIRONMENT    → ${app.get('env')}`); // Displays 'development' or 'production'
-  console.log(`⏰ STARTED AT     → ${new Date().toLocaleString()}\n`);
+  console.log(`🔗 LINK: http://localhost:${PORT}`);
+  console.log(`⏰ STARTED AT: ${new Date().toLocaleString()}\n`);
 });
