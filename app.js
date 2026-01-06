@@ -77,6 +77,10 @@ const updateUser = (req, res) => {
   res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
 };
 
+const deleteUser = (req, res) => {
+  res.status(500).json({ status: 'error', message: 'This route is not yet defined' });
+};
+
 /**
  * --- Route Definitions ---
  */
