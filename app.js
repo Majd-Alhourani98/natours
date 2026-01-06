@@ -6,13 +6,13 @@ const userRouter = require('./routes/user.routes');
 
 const app = express();
 
-// Middleware
+// Parse incoming JSON request
 app.use(express.json());
 
 // Serving static files
 app.use(express.static(`${__dirname}/public`));
 
-// HTTP request logger middleware
+// log HTTP requests
 app.use(morgan('dev'));
 
 //  --- Mounting Routers ---

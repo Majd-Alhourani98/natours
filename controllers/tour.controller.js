@@ -1,3 +1,5 @@
+const Tour = require('../models/tour.model');
+
 const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -7,12 +9,22 @@ const getAllTours = (req, res) => {
   });
 };
 
-const createTour = (req, res) => {
-  res.status(201).json({
-    status: 'success',
-    data: { tour: 'newly_created_tour' },
-    message: 'Tour created successfully',
-  });
+const createTour = async (req, res) => {
+  const { body } = req;
+  try {
+    const tour = await Tour.create(body);
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Tour created successfully',
+      data: { tour },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error,
+    });
+  }
 };
 
 const getTour = (req, res) => {
