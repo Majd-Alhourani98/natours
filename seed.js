@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
+const mongoose = require("mongoose");
 const Tour = require("./models/tour.model");
 const connectDB = require("./config/db");
 
@@ -31,13 +32,19 @@ const deleteData = async () => {
 const run = async () => {
   await connectDB();
 
-  const command = process.argv[2].toLowerCase();
+  const command = process.argv[2]?.toLowerCase();
 
   // Execute based on the passed command
   if (command === "--import" || command === "-i") {
     importData();
   } else if (command === "--delete" || command == "-d") {
     deleteData();
+  } else {
+    console.log("ℹ️  Usage:");
+    console.log("     1.   --import   or  -i   Import data");
+    console.log("     2.   --delete   or  -d   Delete data");
+    await mongoose.connection.close();
+    process.exit(1);
   }
 };
 

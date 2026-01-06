@@ -2,9 +2,23 @@ const Tour = require("../models/tour.model");
 
 const getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    const queryObj = { ...req.query };
+    const excludedFields = ["page", "limit", "fields", "sort", "search"];
+    excludedFields.forEach((field) => delete queryObj[field]);
 
-    return res.status(201).json({
+    let queryString = JSON.stringify(queryObj);
+    queryString = queryString.replace(
+      /\b(gte|gt|lte|lt|ne|in|nin)\b/g,
+      (match) => `$${match}`,
+    );
+
+    const mongoFilter = JSON.parse(queryString);
+    console.log(mongoFilter);
+
+    let query = Tour.find(mongoFilter);
+
+    const tours = await query;
+    return res.status(200).json({
       status: "success",
       result: tours.length,
       message: "Tours retrieved successfully",
