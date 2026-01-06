@@ -3,7 +3,15 @@ const { APIFeatures } = require('../utils/APIFeatures');
 
 const getPaginateMetaData = async (paginationInfo, mongoFilter) => {
   const { page, limit } = paginationInfo;
-  const totalDocs = await Tour.countDocuments(mongoFilter);
+
+  let totalDocs;
+
+  if (Object.keys(mongoFilter).length > 0) {
+    totalDocs = await Tour.countDocuments(mongoFilter);
+  } else {
+    totalDocs = await Tour.estimatedDocumentCount();
+  }
+
   const totalPages = Math.ceil(totalDocs / limit);
   const hasNextPage = page < totalPages;
   const hasPrevPage = page > 1;
@@ -43,6 +51,7 @@ const getAllTours = async (req, res) => {
       },
     });
   } catch (error) {
+    console.log(error);
     return res.status(400).json({
       status: 'fail',
       message: error.message,

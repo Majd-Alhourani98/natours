@@ -27,19 +27,16 @@ class APIFeatures {
       this.mongoFilter.$text = { $search: searchTerm };
 
       this.query = this.query.find(this.mongoFilter);
-
-      return this;
     }
+
+    return this;
   }
 
   sort() {
     if (this.queryString.sort) {
-      console.log('sort');
       const sortBy = this.queryString.sort.split(',').join(' ');
       this.query = this.query.sort(sortBy);
     } else if (this.queryString.search) {
-      console.log('sort 1');
-
       this.query = this.query.sort({ score: { $meta: 'textScore' } });
     } else {
       this.query = this.query.sort('-createdAt _id');
