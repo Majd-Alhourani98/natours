@@ -10,11 +10,10 @@ const getAllTours = async (req, res) => {
       .limitFields()
       .paginate();
 
-    const tours = await features.query;
-    const paginateMetaData = await Tour.getPaginateMetaData(
-      features.paginationInfo,
-      features.mongoFilter
-    );
+    const [tours, paginateMetaData] = await Promise.all([
+      features.query,
+      Tour.getPaginateMetaData(features.paginationInfo, features.mongoFilter),
+    ]);
 
     return res.status(200).json({
       status: 'success',
