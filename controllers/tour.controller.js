@@ -24,6 +24,13 @@ const getAllTours = async (req, res) => {
 
     let query = Tour.find(mongoFilter);
 
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt _id');
+    }
+
     const tours = await query;
 
     return res.status(200).json({
