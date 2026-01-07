@@ -2,13 +2,13 @@ class APIFeatures {
   static DEFAULT_LIMIT = 12;
   static MAX_LIMIT = 24;
   static DEFAULT_PAGE = 1;
+  static MIN_SEARCH_DIGITS = 3;
 
   constructor(query, queryString, model) {
     this.query = query;
     this.queryString = queryString;
     this.mongoFilter = {};
     this.paginationInfo = {};
-    this.model = model;
   }
 
   #filter() {
@@ -26,7 +26,13 @@ class APIFeatures {
 
   #search() {
     if (this.queryString.search) {
-      const searchTerm = this.queryString.search;
+      // Sanitize search input to prevent regex injection
+      const searchTerm = this.queryString.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').trim();
+
+      if (searchTerm.length < APIFeatures.MIN_SEARCH_DIGITS) {
+        throw new Error('Search term must be at least 2 characters');
+      }
+
       this.mongoFilter.$text = { $search: searchTerm };
     }
 
@@ -65,11 +71,10 @@ class APIFeatures {
 
   #paginate() {
     const page = Math.max(Number(this.queryString.page) || APIFeatures.DEFAULT_PAGE, 1);
-    const limit = Math.min(
-      Number(this.queryString.limit) || APIFeatures.DEFAULT_LIMIT,
-      APIFeatures.MAX_LIMIT
+    const limit = Math.max(
+      1,
+      Math.min(Number(this.queryString.limit) || APIFeatures.DEFAULT_LIMIT, APIFeatures.MAX_LIMIT)
     );
-
     const skipBy = (page - 1) * limit;
     this.query = this.query.skip(skipBy).limit(limit);
 
