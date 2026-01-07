@@ -17,7 +17,6 @@ class APIFeatures {
 
     this.mongoFilter = JSON.parse(queryStr);
 
-    this.query = this.query.find(this.mongoFilter);
     return this;
   }
 
@@ -25,9 +24,13 @@ class APIFeatures {
     if (this.queryString.search) {
       const searchTerm = this.queryString.search;
       this.mongoFilter.$text = { $search: searchTerm };
-
-      this.query = this.query.find(this.mongoFilter);
     }
+
+    return this;
+  }
+
+  applyfilter() {
+    this.query = this.query.find(this.mongoFilter);
 
     return this;
   }
