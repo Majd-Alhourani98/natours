@@ -70,6 +70,16 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+tourSchema.index(
+  { name: 'text', description: 'text' },
+  {
+    weights: {
+      name: 10, // highest priority
+      description: 5, // lowest priority
+    },
+    name: 'TourTextSearchIndex', // custom index name
+  }
+);
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
