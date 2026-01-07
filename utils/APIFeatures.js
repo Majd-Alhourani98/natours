@@ -1,4 +1,8 @@
 class APIFeatures {
+  static DEFAULT_LIMIT = 12;
+  static MAX_LIMIT = 24;
+  static DEFAULT_PAGE = 1;
+
   constructor(query, queryString, model) {
     this.query = query;
     this.queryString = queryString;
@@ -60,8 +64,12 @@ class APIFeatures {
   }
 
   #paginate() {
-    const page = Math.max(Number(this.queryString.page) || 1, 1);
-    const limit = Math.min(Number(this.queryString.limit) || 12, 24); // default 12, max 100
+    const page = Math.max(Number(this.queryString.page) || APIFeatures.DEFAULT_PAGE, 1);
+    const limit = Math.min(
+      Number(this.queryString.limit) || APIFeatures.DEFAULT_LIMIT,
+      APIFeatures.MAX_LIMIT
+    );
+
     const skipBy = (page - 1) * limit;
     this.query = this.query.skip(skipBy).limit(limit);
 
@@ -71,7 +79,7 @@ class APIFeatures {
   }
 
   build() {
-    tthis.#filter();
+    this.#filter();
     this.#search();
     this.#applyFilters(); // Apply the combined filter once
     this.#sort();
