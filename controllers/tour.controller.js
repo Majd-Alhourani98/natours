@@ -3,13 +3,7 @@ const { APIFeatures } = require('../utils/APIFeatures');
 
 const getAllTours = async (req, res) => {
   try {
-    const features = new APIFeatures(Tour.find(), req.query, Tour)
-      .filter()
-      .search()
-      .applyfilter()
-      .sort()
-      .limitFields()
-      .paginate();
+    const features = new APIFeatures(Tour.find(), req.query, Tour).build();
 
     const [tours, paginateMetaData] = await Promise.all([
       features.query,

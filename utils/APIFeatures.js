@@ -7,7 +7,7 @@ class APIFeatures {
     this.model = model;
   }
 
-  filter() {
+  #filter() {
     const queryObj = { ...this.queryString };
     const excludedFields = ['page', 'sort', 'limit', 'fields', 'search'];
     excludedFields.forEach(field => delete queryObj[field]);
@@ -20,7 +20,7 @@ class APIFeatures {
     return this;
   }
 
-  search() {
+  #search() {
     if (this.queryString.search) {
       const searchTerm = this.queryString.search;
       this.mongoFilter.$text = { $search: searchTerm };
@@ -29,13 +29,13 @@ class APIFeatures {
     return this;
   }
 
-  applyfilter() {
+  #applyFilters() {
     this.query = this.query.find(this.mongoFilter);
 
     return this;
   }
 
-  sort() {
+  #sort() {
     if (this.queryString.sort) {
       const sortBy = this.queryString.sort.split(',').join(' ');
       this.query = this.query.sort(sortBy);
@@ -48,7 +48,7 @@ class APIFeatures {
     return this;
   }
 
-  limitFields() {
+  #limitFields() {
     if (this.queryString.fields) {
       const fields = this.queryString.fields.split(',').join(' ');
       this.query = this.query.select(fields);
@@ -59,13 +59,24 @@ class APIFeatures {
     return this;
   }
 
-  paginate() {
+  #paginate() {
     const page = Math.max(Number(this.queryString.page) || 1, 1);
     const limit = Math.min(Number(this.queryString.limit) || 12, 24); // default 12, max 100
     const skipBy = (page - 1) * limit;
     this.query = this.query.skip(skipBy).limit(limit);
 
     this.paginationInfo = { page, limit };
+
+    return this;
+  }
+
+  build() {
+    tthis.#filter();
+    this.#search();
+    this.#applyFilters(); // Apply the combined filter once
+    this.#sort();
+    this.#limitFields();
+    this.#paginate();
 
     return this;
   }
