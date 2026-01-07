@@ -27,6 +27,8 @@ const getAllTours = async (req, res) => {
     if (req.query.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
       query = query.sort(sortBy);
+    } else if (req.query.search) {
+      query = query.sort({ score: { $meta: 'textScore' } });
     } else {
       query = query.sort('-createdAt _id');
     }
