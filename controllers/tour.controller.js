@@ -10,8 +10,6 @@ const getAllTours = async (req, res) => {
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt|in|ne)\b/g, match => `$${match}`);
     const mongoFilter = JSON.parse(queryStr);
 
-    let query = Tour.find(mongoFilter);
-
     if (req.query.search) {
       const searchTerm = req.query.search;
 
@@ -19,8 +17,10 @@ const getAllTours = async (req, res) => {
         throw new Error(`Search term must be at least 3 characters`);
       }
 
-      mongoFilter.$or = [{ name: searchTerm }, { description: searchTerm }];
+      mongoFilter.$or = [{ name: { $regex: searchTerm } }, { description: { $regex: searchTerm } }];
     }
+
+    let query = Tour.find(mongoFilter);
 
     const tours = await query;
 
