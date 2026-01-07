@@ -80,6 +80,7 @@ tourSchema.index(
     name: 'TourTextSearchIndex', // custom index name
   }
 );
+
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;

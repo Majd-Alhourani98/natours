@@ -19,10 +19,7 @@ const getAllTours = async (req, res) => {
         throw new Error(`Search term must be at least 3 characters`);
       }
 
-      mongoFilter.$or = [
-        { name: { $regex: searchTerm, $options: 'i' } },
-        { description: { $regex: searchTerm, $options: 'i' } },
-      ];
+      mongoFilter.$text = { $search: searchTerm, $caseSensitive: true };
     }
 
     let query = Tour.find(mongoFilter);
