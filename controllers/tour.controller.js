@@ -1,8 +1,15 @@
 const Tour = require('../models/tour.model');
 
 const getAllTours = async (req, res) => {
+  const queryObj = { ...req.query };
+  const excludedField = ['page', 'limit', 'sort', 'fields'];
+  excludedField.forEach((field) => delete queryObj[field]);
+
+  let queryStr = JSON.stringify(queryObj);
+  queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+  const mongoFilter = JSON.parse(queryStr);
   try {
-    const tours = await Tour.find();
+    const tours = await Tour.find(mongoFilter);
     res.status(200).json({
       status: 'success',
       message: 'Tours retrieved successfully',
@@ -18,8 +25,8 @@ const getAllTours = async (req, res) => {
 };
 
 const createTour = async (req, res) => {
-  const { body } = req;
   try {
+    const { body } = req;
     const tour = await Tour.create(body);
 
     res.status(201).json({
@@ -89,18 +96,18 @@ const updateTour = async (req, res) => {
 };
 
 const deleteTour = async (req, res) => {
-  const { id } = req.params;
-  const tour = await Tour.findByIdAndDelete(id);
-
-  // Handle case where ID is valid format but tour doesn't exist
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'No tour found with that ID',
-    });
-  }
-
   try {
+    const { id } = req.params;
+    const tour = await Tour.findByIdAndDelete(id);
+
+    // Handle case where ID is valid format but tour doesn't exist
+    if (!tour) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No tour found with that ID',
+      });
+    }
+
     res.status(204).json({
       status: 'success',
       data: null,
