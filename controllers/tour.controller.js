@@ -6,7 +6,11 @@ const getAllTours = async (req, res) => {
     const excludedFields = ['page', 'limit', 'sort', 'fields', 'search'];
     excludedFields.forEach(field => delete queryObj[field]);
 
-    const tours = await Tour.find(queryObj);
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt|in|ne)\b/g, match => `$${match}`);
+    const mongoFilter = JSON.parse(queryStr);
+
+    const tours = await Tour.find(mongoFilter);
 
     return res.status(200).json({
       status: 'success',
