@@ -8,8 +8,18 @@ const getAllTours = async (req, res) => {
   let queryStr = JSON.stringify(queryObj);
   queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
   const mongoFilter = JSON.parse(queryStr);
+
+  let query = Tour.find(mongoFilter);
+
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(',').join(' ');
+    query = query.sort(sortBy);
+  } else {
+    query = query.sort('-createdAt _id');
+  }
+
   try {
-    const tours = await Tour.find(mongoFilter);
+    const tours = await query;
     res.status(200).json({
       status: 'success',
       message: 'Tours retrieved successfully',
