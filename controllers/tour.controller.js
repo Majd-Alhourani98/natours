@@ -30,6 +30,12 @@ const getAllTours = async (req, res) => {
       query = query.select("-_v");
     }
 
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 12;
+    const skipBy = (page - 1) * limit;
+
+    query = query.skip(skipBy).limit(limit);
+
     const tours = await query;
     return res.status(200).json({
       status: "success",
