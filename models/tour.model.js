@@ -70,6 +70,8 @@ const tourSchema = new mongoose.Schema(
   },
 );
 
+tourSchema.index({ name: "text", description: "text", summary: "text" });
+
 const Tour = mongoose.model("Tour", tourSchema);
 
 module.exports = Tour;

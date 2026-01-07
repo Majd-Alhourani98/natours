@@ -15,11 +15,13 @@ const getAllTours = async (req, res) => {
     const mongoFilter = JSON.parse(queryString);
 
     if (req.query.search) {
-      mongoFilter.$or = [
-        { name: { $regex: req.query.search, $options: "i" } },
-        { description: { $regex: req.query.search, $options: "i" } },
-        { summary: { $regex: req.query.search, $options: "i" } },
-      ];
+      // mongoFilter.$or = [
+      //   { name: { $regex: req.query.search, $options: "i" } },
+      //   { description: { $regex: req.query.search, $options: "i" } },
+      //   { summary: { $regex: req.query.search, $options: "i" } },
+      // ];
+
+      mongoFilter.$text = { $search: req.query.search };
     }
 
     let query = Tour.find(mongoFilter);
