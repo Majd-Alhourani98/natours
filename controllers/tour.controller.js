@@ -1,5 +1,7 @@
 const Tour = require('../models/tour.model');
 
+const escapeRegex = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const getAllTours = async (req, res) => {
   try {
     const queryObj = { ...req.query };
@@ -11,7 +13,7 @@ const getAllTours = async (req, res) => {
     const mongoFilter = JSON.parse(queryStr);
 
     if (req.query.search) {
-      const searchTerm = req.query.search;
+      const searchTerm = escapeRegex(req.query.search);
 
       if (searchTerm.length < 3) {
         throw new Error(`Search term must be at least 3 characters`);
