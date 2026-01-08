@@ -29,12 +29,26 @@ const getAllTours = async (req, res) => {
     const fields = req.query.fields.split(',').join(' ');
     query = query.select(fields);
   } else {
-    query = query.select('-_v');
+    query = query.select('-__v');
   }
 
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 12;
+  const limit = Math.min(Number(req.query.limit) || 12, 100);
   const skip = (page - 1) * limit;
+
+  const totalDocs = await Tour.countDocuments(mongoFilter);
+  const totalPages = Math.ceil(totalDocs / limit);
+
+  const paginationMetaData = {
+    totalDocs,
+    totalPages,
+    currentPage: page,
+    limit,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+    nextPage: page < totalPages ? page + 1 : null,
+    prevPage: page > 1 ? page - 1 : null,
+  };
 
   query = query.skip(skip).limit(limit);
 
@@ -44,6 +58,7 @@ const getAllTours = async (req, res) => {
       status: 'success',
       message: 'Tours retrieved successfully',
       results: tours.length,
+      paginationMetaData,
       data: { tours },
     });
   } catch (error) {
@@ -157,3 +172,8 @@ module.exports = {
   updateTour,
   deleteTour,
 };
+
+// const escapeRegex = (text) =>
+//   text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// const search = escapeRegex(req.query.search);
