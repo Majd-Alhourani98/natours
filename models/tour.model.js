@@ -70,6 +70,14 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+// Create a compound text index on the 'name' and 'description' fields.
+// This enables full-text search capabilities, allowing for more complex
+// queries than standard string matching.
+tourSchema.index({
+  name: 'text',
+  description: 'text',
+});
+
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
