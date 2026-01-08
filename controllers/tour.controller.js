@@ -2,12 +2,19 @@ const Tour = require('../models/tour.model');
 
 const getAllTours = async (req, res) => {
   const queryObj = { ...req.query };
-  const excludedField = ['page', 'limit', 'sort', 'fields'];
+  const excludedField = ['page', 'limit', 'sort', 'fields', 'search'];
   excludedField.forEach((field) => delete queryObj[field]);
 
   let queryStr = JSON.stringify(queryObj);
   queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
   const mongoFilter = JSON.parse(queryStr);
+
+  if (req.query.search) {
+    mongoFilter.$or = [
+      { name: { $regex: req.query.search, $options: 'i' } },
+      { description: { $regex: req.query.search, $options: 'i' } },
+    ];
+  }
 
   let query = Tour.find(mongoFilter);
 
@@ -26,7 +33,7 @@ const getAllTours = async (req, res) => {
   }
 
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 1;
+  const limit = Number(req.query.limit) || 12;
   const skip = (page - 1) * limit;
 
   query = query.skip(skip).limit(limit);
