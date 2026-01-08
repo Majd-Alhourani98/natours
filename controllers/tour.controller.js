@@ -158,8 +158,21 @@ const getTourStats = async (req, res) => {
             },
 
             {
+              $addFields: {
+                avgPrice: { $round: ['$avgPrice', 2] },
+                avgRating: { $round: ['$avgRating', 2] },
+              },
+            },
+
+            {
               $sort: {
                 [sortBy]: ascending ? 1 : -1,
+              },
+            },
+
+            {
+              $project: {
+                _id: 0,
               },
             },
           ],
@@ -174,6 +187,13 @@ const getTourStats = async (req, res) => {
                 maxPrice: { $max: '$price' },
                 numRating: { $sum: '$ratingsQuantity' },
                 numTours: { $sum: 1 },
+              },
+            },
+
+            {
+              $addFields: {
+                avgPrice: { $round: ['$avgPrice', 2] },
+                avgRating: { $round: ['$avgRating', 2] },
               },
             },
 
