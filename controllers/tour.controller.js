@@ -3,15 +3,22 @@ const APIFeatures = require('../utils/apiFeatures');
 
 const getAllTours = async (req, res) => {
   try {
-    const features = new APIFeatures(Tour.find(), req.query, Tour)
+    const features = new APIFeatures(Tour.find(), req.query)
       .filter()
       .search()
+      .applyFilter()
       .sort()
       .limitFields()
       .paginate();
 
-    const tours = await features.query;
-    const paginationMetaData = await features.getPaginationMetadata();
+    const [tours, paginationMetaData] = await Promise.all([
+      features.query,
+      Tour.getPaginationMetadata({
+        filter: features.mongoFilter,
+        page: features.paginationInfo?.page,
+        limit: features.paginationInfo?.limit,
+      }),
+    ]);
 
     res.status(200).json({
       status: 'success',

@@ -1,8 +1,7 @@
 class APIFeatures {
-  constructor(query, queryString, model) {
+  constructor(query, queryString) {
     this.query = query;
     this.queryString = queryString;
-    this.model = model;
     this.mongoFilter = {};
     this.paginationInfo = {};
   }
@@ -25,7 +24,6 @@ class APIFeatures {
 
     // 4) Save the filter and apply it to the Mongoose query
     this.mongoFilter = JSON.parse(queryStr);
-    this.query = this.query.find(this.mongoFilter);
 
     return this;
   }
@@ -39,8 +37,12 @@ class APIFeatures {
       // Add the search term to our filter object
       this.mongoFilter.$text = { $search: this.queryString.search };
       // Update the query with the new search filter
-      this.query = this.query.find(this.mongoFilter);
     }
+    return this;
+  }
+
+  applyFilter() {
+    this.query = this.query.find(this.mongoFilter);
     return this;
   }
 
@@ -89,7 +91,7 @@ class APIFeatures {
    * Calculates how many documents to skip and limits the number of results per page.
    */
   paginate() {
-    const page = Number(this.queryString.page) || 1;
+    const page = Math.max(Number(this.queryString.page) || 1, 1);
     const limit = Math.min(Number(this.queryString.limit) || 12, 100);
     const skip = (page - 1) * limit;
 
@@ -98,28 +100,6 @@ class APIFeatures {
     this.query = this.query.skip(skip).limit(limit);
 
     return this;
-  }
-
-  /**
-   * Pagination Metadata Generator
-   * Calculates total documents and pages based on the current filters.
-   */
-  async getPaginationMetadata() {
-    // Run a count on the same filter used for the results
-    const totalDocs = await this.model.countDocuments(this.mongoFilter);
-    const { page, limit } = this.paginationInfo;
-    const totalPages = Math.ceil(totalDocs / limit) || 0;
-
-    return {
-      totalDocs,
-      totalPages,
-      currentPage: page,
-      limit,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-      nextPage: page < totalPages ? page + 1 : null,
-      prevPage: page > 1 ? page - 1 : null,
-    };
   }
 }
 
