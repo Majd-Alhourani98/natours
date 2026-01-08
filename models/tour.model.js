@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const pagination = require('../plugins/pagination.plugin');
+const { default: slugify } = require('slugify');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -8,6 +9,11 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A tour must have a name'],
       unique: true,
       trim: true,
+    },
+
+    slug: {
+      type: String,
+      unique: true,
     },
 
     duration: {
@@ -85,6 +91,11 @@ tourSchema.plugin(pagination);
 // Virtuals
 tourSchema.virtual('durationWeeks').get(function () {
   if (this.duration) return Number((this.duration / 7).toFixed(1));
+});
+
+// Pre Save middlewares
+tourSchema.pre('save', function () {
+  this.slug = slugify(this.name, { lower: true });
 });
 
 const Tour = mongoose.model('Tour', tourSchema);
