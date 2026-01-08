@@ -7,11 +7,10 @@ class APIFeatures {
    * @param {Object} query - The Mongoose Query object (e.g., Tour.find())
    * @param {Object} queryString - The request query object from Express (req.query)
    */
-  constructor(query, queryString, model) {
+  constructor(query, queryString) {
     this.query = query;
     this.queryString = queryString;
     this.mongoFilter = {}; // Holds the cumulative filter logic for countDocuments()
-    this.model = model;
     this.paginationData = {};
   }
 
@@ -98,21 +97,6 @@ class APIFeatures {
 
     this.query = this.query.skip(skip).limit(limit);
     return this;
-  }
-
-  async getPaginationMetaDate() {
-    const totalDocs = await this.model.countDocuments(this.mongoFilter);
-
-    const totalPages = Math.ceil(totalDocs / this.paginationData.limit);
-    const hasNextPage = this.paginationData.page < totalPages;
-    const hasPrevPage = this.paginationData.page > 1;
-
-    return {
-      totalDocs,
-      totalPages,
-      hasNextPage,
-      hasPrevPage,
-    };
   }
 }
 
