@@ -255,7 +255,28 @@ const getMonthlyPlan = async (req, res) => {
 
       {
         $addFields: {
-          month: '$_id',
+          month: {
+            $let: {
+              vars: {
+                monthsInString: [
+                  '',
+                  'January',
+                  'February',
+                  'March',
+                  'April',
+                  'May',
+                  'June',
+                  'July',
+                  'August',
+                  'September',
+                  'October',
+                  'November',
+                  'December',
+                ],
+              },
+              in: { $arrayElemAt: ['$$monthsInString', '$_id'] },
+            },
+          },
         },
       },
 
