@@ -52,7 +52,7 @@ const getAllTours = async (req, res) => {
       const fields = req.query.fields.split(",").join(" ");
       query = query.select(fields);
     } else {
-      query = query.select("-_v");
+      query = query.select("-__v");
     }
 
     // =====================================================
@@ -64,13 +64,15 @@ const getAllTours = async (req, res) => {
 
     query = query.skip(skip).limit(limit);
 
-    // 4.1) Calculate total documents for pagination metadata
-    const totalDocs = await Tour.countDocuments(mongoFilter);
+    const [totalDocs, tours] = await Promise.all([
+      Tour.countDocuments(mongoFilter),
+      query,
+    ]);
+
     const totalPages = Math.ceil(totalDocs / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
 
-    const tours = await query;
     return res.status(200).json({
       status: "success",
       result: tours.length,
