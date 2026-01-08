@@ -137,10 +137,14 @@ const deleteTour = async (req, res) => {
 
 const getTourStats = async (req, res) => {
   try {
+    const groupBy = req.query.groupBy || 'difficulty';
+    const sortBy = req.query.sortBy || 'avgPrice';
+    const ascending = req.query.ascending !== 'false';
+
     const stats = await Tour.aggregate([
       {
         $group: {
-          _id: { $toUpper: '$difficulty' },
+          _id: { $toUpper: `$${groupBy}` },
           avgRating: { $avg: '$ratingsAverage' },
           avgPrice: { $avg: '$price' },
           minPrice: { $min: '$price' },
@@ -151,7 +155,9 @@ const getTourStats = async (req, res) => {
       },
 
       {
-        $sort: { avgPrice: 1 },
+        $sort: {
+          [sortBy]: ascending ? 1 : -1,
+        },
       },
 
       // Stages can be repeated
