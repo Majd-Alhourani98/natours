@@ -220,6 +220,70 @@ const getTourStats = async (req, res) => {
   }
 };
 
+const getMonthlyPlan = async (req, res) => {
+  try {
+    const year = Number(req.params.year);
+
+    if (!Number.isInteger(year) || year < 2021 || year > 2040) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid year parameter',
+      });
+    }
+
+    const plan = await Tour.aggregate([
+      {
+        $unwind: '$startDates',
+      },
+
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(year, 0, 1),
+            $lte: new Date(year, 11, 31),
+          },
+        },
+      },
+
+      {
+        $group: {
+          _id: { $month: '$startDates' },
+          numTours: { $sum: 1 },
+          tours: { $push: '$name' },
+        },
+      },
+
+      {
+        $addFields: {
+          month: '$_id',
+        },
+      },
+
+      {
+        $project: { _id: 0 },
+      },
+
+      {
+        $sort: { numTours: -1 },
+      },
+
+      {
+        $limit: 12,
+      },
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      data: { plan },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error.message,
+    });
+  }
+};
+
 const aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
   req.query.sort = '-ratingsAverage,price';
@@ -236,4 +300,5 @@ module.exports = {
   deleteTour,
   aliasTopTours,
   getTourStats,
+  getMonthlyPlan,
 };

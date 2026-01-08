@@ -12,6 +12,7 @@ router.param('id', (req, res, next, value) => {
 router.route('/').get(tourController.getAllTours).post(tourController.createTour);
 router.route('/top-five').get(tourController.aliasTopTours, tourController.getAllTours);
 router.route('/stats').get(tourController.getTourStats);
+router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
 
 router
   .route('/:id')
