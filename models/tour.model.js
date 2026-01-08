@@ -16,6 +16,10 @@ const tourSchema = new mongoose.Schema(
       unique: true,
     },
 
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
     duration: {
       type: Number,
       required: [true, 'A tour must have a duration'],
@@ -96,6 +100,10 @@ tourSchema.virtual('durationWeeks').get(function () {
 // Pre Save middlewares
 tourSchema.pre('save', function () {
   this.slug = slugify(this.name, { lower: true });
+});
+
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
 });
 
 const Tour = mongoose.model('Tour', tourSchema);
