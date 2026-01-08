@@ -1,70 +1,103 @@
+const { models } = require('mongoose');
 const Tour = require('../models/tour.model');
 
 const escapeRegex = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const getAllTours = async (req, res) => {
-  try {
-    const queryObj = { ...req.query };
+class APIFeatures {
+  constructor(query, queryString) {
+    this.query = query;
+    this.queryString = queryString;
+
+    this.mongoFilter = {};
+  }
+
+  filter() {
+    const queryObj = { ...this.queryString };
     const excludedFields = ['page', 'limit', 'sort', 'fields', 'search'];
     excludedFields.forEach(field => delete queryObj[field]);
 
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt|in|ne)\b/g, match => `$${match}`);
-    const mongoFilter = JSON.parse(queryStr);
+    this.mongoFilter = JSON.parse(queryStr);
 
-    if (req.query.search) {
-      const searchTerm = escapeRegex(req.query.search);
+    this.query = this.query.find(this.mongoFilter);
+
+    return this;
+  }
+
+  search() {
+    if (this.queryString.search) {
+      const searchTerm = escapeRegex(this.queryString.search);
 
       if (searchTerm.length < 3) {
         throw new Error(`Search term must be at least 3 characters`);
       }
 
-      mongoFilter.$text = { $search: searchTerm, $caseSensitive: true };
+      this.mongoFilter.$text = { $search: searchTerm, $caseSensitive: true };
     }
 
-    let query = Tour.find(mongoFilter);
+    this.query = this.query.find(this.mongoFilter);
 
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else if (req.query.search) {
-      query = query.sort({ score: { $meta: 'textScore' } });
+    return this;
+  }
+
+  sort() {
+    if (this.queryString.sort) {
+      const sortBy = this.queryString.sort.split(',').join(' ');
+      this.query = this.query.sort(sortBy);
+    } else if (this.queryString.search) {
+      this.query = this.query.sort({ score: { $meta: 'textScore' } });
     } else {
-      query = query.sort('-createdAt _id');
+      this.query = this.query.sort('-createdAt _id');
     }
 
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
+    return this;
+  }
+
+  limitFields() {
+    if (this.queryString.fields) {
+      const fields = this.queryString.fields.split(',').join(' ');
+      this.query = this.query.select(fields);
     } else {
-      query = query.sort('-__v');
+      this.query = this.query.sort('-__v');
     }
 
-    const page = Math.max(Math.floor(Number(req.query.page)) || 1, 1);
-    const limit = Math.max(Math.floor(Math.min(Number(req.query.limit)) || 12, 24), 1);
+    return this;
+  }
+
+  paginate() {
+    const page = Math.max(Math.floor(Number(this.queryString.page)) || 1, 1);
+    const limit = Math.max(Math.floor(Math.min(Number(this.queryString.limit)) || 12, 24), 1);
     const skipBy = (page - 1) * limit;
-    query = query.skip(skipBy).limit(limit);
+    this.query = this.query.skip(skipBy).limit(limit);
 
-    const totalDocs = await Tour.countDocuments(mongoFilter);
-    const totalPages = Math.ceil(totalDocs / limit);
-    const hasNextPage = page < totalPages;
-    const hasPrevPage = page > 1;
+    return this;
+  }
+}
 
-    const paginationMetaData = {
-      totalDocs,
-      totalPages,
-      hasNextPage,
-      hasPrevPage,
-    };
+const getAllTours = async (req, res) => {
+  try {
+    // const totalDocs = await Tour.countDocuments(mongoFilter);
+    // const totalPages = Math.ceil(totalDocs / limit);
+    // const hasNextPage = page < totalPages;
+    // const hasPrevPage = page > 1;
 
-    const tours = await query;
+    // const paginationMetaData = {
+    //   totalDocs,
+    //   totalPages,
+    //   hasNextPage,
+    //   hasPrevPage,
+    // };
+
+    const features = new APIFeatures(Tour.find(), req.query).filter().search().sort().limitFields().paginate();
+    const tours = await features.query;
 
     return res.status(200).json({
       status: 'success',
       results: tours.length,
       requestedAt: new Date().toISOString(),
       message: 'Tours retrieved successfully',
-      paginationMetaData,
+      // paginationMetaData,
       data: { tours },
     });
   } catch (error) {
