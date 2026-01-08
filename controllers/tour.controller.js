@@ -1,22 +1,6 @@
 const Tour = require("../models/tour.model");
 const APIFeatures = require("../utils/apiFeatures");
 
-const getPaginationMetaData = async (filter, page, limit) => {
-  const totalDocs = await Tour.countDocuments(filter);
-
-  const totalPages = Math.ceil(totalDocs / limit);
-  const hasNextPage = page * limit < totalPages;
-  const hasPrevPage = page > 1;
-
-  return {
-    totalDocs,
-    totalPages,
-    hasNextPage,
-    hasPrevPage,
-    currentPage: page,
-  };
-};
-
 const getAllTours = async (req, res) => {
   try {
     const features = new APIFeatures(Tour.find(), req.query)
@@ -30,7 +14,7 @@ const getAllTours = async (req, res) => {
 
     const [tours, paginationMetaData] = await Promise.all([
       features.query,
-      getPaginationMetaData(features.mongoFilter, page, limit),
+      Tour.getPaginationMetaData(features.mongoFilter, page, limit),
     ]);
 
     return res.status(200).json({
