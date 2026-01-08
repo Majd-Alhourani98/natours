@@ -3,36 +3,23 @@ const APIFeatures = require("../utils/apiFeatures");
 
 const getAllTours = async (req, res) => {
   try {
-    const featuers = new APIFeatures(Tour.find(), req.query)
+    const featuers = new APIFeatures(Tour.find(), req.query, Tour)
       .filter()
       .search()
       .sort()
       .select()
       .paginate();
 
-    const tours = await featuers.query;
-    // const [totalDocs, tours] = await Promise.all([
-    //   Tour.countDocuments(mongoFilter),
-    //   query,
-    // ]);
-
-    // const totalPages = Math.ceil(totalDocs / limit);
-    // const hasNextPage = page < totalPages;
-    // const hasPrevPage = page > 1;
+    const [tours, paginationMetaData] = await Promise.all([
+      featuers.query,
+      featuers.getPaginationMetaDate(),
+    ]);
 
     return res.status(200).json({
       status: "success",
       result: tours.length,
       message: "Tours retrieved successfully",
-      // paginationMetaData: {
-      //   currentPage: page,
-      //   totalPages,
-      //   totalResults: totalDocs,
-      //   resultsPerPage: limit,
-      //   hasNextPage,
-      //   hasPrevPage,
-      // },
-
+      paginationMetaData,
       data: {
         tours: tours,
       },
