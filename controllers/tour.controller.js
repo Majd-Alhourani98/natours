@@ -10,13 +10,14 @@ const getAllTours = async (req, res) => {
   const mongoFilter = JSON.parse(queryStr);
 
   if (req.query.search) {
-    console.log(req.query.search);
     mongoFilter.$text = { $search: req.query.search };
   }
 
   let query = Tour.find(mongoFilter);
 
-  if (req.query.sort) {
+  if (req.query.search && !req.query.sort) {
+    query = query.select({ score: { $meta: 'textScore' } }).sort({ score: { $meta: 'textScore' } });
+  } else if (req.query.sort) {
     const sortBy = req.query.sort.split(',').join(' ');
     query = query.sort(sortBy);
   } else {
