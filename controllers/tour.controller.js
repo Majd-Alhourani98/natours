@@ -143,27 +143,48 @@ const getTourStats = async (req, res) => {
 
     const stats = await Tour.aggregate([
       {
-        $group: {
-          _id: { $toUpper: `$${groupBy}` },
-          avgRating: { $avg: '$ratingsAverage' },
-          avgPrice: { $avg: '$price' },
-          minPrice: { $min: '$price' },
-          maxPrice: { $max: '$price' },
-          numRating: { $sum: '$ratingsQuantity' },
-          numTours: { $sum: 1 },
+        $facet: {
+          overall: [
+            {
+              $group: {
+                _id: null,
+                avgRating: { $avg: '$ratingsAverage' },
+                avgPrice: { $avg: '$price' },
+                minPrice: { $min: '$price' },
+                maxPrice: { $max: '$price' },
+                numRating: { $sum: '$ratingsQuantity' },
+                numTours: { $sum: 1 },
+              },
+            },
+
+            {
+              $sort: {
+                [sortBy]: ascending ? 1 : -1,
+              },
+            },
+          ],
+
+          byGroup: [
+            {
+              $group: {
+                _id: { $toUpper: `$${groupBy}` },
+                avgRating: { $avg: '$ratingsAverage' },
+                avgPrice: { $avg: '$price' },
+                minPrice: { $min: '$price' },
+                maxPrice: { $max: '$price' },
+                numRating: { $sum: '$ratingsQuantity' },
+                numTours: { $sum: 1 },
+              },
+            },
+
+            {
+              $sort: {
+                [sortBy]: ascending ? 1 : -1,
+              },
+            },
+          ],
         },
       },
-
-      {
-        $sort: {
-          [sortBy]: ascending ? 1 : -1,
-        },
-      },
-
-      // Stages can be repeated
-      // {
-      //   $match: { _id: { $ne: 'EASY' } },
-      // },
     ]);
 
     return res.status(200).json({
