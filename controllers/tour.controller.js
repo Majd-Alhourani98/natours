@@ -40,10 +40,9 @@ const getAllTours = async (req, res) => {
       query = query.sort('-__v');
     }
 
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 12;
+    const page = Math.max(Math.floor(Number(req.query.page)) || 1, 1);
+    const limit = Math.max(Math.floor(Math.min(Number(req.query.limit)) || 12, 24), 1);
     const skipBy = (page - 1) * limit;
-
     query = query.skip(skipBy).limit(limit);
 
     const tours = await query;
@@ -54,6 +53,7 @@ const getAllTours = async (req, res) => {
       requestedAt: new Date().toISOString(),
       message: 'Tours retrieved successfully',
       data: { tours },
+      limit: limit,
     });
   } catch (error) {
     return res.status(400).json({
