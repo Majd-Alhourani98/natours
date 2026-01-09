@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const paginationPlugin = require('./plugins/paginationPlugin');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -78,38 +79,8 @@ tourSchema.index({
   description: 'text',
 });
 
-tourSchema.statics.getPaginationMetadata = async function ({ filter = {}, page = 1, limit = 12 }) {
-  // 1. Safety check for the limit to avoid Division by Zero
-  const safeLimit = Math.max(Number(limit) || 12, 1);
-  const safePage = Math.max(Number(page) || 1, 1);
-
-  // 2. Execute count
-  const totalDocs = await this.countDocuments(filter);
-
-  // 3. Calculate core pagination values
-  const totalPages = Math.ceil(totalDocs / safeLimit) || 0;
-
-  // 4. Calculate item ranges (Great for "Showing X to Y of Z" labels)
-  const pagingCounter = (safePage - 1) * safeLimit + 1;
-  // Ensure we don't show a 'to' value higher than the total documents
-  const toItem = Math.min(safePage * safeLimit, totalDocs);
-
-  return {
-    totalDocs,
-    totalPages,
-    currentPage: safePage,
-    limit: safeLimit,
-    // Range metadata
-    pagingCounter: totalDocs === 0 ? 0 : pagingCounter,
-    toItem: totalDocs === 0 ? 0 : toItem,
-    // Boolean helpers
-    hasNextPage: safePage < totalPages,
-    hasPrevPage: safePage > 1,
-    // Navigation links/indices
-    nextPage: safePage < totalPages ? safePage + 1 : null,
-    prevPage: safePage > 1 ? safePage - 1 : null,
-  };
-};
+// Apply it to the tourSchema
+tourSchema.plugin(paginationPlugin);
 
 const Tour = mongoose.model('Tour', tourSchema);
 

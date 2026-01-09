@@ -11,12 +11,13 @@ const getAllTours = async (req, res) => {
       .limitFields()
       .paginate();
 
-    const [tours, paginationMetaData] = await Promise.all([
+    const [tours, paginationMetadata] = await Promise.all([
       features.query,
       Tour.getPaginationMetadata({
         filter: features.mongoFilter,
         page: features.paginationInfo?.page,
         limit: features.paginationInfo?.limit,
+        estimated: true,
       }),
     ]);
 
@@ -24,7 +25,7 @@ const getAllTours = async (req, res) => {
       status: 'success',
       message: 'Tours retrieved successfully',
       results: tours.length,
-      paginationMetaData,
+      paginationMetadata,
       data: { tours },
     });
   } catch (error) {
