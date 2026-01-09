@@ -207,6 +207,64 @@ const getTourStats = async (req, res) => {
   }
 };
 
+const getMonthlyPlan = async (req, res) => {
+  try {
+    const year = Number(req.params.year);
+
+    const plan = await Tour.aggregate([
+      {
+        // 1) Deconstruct the startDates array
+        $unwind: "$startDates",
+      },
+      {
+        // 2) Filter by the requested year
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+        },
+      },
+      {
+        // 3) Group by month
+        $group: {
+          _id: { $month: "$startDates" },
+          numTourStarts: { $sum: 1 },
+          tours: { $push: "$name" }, // Collect tour names for each month
+        },
+      },
+      {
+        // 4) Add a readable month field
+        $addFields: { month: "$_id" },
+      },
+      {
+        // 5) Hide the internal _id field
+        $project: { _id: 0 },
+      },
+      {
+        // 6) Sort by busiest month first
+        $sort: { numTourStarts: -1 },
+      },
+      {
+        // 7) Limit results (optional, but good for safety)
+        $limit: 12,
+      },
+    ]);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Monthly plan retrieved successfully",
+      results: plan.length,
+      data: { plan },
+    });
+  } catch (error) {
+    return res.status(404).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllTours,
   getTour,
@@ -215,4 +273,5 @@ module.exports = {
   deleteTour,
   aliasTopFiveTour,
   getTourStats,
+  getMonthlyPlan,
 };

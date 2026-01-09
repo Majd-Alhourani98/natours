@@ -13,6 +13,8 @@ router
   .get(tourController.getAllTours)
   .post(tourController.createTour);
 
+router.route("/monthly-plan/:year").get(tourController.getMonthlyPlan);
+
 router
   .route("/top-five-cheap")
   .get(tourController.aliasTopFiveTour, tourController.getAllTours);
