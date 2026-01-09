@@ -4,11 +4,13 @@ const Tour = require('../models/tour.model');
 const escapeRegex = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 class APIFeatures {
-  constructor(query, queryString) {
+  constructor(model, query, queryString) {
     this.query = query;
     this.queryString = queryString;
+    this.model = model;
 
     this.mongoFilter = {};
+    this.paginationInfo = {};
   }
 
   filter() {
@@ -69,35 +71,42 @@ class APIFeatures {
     const page = Math.max(Math.floor(Number(this.queryString.page)) || 1, 1);
     const limit = Math.max(Math.floor(Math.min(Number(this.queryString.limit)) || 12, 24), 1);
     const skipBy = (page - 1) * limit;
+
+    this.paginationInfo = { page, limit };
     this.query = this.query.skip(skipBy).limit(limit);
 
     return this;
+  }
+
+  async getPaginationMetaData() {
+    const { page, limit } = this.paginationInfo;
+    const totalDocs = await this.model.countDocuments(this.mongoFilter);
+    const totalPages = Math.ceil(totalDocs / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+    return {
+      totalDocs,
+      totalPages,
+      hasNextPage,
+      hasPrevPage,
+      page,
+      limit,
+    };
   }
 }
 
 const getAllTours = async (req, res) => {
   try {
-    // const totalDocs = await Tour.countDocuments(mongoFilter);
-    // const totalPages = Math.ceil(totalDocs / limit);
-    // const hasNextPage = page < totalPages;
-    // const hasPrevPage = page > 1;
-
-    // const paginationMetaData = {
-    //   totalDocs,
-    //   totalPages,
-    //   hasNextPage,
-    //   hasPrevPage,
-    // };
-
-    const features = new APIFeatures(Tour.find(), req.query).filter().search().sort().limitFields().paginate();
+    const features = new APIFeatures(Tour, Tour.find(), req.query).filter().search().sort().limitFields().paginate();
     const tours = await features.query;
+    const paginationMetaData = await features.getPaginationMetaData();
 
     return res.status(200).json({
       status: 'success',
       results: tours.length,
       requestedAt: new Date().toISOString(),
       message: 'Tours retrieved successfully',
-      // paginationMetaData,
+      paginationMetaData,
       data: { tours },
     });
   } catch (error) {
