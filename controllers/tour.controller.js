@@ -29,7 +29,7 @@ class APIFeatures {
     this.paginationInfo = {};
   }
 
-  filter() {
+  #filter() {
     const queryObj = { ...this.queryString };
 
     // Use static constant for excluded fields
@@ -46,7 +46,7 @@ class APIFeatures {
     return this;
   }
 
-  search() {
+  #search() {
     if (this.queryString.search) {
       const searchTerm = escapeRegex(this.queryString.search);
 
@@ -63,7 +63,7 @@ class APIFeatures {
     return this;
   }
 
-  sort() {
+  #sort() {
     if (this.queryString.sort) {
       const sortBy = this.queryString.sort.split(',').join(' ');
       this.query = this.query.sort(sortBy);
@@ -77,7 +77,7 @@ class APIFeatures {
     return this;
   }
 
-  limitFields() {
+  #limitFields() {
     if (this.queryString.fields) {
       const fields = this.queryString.fields.split(',').join(' ');
       this.query = this.query.select(fields);
@@ -89,7 +89,7 @@ class APIFeatures {
     return this;
   }
 
-  paginate() {
+  #paginate() {
     const page = Math.max(Math.floor(Number(this.queryString.page)) || APIFeatures.DEFAULT_PAGE, 1);
 
     // Logic fix: ensures limit is at least 1, and caps it at MAX_LIMIT
@@ -100,6 +100,12 @@ class APIFeatures {
 
     this.paginationInfo = { page, limit };
     this.query = this.query.skip(skipBy).limit(limit);
+
+    return this;
+  }
+
+  build() {
+    this.#filter().#search().#sort().#limitFields().#paginate();
 
     return this;
   }
@@ -124,7 +130,7 @@ class APIFeatures {
 
 const getAllTours = async (req, res) => {
   try {
-    const features = new APIFeatures(Tour, req.query).filter().search().sort().limitFields().paginate();
+    const features = new APIFeatures(Tour, req.query).build();
     const tours = await features.query;
     const paginationMetaData = await features.getPaginationMetaData();
 
