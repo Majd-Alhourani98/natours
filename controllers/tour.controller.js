@@ -1,9 +1,24 @@
-const { models } = require('mongoose');
 const Tour = require('../models/tour.model');
 
 const escapeRegex = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 class APIFeatures {
+  // Static Constants for Query Configuration
+  static EXCLUDED_FIELDS = ['page', 'limit', 'sort', 'fields', 'search'];
+  static MONGO_OPERATORS_REGEX = /\b(gte|gt|lte|lt|in|ne)\b/g;
+
+  // Search Configuration
+  static MIN_SEARCH_LENGTH = 3;
+
+  // Sorting Defaults
+  static DEFAULT_SORT = '-createdAt _id';
+  static DEFAULT_FIELD_EXCLUSION = '-__v';
+
+  // Pagination Defaults
+  static DEFAULT_PAGE = 1;
+  static DEFAULT_LIMIT = 12;
+  static MAX_LIMIT = 24;
+
   constructor(model, query, queryString) {
     this.query = query;
     this.queryString = queryString;
@@ -15,13 +30,16 @@ class APIFeatures {
 
   filter() {
     const queryObj = { ...this.queryString };
-    const excludedFields = ['page', 'limit', 'sort', 'fields', 'search'];
-    excludedFields.forEach(field => delete queryObj[field]);
+
+    // Use static constant for excluded fields
+    APIFeatures.EXCLUDED_FIELDS.forEach(field => delete queryObj[field]);
 
     let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt|in|ne)\b/g, match => `$${match}`);
-    this.mongoFilter = JSON.parse(queryStr);
 
+    // Use static regex for operators
+    queryStr = queryStr.replace(APIFeatures.MONGO_OPERATORS_REGEX, match => `$${match}`);
+
+    this.mongoFilter = JSON.parse(queryStr);
     this.query = this.query.find(this.mongoFilter);
 
     return this;
@@ -31,8 +49,9 @@ class APIFeatures {
     if (this.queryString.search) {
       const searchTerm = escapeRegex(this.queryString.search);
 
-      if (searchTerm.length < 3) {
-        throw new Error(`Search term must be at least 3 characters`);
+      // Use static constant for validation
+      if (searchTerm.length < APIFeatures.MIN_SEARCH_LENGTH) {
+        throw new Error(`Search term must be at least ${APIFeatures.MIN_SEARCH_LENGTH} characters`);
       }
 
       this.mongoFilter.$text = { $search: searchTerm, $caseSensitive: true };
@@ -50,7 +69,8 @@ class APIFeatures {
     } else if (this.queryString.search) {
       this.query = this.query.sort({ score: { $meta: 'textScore' } });
     } else {
-      this.query = this.query.sort('-createdAt _id');
+      // Use static default sort
+      this.query = this.query.sort(APIFeatures.DEFAULT_SORT);
     }
 
     return this;
@@ -61,15 +81,20 @@ class APIFeatures {
       const fields = this.queryString.fields.split(',').join(' ');
       this.query = this.query.select(fields);
     } else {
-      this.query = this.query.sort('-__v');
+      // Use static default exclusion
+      this.query = this.query.sort(APIFeatures.DEFAULT_FIELD_EXCLUSION);
     }
 
     return this;
   }
 
   paginate() {
-    const page = Math.max(Math.floor(Number(this.queryString.page)) || 1, 1);
-    const limit = Math.max(Math.floor(Math.min(Number(this.queryString.limit)) || 12, 24), 1);
+    const page = Math.max(Math.floor(Number(this.queryString.page)) || APIFeatures.DEFAULT_PAGE, 1);
+
+    // Logic fix: ensures limit is at least 1, and caps it at MAX_LIMIT
+    const requestedLimit = Math.floor(Number(this.queryString.limit)) || APIFeatures.DEFAULT_LIMIT;
+    const limit = Math.max(Math.min(requestedLimit, APIFeatures.MAX_LIMIT), 1);
+
     const skipBy = (page - 1) * limit;
 
     this.paginationInfo = { page, limit };
@@ -84,6 +109,7 @@ class APIFeatures {
     const totalPages = Math.ceil(totalDocs / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
+
     return {
       totalDocs,
       totalPages,
