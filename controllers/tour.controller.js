@@ -252,7 +252,7 @@ const getMonthlyPlan = async (req, res) => {
                   "December",
                 ],
               },
-              in: { $arrayElemAt: ["$$monthsInString", "$_id"] },
+              in: { $arrayElemAt: ["$monthsInString", "$_id"] },
             },
           },
         },
@@ -274,6 +274,10 @@ const getMonthlyPlan = async (req, res) => {
     });
   }
 };
+
+// field: the name of the field
+// $field: the data inside that field
+// $$var: A temporary value you created.
 
 module.exports = {
   getAllTours,
