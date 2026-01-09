@@ -34,14 +34,19 @@ app.get('/health', (req, res) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
-app.all('*', (req, res, next) => {
-  const err = {
-    message: `Can't find ${req.originalUrl} on this server`,
-    status: 'fail',
-    statusCode: 404,
-  };
+class AppError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+    this.status = String(statusCode).startsWith('4') ? 'fail' : 'error';
+    this.isOperational = true;
 
-  next(err);
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+app.all('*', (req, res, next) => {
+  return next(new AppError(`Can't find ${req.originalUrl} on this server`));
 });
 
 app.use((err, req, res, next) => {
