@@ -212,12 +212,8 @@ const getMonthlyPlan = async (req, res) => {
     const year = Number(req.params.year);
 
     const plan = await Tour.aggregate([
+      { $unwind: "$startDates" },
       {
-        // 1) Deconstruct the startDates array
-        $unwind: "$startDates",
-      },
-      {
-        // 2) Filter by the requested year
         $match: {
           startDates: {
             $gte: new Date(`${year}-01-01`),
@@ -226,29 +222,43 @@ const getMonthlyPlan = async (req, res) => {
         },
       },
       {
-        // 3) Group by month
         $group: {
           _id: { $month: "$startDates" },
           numTourStarts: { $sum: 1 },
-          tours: { $push: "$name" }, // Collect tour names for each month
+          // Pushing an object instead of just a string
+          tours: { $push: { name: "$name", price: "$price" } },
         },
       },
       {
-        // 4) Add a readable month field
-        $addFields: { month: "$_id" },
+        $addFields: {
+          month: "$_id",
+          // Converting number to Name
+          monthName: {
+            $let: {
+              vars: {
+                monthsInString: [
+                  "",
+                  "January",
+                  "February",
+                  "March",
+                  "April",
+                  "May",
+                  "June",
+                  "July",
+                  "August",
+                  "September",
+                  "October",
+                  "November",
+                  "December",
+                ],
+              },
+              in: { $arrayElemAt: ["$$monthsInString", "$_id"] },
+            },
+          },
+        },
       },
-      {
-        // 5) Hide the internal _id field
-        $project: { _id: 0 },
-      },
-      {
-        // 6) Sort by busiest month first
-        $sort: { numTourStarts: -1 },
-      },
-      {
-        // 7) Limit results (optional, but good for safety)
-        $limit: 12,
-      },
+      { $project: { _id: 0 } },
+      { $sort: { month: 1 } }, // Sorting chronologically is usually better for plans
     ]);
 
     return res.status(200).json({
