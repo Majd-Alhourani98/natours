@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const getPaginationMetaData = require("./plugins/getPaginationMetaData");
+
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -72,25 +74,7 @@ const tourSchema = new mongoose.Schema(
 
 tourSchema.index({ name: "text", description: "text", summary: "text" });
 
-tourSchema.statics.getPaginationMetaData = async function (
-  filter,
-  page,
-  limit,
-) {
-  const totalDocs = await this.countDocuments(filter);
-  const totalPages = Math.ceil(totalDocs / limit);
-
-  const hasNextPage = page * limit < totalDocs;
-  const hasPrevPage = page > 1;
-
-  return {
-    totalDocs,
-    totalPages,
-    hasNextPage,
-    hasPrevPage,
-    currentPage: page,
-  };
-};
+tourSchema.plugin(getPaginationMetaData);
 
 const Tour = mongoose.model("Tour", tourSchema);
 
