@@ -4,9 +4,15 @@ const mongoose = require('mongoose');
 // const DB_URI = 'mongodb://127.0.0.1:27017/natours';
 
 // Atlas Connection
-DB_URI = process.env.DATABASE_URL.replace('<USERNAME>', process.env.DATABASE_USERNAME)
-  .replace('<PASSWORD>', process.env.DATABASE_PASSWORD)
-  .replace('<DATABASE_NAME>', process.env.DATABASE_NAME);
+const buildDatabaseURL = (baseURL, username, password, databaseName) => {
+  return baseURL
+    .replace('<USERNAME>', username)
+    .replace('<PASSWORD>', password)
+    .replace('<DATABASE_NAME>', databaseName);
+};
+
+const { DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_NAME, DATABASE_URL } = process.env;
+DB_URI = buildDatabaseURL(DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_NAME);
 
 const connectDB = async () => {
   try {
