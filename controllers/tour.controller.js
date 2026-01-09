@@ -41,7 +41,6 @@ class APIFeatures {
     queryStr = queryStr.replace(APIFeatures.MONGO_OPERATORS_REGEX, match => `$${match}`);
 
     this.mongoFilter = JSON.parse(queryStr);
-    this.query = this.query.find(this.mongoFilter);
 
     return this;
   }
@@ -58,6 +57,10 @@ class APIFeatures {
       this.mongoFilter.$text = { $search: searchTerm, $caseSensitive: true };
     }
 
+    return this;
+  }
+
+  #applyFilter() {
     this.query = this.query.find(this.mongoFilter);
 
     return this;
@@ -105,7 +108,7 @@ class APIFeatures {
   }
 
   build() {
-    this.#filter().#search().#sort().#limitFields().#paginate();
+    this.#filter().#search().#applyFilter().#sort().#limitFields().#paginate();
 
     return this;
   }
