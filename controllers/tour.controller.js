@@ -19,10 +19,11 @@ class APIFeatures {
   static DEFAULT_LIMIT = 12;
   static MAX_LIMIT = 24;
 
-  constructor(model, query, queryString) {
-    this.query = query;
+  constructor(model, queryString) {
     this.queryString = queryString;
     this.model = model;
+
+    this.query = model.find();
 
     this.mongoFilter = {};
     this.paginationInfo = {};
@@ -82,7 +83,7 @@ class APIFeatures {
       this.query = this.query.select(fields);
     } else {
       // Use static default exclusion
-      this.query = this.query.sort(APIFeatures.DEFAULT_FIELD_EXCLUSION);
+      this.query = this.query.select(APIFeatures.DEFAULT_FIELD_EXCLUSION);
     }
 
     return this;
@@ -123,7 +124,7 @@ class APIFeatures {
 
 const getAllTours = async (req, res) => {
   try {
-    const features = new APIFeatures(Tour, Tour.find(), req.query).filter().search().sort().limitFields().paginate();
+    const features = new APIFeatures(Tour, req.query).filter().search().sort().limitFields().paginate();
     const tours = await features.query;
     const paginationMetaData = await features.getPaginationMetaData();
 
