@@ -1,7 +1,12 @@
 const mongoose = require('mongoose');
 
 // Localhost MongoDB connection
-const DB_URI = 'mongodb://127.0.0.1:27017/natours';
+// const DB_URI = 'mongodb://127.0.0.1:27017/natours';
+
+// Atlas Connection
+DB_URI = process.env.DATABASE_URL.replace('<USERNAME>', process.env.DATABASE_USERNAME)
+  .replace('<PASSWORD>', process.env.DATABASE_PASSWORD)
+  .replace('<DATABASE_NAME>', process.env.DATABASE_NAME);
 
 const connectDB = async () => {
   try {
