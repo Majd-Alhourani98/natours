@@ -141,37 +141,63 @@ const getTourStats = async (req, res) => {
   try {
     const stats = await Tour.aggregate([
       {
-        // 1) Filter for tours with a high enough rating
-        $match: { ratingsAverage: { $gte: 4.5 } },
-      },
-      {
-        // 2) Group by difficulty (converted to uppercase)
-        $group: {
-          _id: { $toUpper: "$difficulty" },
-          numTours: { $sum: 1 },
-          numOfRatings: { $sum: "$ratingsQuantity" },
-          avgRating: { $avg: "$ratingsAverage" },
-          minRating: { $min: "$ratingsAverage" },
-          maxRating: { $max: "$ratingsAverage" },
-          avgPrice: { $avg: "$price" },
-          minPrice: { $min: "$price" },
-          maxPrice: { $max: "$price" },
+        $facet: {
+          overall: [
+            {
+              $group: {
+                _id: null,
+                numTours: { $sum: 1 },
+                numOfRatings: { $sum: "$ratingsQuantity" },
+                avgRating: { $avg: "$ratingsAverage" },
+                minRating: { $min: "$ratingsAverage" },
+                maxRating: { $max: "$ratingsAverage" },
+                avgPrice: { $avg: "$price" },
+                minPrice: { $min: "$price" },
+                maxPrice: { $max: "$price" },
+              },
+            },
+
+            {
+              $project: { _id: 0 },
+            },
+          ],
+
+          byDifficulty: [
+            {
+              // 1) Filter for tours with a high enough rating
+              $match: { ratingsAverage: { $gte: 4.5 } },
+            },
+            {
+              // 2) Group by difficulty (converted to uppercase)
+              $group: {
+                _id: { $toUpper: "$difficulty" },
+                numTours: { $sum: 1 },
+                numOfRatings: { $sum: "$ratingsQuantity" },
+                avgRating: { $avg: "$ratingsAverage" },
+                minRating: { $min: "$ratingsAverage" },
+                maxRating: { $max: "$ratingsAverage" },
+                avgPrice: { $avg: "$price" },
+                minPrice: { $min: "$price" },
+                maxPrice: { $max: "$price" },
+              },
+            },
+            {
+              // 3) Sort by average price (ascending)
+              $sort: { avgPrice: 1 },
+            },
+            {
+              // 4) Filter out 'EASY' (Note: must be uppercase to match group stage)
+              $match: { _id: { $ne: "EASY" } },
+            },
+          ],
         },
-      },
-      {
-        // 3) Sort by average price (ascending)
-        $sort: { avgPrice: 1 },
-      },
-      {
-        // 4) Filter out 'EASY' (Note: must be uppercase to match group stage)
-        $match: { _id: { $ne: "EASY" } },
       },
     ]);
 
     return res.status(200).json({
       status: "success",
       message: "Statistics retrieved successfully",
-      data: { stats },
+      data: { stats: stats[0] },
     });
   } catch (error) {
     return res.status(404).json({
