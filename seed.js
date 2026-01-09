@@ -6,7 +6,9 @@ const mongoose = require('mongoose');
 const Tour = require('./models/tour.model');
 const connectDB = require('./config/database');
 
-const tours = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'tours-simple.json'), 'utf-8'));
+const tours = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'data', 'tours-simple.json'), 'utf-8')
+);
 
 const importData = async () => {
   try {
