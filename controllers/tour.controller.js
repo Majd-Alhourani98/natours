@@ -1,6 +1,5 @@
 const Tour = require('../models/tour.model');
-
-const escapeRegex = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const { escapeRegex } = require('../utils/regex');
 
 class APIFeatures {
   // Static Constants for Query Configuration
