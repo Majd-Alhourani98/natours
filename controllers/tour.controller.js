@@ -136,30 +136,65 @@ const deleteTour = async (req, res) => {
 const getTourStats = async (req, res) => {
   const stats = await Tour.aggregate([
     {
-      $match: {
-        ratingsAverage: { $gte: 4.7 },
+      $facet: {
+        overall: [
+          {
+            $match: {
+              ratingsAverage: { $gte: 4.5 },
+            },
+          },
+
+          {
+            $group: {
+              _id: null,
+              avgRating: { $avg: '$ratingsAverage' },
+              avgPrice: { $avg: '$price' },
+              minPrice: { $min: '$price' },
+              maxPrice: { $max: '$price' },
+              numRating: { $sum: '$ratingsQuantity' },
+              numTours: { $sum: 1 },
+            },
+          },
+
+          {
+            $sort: { avgPrice: 1 },
+          },
+
+          { $project: { _id: 0 } }, // clean output
+        ],
+        byDifficulty: [
+          {
+            $match: {
+              ratingsAverage: { $gte: 4.7 },
+            },
+          },
+
+          {
+            $group: {
+              _id: { $toUpper: '$difficulty' },
+              avgRating: { $avg: '$ratingsAverage' },
+              avgPrice: { $avg: '$price' },
+              minPrice: { $min: '$price' },
+              maxPrice: { $max: '$price' },
+              numRating: { $sum: '$ratingsQuantity' },
+              numTours: { $sum: 1 },
+            },
+          },
+
+          {
+            $sort: { avgPrice: 1 },
+          },
+
+          {
+            $addFields: { difficulty: '$_id' },
+          },
+
+          {
+            $project: { _id: 0 },
+          },
+        ],
       },
     },
-
-    {
-      $group: {
-        _id: { $toUpper: '$difficulty' },
-        avgRating: { $avg: '$ratingsAverage' },
-        avgPrice: { $avg: '$price' },
-        minPrice: { $min: '$price' },
-        maxPrice: { $max: '$price' },
-        numRating: { $sum: '$ratingsQuantity' },
-        numTours: { $sum: 1 },
-      },
-    },
-
-    {
-      $sort: { avgPrice: 1 },
-    },
-
-    // {
-    //   $match: { _id: { $ne: 'EASY' } },
-    // },
   ]);
 
   try {
