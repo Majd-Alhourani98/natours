@@ -15,6 +15,15 @@ app.use(express.static(`${__dirname}/public`));
 // log HTTP requests
 app.use(morgan('dev'));
 
+// Health Check Route
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    uptime: process.uptime(),
+    startDate: new Date(Date.now() - process.uptime() * 1000).toLocaleString(),
+  });
+});
+
 //  --- Mounting Routers ---
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
