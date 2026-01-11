@@ -10,10 +10,17 @@ const errorHandler = (err, req, res, next) => {
       error: err,
     });
   } else if (process.env.NODE_ENV === 'production') {
-    return res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    });
+    if (err.isOperational) {
+      return res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+      });
+    } else {
+      return res.status(500).json({
+        status: err.status,
+        message: 'Something went very wrong, Please try again later',
+      });
+    }
   }
 };
 
