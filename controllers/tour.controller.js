@@ -4,8 +4,11 @@ const { APIFeatures } = require('../utils/APIFeatures');
 const getAllTours = async (req, res) => {
   try {
     const features = new APIFeatures(Tour, req.query).build();
-    const tours = await features.query;
-    const paginationMetaData = await Tour.getPaginationMetaData(features.paginationInfo, features.mongoFilter);
+
+    const [tours, paginationMetaData] = await Promise.all([
+      features.query,
+      Tour.getPaginationMetaData(features.paginationInfo, features.mongoFilter),
+    ]);
 
     return res.status(200).json({
       status: 'success',
