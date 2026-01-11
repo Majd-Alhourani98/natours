@@ -69,12 +69,18 @@ const tourSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 );
 
 tourSchema.index({ name: "text", description: "text", summary: "text" });
 
 tourSchema.plugin(getPaginationMetaData);
+
+tourSchema.virtual("durationInWeeks").get(function () {
+  if (this.duration) return Number((this.duration / 7).toFixed(1));
+});
 
 const Tour = mongoose.model("Tour", tourSchema);
 
