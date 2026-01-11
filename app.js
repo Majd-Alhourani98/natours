@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
 // log HTTP requests
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // Health Check Route
 app.get('/health', (req, res) => {
