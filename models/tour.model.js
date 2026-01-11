@@ -86,9 +86,13 @@ tourSchema.index({ name: "text", description: "text", summary: "text" });
 
 tourSchema.plugin(getPaginationMetaData);
 
-tourSchema.virtual("durationInWeeks").get(function () {
-  if (this.duration) return Number((this.duration / 7).toFixed(1));
-});
+tourSchema
+  .virtual(
+    "durationInWefeat(models): add query middleware to filter out secret tourseks",
+  )
+  .get(function () {
+    if (this.duration) return Number((this.duration / 7).toFixed(1));
+  });
 
 tourSchema.pre("save", function () {
   this.slug = slugify(this.name, { lower: true });
@@ -96,6 +100,10 @@ tourSchema.pre("save", function () {
 
 tourSchema.pre(/^find/, function () {
   this.find({ secretTour: { $ne: true } });
+});
+
+tourSchema.pre("aggregate", function () {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
 });
 
 const Tour = mongoose.model("Tour", tourSchema);
