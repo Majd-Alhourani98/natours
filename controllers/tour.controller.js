@@ -124,54 +124,29 @@ const getTourStatistics = async (req, res) => {
     const allowedGorupByFields = ['difficulty', 'duration', 'price', 'ratingsAverage'];
     const groupBy = allowedGorupByFields.includes(req.query.groupBy) ? req.query.groupBy : 'difficulty';
 
+    const statsGroup = {
+      maxPrice: { $max: '$price' },
+      avgPrice: { $avg: '$price' },
+      minPrice: { $min: '$price' },
+      maxRating: { $max: '$ratingsAverage' },
+      minRating: { $min: '$ratingsAverage' },
+      avgRating: { $avg: '$ratingsAverage' },
+      numTours: { $sum: 1 },
+    };
+
     const stats = await Tour.aggregate([
       {
         $facet: {
           overall: [
-            {
-              $group: {
-                _id: null,
-                maxPrice: { $max: '$price' },
-                avgPrice: { $avg: '$price' },
-                minPrice: { $min: '$price' },
-
-                maxRating: { $max: '$ratingsAverage' },
-                minRating: { $min: '$ratingsAverage' },
-                avgRating: { $avg: '$ratingsAverage' },
-                numTours: { $sum: 1 },
-              },
-            },
-
-            {
-              $addFields: { avgPrice: { $round: ['$avgPrice', 1] }, avgRating: { $round: ['$avgRating', 1] } },
-            },
-
-            {
-              $sort: { avgPrice: 1 },
-            },
+            { $group: { _id: null, ...statsGroup } },
+            { $project: { _id: 0 } },
+            { $addFields: { avgPrice: { $round: ['$avgPrice', 1] }, avgRating: { $round: ['$avgRating', 1] } } },
+            { $sort: { avgPrice: 1 } },
           ],
           groupBy: [
-            {
-              $group: {
-                _id: { $toUpper: `$${groupBy}` },
-                maxPrice: { $max: '$price' },
-                avgPrice: { $avg: '$price' },
-                minPrice: { $min: '$price' },
-
-                maxRating: { $max: '$ratingsAverage' },
-                minRating: { $min: '$ratingsAverage' },
-                avgRating: { $avg: '$ratingsAverage' },
-                numTours: { $sum: 1 },
-              },
-            },
-
-            {
-              $addFields: { avgPrice: { $round: ['$avgPrice', 1] }, avgRating: { $round: ['$avgRating', 1] } },
-            },
-
-            {
-              $sort: { avgPrice: 1 },
-            },
+            { $group: { _id: { $toUpper: `$${groupBy}` }, ...statsGroup } },
+            { $addFields: { avgPrice: { $round: ['$avgPrice', 1] }, avgRating: { $round: ['$avgRating', 1] } } },
+            { $sort: { avgPrice: 1 } },
           ],
         },
       },
