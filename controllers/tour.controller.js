@@ -120,7 +120,9 @@ const deleteTour = async (req, res) => {
 
 const getTourStatistics = async (req, res) => {
   try {
-    const groupBy = req.query.groupBy || 'difficulty';
+    // 1. Whitelist allowed fields to prevent injection
+    const allowedGorupByFields = ['difficulty', 'duration', 'price', 'ratingsAverage'];
+    const groupBy = allowedGorupByFields.includes(req.query.groupBy) ? req.query.groupBy : 'difficulty';
 
     const stats = await Tour.aggregate([
       {
