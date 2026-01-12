@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const argon2 = require('argon2');
 
 const userSchema = new mongoose.Schema(
   {
@@ -49,8 +49,12 @@ userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
   if (!this.password) return;
 
-  this.password = await bcrypt.hash(this.password, 12);
-  this.passwordConfirm = undefined;
+  this.password = await await argon2.hash(this.password, {
+    type: argon2.argon2id,
+    memoryCost: 2 ** 16, // 64MB - adjusts based on your server RAM
+    timeCost: 3, // Iterations
+    parallelism: 1, // Number of threads
+  });
 });
 
 const User = mongoose.model('User', userSchema);
