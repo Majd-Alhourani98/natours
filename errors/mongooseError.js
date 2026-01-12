@@ -15,4 +15,13 @@ const handleDuplicateFieldsDB = err => {
   return new AppError(message, 400);
 };
 
-module.exports = { handleCastErrorDB, handleDuplicateFieldsDB };
+const handleValidationErrorDB = err => {
+  // Extract all the error messages from the 'errors' object
+  const errors = Object.values(err.errors).map(el => el.message);
+
+  const message = `Invalid input data. ${errors.join('. ')}`;
+  return new AppError(message, 400);
+  //   return new AppError(err.message, 400);
+};
+
+module.exports = { handleCastErrorDB, handleDuplicateFieldsDB, handleValidationErrorDB };

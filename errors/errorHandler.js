@@ -1,6 +1,10 @@
 const { customAlphabet } = require('nanoid');
 
-const { handleCastErrorDB, handleDuplicateFieldsDB } = require('./mongooseError');
+const {
+  handleCastErrorDB,
+  handleDuplicateFieldsDB,
+  handleValidationErrorDB,
+} = require('./mongooseError');
 
 const nanoidLetters = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 9);
 
@@ -57,6 +61,8 @@ const errorHandler = (err, req, res, next) => {
       error = handleCastErrorDB(error);
     } else if (error.code === 11000) {
       error = handleDuplicateFieldsDB(error);
+    } else if (error.name === 'ValidationError') {
+      error = handleValidationErrorDB(error);
     }
 
     return sendErrorProd(error, req, res);
