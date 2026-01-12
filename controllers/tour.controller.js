@@ -120,6 +120,8 @@ const deleteTour = async (req, res) => {
 
 const getTourStatistics = async (req, res) => {
   try {
+    const groupBy = req.query.groupBy || 'difficulty';
+
     const stats = await Tour.aggregate([
       {
         $facet: {
@@ -146,10 +148,10 @@ const getTourStatistics = async (req, res) => {
               $sort: { avgPrice: 1 },
             },
           ],
-          byDifficulty: [
+          groupBy: [
             {
               $group: {
-                _id: { $toUpper: '$difficulty' },
+                _id: { $toUpper: `$${groupBy}` },
                 maxPrice: { $max: '$price' },
                 avgPrice: { $avg: '$price' },
                 minPrice: { $min: '$price' },
