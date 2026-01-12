@@ -46,6 +46,14 @@ const sendErrorProd = (err, req, res) => {
     errorCode: errorCode, // Client can share this with support
   });
 };
+
+const transformError = error => {
+  if (error.name === 'CastError') error = handleCastErrorDB(error);
+  if (error.code === 11000) error = handleDuplicateFieldsDB(error);
+  if (error.name === 'ValidationError') error = handleValidationErrorDB(error);
+  return error;
+};
+
 const errorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
@@ -57,14 +65,7 @@ const errorHandler = (err, req, res, next) => {
     error.message = err.message;
     error.name = err.name;
 
-    if (error.name === 'CastError') {
-      error = handleCastErrorDB(error);
-    } else if (error.code === 11000) {
-      error = handleDuplicateFieldsDB(error);
-    } else if (error.name === 'ValidationError') {
-      error = handleValidationErrorDB(error);
-    }
-
+    error = transformError(error);
     return sendErrorProd(error, req, res);
   }
 };
