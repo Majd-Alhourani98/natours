@@ -122,29 +122,54 @@ const getTourStatistics = async (req, res) => {
   try {
     const stats = await Tour.aggregate([
       {
-        $match: { ratingsAverage: { $gte: 4.5 } },
-      },
+        $facet: {
+          overall: [
+            {
+              $group: {
+                _id: null,
+                maxPrice: { $max: '$price' },
+                avgPrice: { $avg: '$price' },
+                minPrice: { $min: '$price' },
 
-      {
-        $group: {
-          _id: { $toUpper: '$difficulty' },
-          maxPrice: { $max: '$price' },
-          avgPrice: { $avg: '$price' },
-          minPrice: { $min: '$price' },
+                maxRating: { $max: '$ratingsAverage' },
+                minRating: { $min: '$ratingsAverage' },
+                avgRating: { $avg: '$ratingsAverage' },
+                numTours: { $sum: 1 },
+              },
+            },
 
-          maxRating: { $max: '$ratingsAverage' },
-          minRating: { $min: '$ratingsAverage' },
-          avgRating: { $avg: '$ratingsAverage' },
-          numTours: { $sum: 1 },
+            {
+              $addFields: { avgPrice: { $round: ['$avgPrice', 1] }, avgRating: { $round: ['$avgRating', 1] } },
+            },
+
+            {
+              $sort: { avgPrice: 1 },
+            },
+          ],
+          byDifficulty: [
+            {
+              $group: {
+                _id: { $toUpper: '$difficulty' },
+                maxPrice: { $max: '$price' },
+                avgPrice: { $avg: '$price' },
+                minPrice: { $min: '$price' },
+
+                maxRating: { $max: '$ratingsAverage' },
+                minRating: { $min: '$ratingsAverage' },
+                avgRating: { $avg: '$ratingsAverage' },
+                numTours: { $sum: 1 },
+              },
+            },
+
+            {
+              $addFields: { avgPrice: { $round: ['$avgPrice', 1] }, avgRating: { $round: ['$avgRating', 1] } },
+            },
+
+            {
+              $sort: { avgPrice: 1 },
+            },
+          ],
         },
-      },
-
-      {
-        $addFields: { avgPrice: { $round: ['$avgPrice', 1] }, avgRating: { $round: ['$avgRating', 1] } },
-      },
-
-      {
-        $sort: { avgPrice: 1 },
       },
     ]);
 
