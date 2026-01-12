@@ -1,4 +1,6 @@
-const { nanoid, customAlphabet } = require('nanoid');
+const { customAlphabet } = require('nanoid');
+
+const { handleCastErrorDB } = require('./mongooseError');
 
 const nanoidLetters = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 9);
 
@@ -47,7 +49,15 @@ const errorHandler = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     return sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
-    return sendErrorProd(err, req, res);
+    let error = { ...err };
+    error.message = err.message;
+    error.name = err.name;
+
+    if (error.name === 'CastError') {
+      error = handleCastErrorDB(error);
+    }
+
+    return sendErrorProd(error, req, res);
   }
 };
 
