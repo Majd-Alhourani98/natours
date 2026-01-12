@@ -127,7 +127,7 @@ const getTourStatistics = async (req, res) => {
 
       {
         $group: {
-          _id: null,
+          _id: { $toUpper: '$difficulty' },
           maxPrice: { $max: '$price' },
           avgPrice: { $avg: '$price' },
           minPrice: { $min: '$price' },
@@ -136,6 +136,10 @@ const getTourStatistics = async (req, res) => {
           minRating: { $min: '$ratingsAverage' },
           avgRating: { $avg: '$ratingsAverage' },
         },
+      },
+
+      {
+        $sort: { avgPrice: 1 },
       },
     ]);
 
