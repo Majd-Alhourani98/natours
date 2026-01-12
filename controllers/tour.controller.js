@@ -200,7 +200,7 @@ const getMonthlyPlan = async (req, res) => {
         $group: {
           _id: { $month: '$startDates' },
           numTourStarts: { $sum: 1 },
-          tours: { $push: '$name' },
+          tours: { $push: { name: '$name', startDate: '$startDates' } },
         },
       },
 
@@ -239,4 +239,5 @@ module.exports = {
   updateTour,
   deleteTour,
   getTourStatistics,
+  getMonthlyPlan,
 };
