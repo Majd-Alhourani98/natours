@@ -120,9 +120,20 @@ const deleteTour = async (req, res) => {
 
 const getTourStatistics = async (req, res) => {
   try {
-    // 1. Whitelist allowed fields to prevent injection
-    const allowedGorupByFields = ['difficulty', 'duration', 'price', 'ratingsAverage'];
-    const groupBy = allowedGorupByFields.includes(req.query.groupBy) ? req.query.groupBy : 'difficulty';
+    // 1. Whitelist for Grouping
+    const allowedGroupByFields = ['difficulty', 'duration', 'price', 'ratingsAverage'];
+    const groupBy = allowedGroupByFields.includes(req.query.groupBy) ? req.query.groupBy : 'difficulty';
+
+    // 2. Whitelist for Sorting
+    const allowedSortFields = ['avgPrice', 'avgRating', 'numTours', '_id', 'maxPrice', 'minPrice'];
+    const sortBy = allowedSortFields.includes(req.query.sortBy) ? req.query.sortBy : 'avgPrice';
+
+    // 3. Determine Sort Direction (1 for asc, -1 for desc)
+    const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
+
+    // 4. Create Dynamic Sort Object
+    // This allows us to pass [sortBy] as a dynamic key
+    const dynamicSort = { [sortBy]: sortOrder };
 
     const statsGroup = {
       maxPrice: { $max: '$price' },
@@ -139,14 +150,18 @@ const getTourStatistics = async (req, res) => {
         $facet: {
           overall: [
             { $group: { _id: null, ...statsGroup } },
-            { $project: { _id: 0 } },
             { $addFields: { avgPrice: { $round: ['$avgPrice', 1] }, avgRating: { $round: ['$avgRating', 1] } } },
-            { $sort: { avgPrice: 1 } },
           ],
           groupBy: [
-            { $group: { _id: { $toUpper: `$${groupBy}` }, ...statsGroup } },
+            {
+              $group: {
+                _id: groupBy === 'difficulty' ? { $toUpper: `$${groupBy}` } : `$${groupBy}`,
+                ...statsGroup,
+              },
+            },
             { $addFields: { avgPrice: { $round: ['$avgPrice', 1] }, avgRating: { $round: ['$avgRating', 1] } } },
-            { $sort: { avgPrice: 1 } },
+            // 5. Apply the Dynamic Sort
+            { $sort: dynamicSort },
           ],
         },
       },
@@ -159,10 +174,7 @@ const getTourStatistics = async (req, res) => {
       data: { stats },
     });
   } catch (err) {
-    return res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
+    return res.status(400).json({ status: 'fail', message: err.message });
   }
 };
 
