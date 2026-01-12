@@ -135,7 +135,12 @@ const getTourStatistics = async (req, res) => {
           maxRating: { $max: '$ratingsAverage' },
           minRating: { $min: '$ratingsAverage' },
           avgRating: { $avg: '$ratingsAverage' },
+          numTours: { $sum: 1 },
         },
+      },
+
+      {
+        $addFields: { avgPrice: { $round: ['$avgPrice', 1] }, avgRating: { $round: ['$avgRating', 1] } },
       },
 
       {
