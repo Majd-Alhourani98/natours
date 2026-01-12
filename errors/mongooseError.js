@@ -1,10 +1,10 @@
-const AppError = require('./AppError');
+const { BadRequestError, ConflictError, ValidationError } = require('./AppError');
 
 const handleCastErrorDB = err => {
   const path = err.path || 'field';
   const value = err.value ?? 'unknown';
 
-  return new AppError(`Invalid ${path}: ${value}`, 400);
+  return new BadRequestError(`Invalid ${path}: ${value}`);
 };
 
 const handleDuplicateFieldsDB = err => {
@@ -12,7 +12,7 @@ const handleDuplicateFieldsDB = err => {
   const value = err.keyValue[field];
 
   const message = `Duplicate field: ${field}: "${value}". Please use another value.`;
-  return new AppError(message, 400);
+  return new ConflictError(message);
 };
 
 const handleValidationErrorDB = err => {
@@ -20,7 +20,7 @@ const handleValidationErrorDB = err => {
   const errors = Object.values(err.errors).map(el => el.message);
 
   const message = `Invalid input data. ${errors.join('. ')}`;
-  return new AppError(message, 400);
+  return new ValidationError(message);
   //   return new AppError(err.message, 400);
 };
 
