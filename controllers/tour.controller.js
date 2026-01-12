@@ -181,6 +181,21 @@ const getTourStatistics = async (req, res) => {
 const getMonthlyPlan = async (req, res) => {
   const year = req.params.year || new Date().getFullYear();
 
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
   try {
     const plan = await Tour.aggregate([
       {
@@ -206,7 +221,9 @@ const getMonthlyPlan = async (req, res) => {
 
       {
         $addFields: {
-          month: '$_id',
+          month: {
+            $arrayElemAt: [months, { $subtract: ['$_id', 1] }],
+          },
         },
       },
 
