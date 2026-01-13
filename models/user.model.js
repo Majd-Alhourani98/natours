@@ -61,9 +61,9 @@ userSchema.pre('save', async function () {
   // 2. Hash the password with a cost of 12
   this.password = await argon2.hash(this.password, {
     type: argon2.argon2id, // Most secure variant
-    memoryCost: 2 ** 16, // 64 MB
-    timeCost: 3, // 3 iterations
-    parallelism: 1, // degree of parallelism
+    memoryCost: Number(process.env.ARGON2_MEMORY_COST),
+    timeCost: Number(process.env.ARGON2_TIME_COST),
+    parallelism: Number(process.env.ARGON2_PARALLELISM),
   });
 
   // 3. Delete the passwordConfirm field so it doesn't get saved to the DB
