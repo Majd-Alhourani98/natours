@@ -109,6 +109,11 @@ tourSchema.pre(/^find/, function () {
   this.find({ secretTour: { $ne: true } });
 });
 
+// AGGREGATION MIDDLEWARE: Runs for Tour.aggregate()
+tourSchema.pre('aggregate', function () {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+});
+
 tourSchema.plugin(paginationPlugin);
 
 const Tour = mongoose.model('Tour', tourSchema);
