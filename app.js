@@ -5,6 +5,7 @@ const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
 const authRouter = require('./routes/auth.routes');
 const globalErrorHandler = require('./errors/globalErrorHandler');
+const notFound = require('./errors/notFound');
 
 const app = express();
 
@@ -31,10 +32,7 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
 
-app.all('*', (req, res, next) => {
-  const err = new Error(`Can't find ${req.originalUrl} on this server`);
-  next(err);
-});
+app.all('*', notFound);
 
 app.use(globalErrorHandler);
 
