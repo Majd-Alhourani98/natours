@@ -31,11 +31,8 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
 
 app.all('*', (req, res, next) => {
-  const message = `Can't find ${req.originalUrl} on this server`;
-  res.status(404).json({
-    status: 'success',
-    message,
-  });
+  const err = new Error(`Can't find ${req.originalUrl} on this server`);
+  next(err);
 });
 
 app.use((err, req, res, next) => {
