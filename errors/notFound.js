@@ -1,6 +1,7 @@
+const AppError = require('./appError');
+
 const notFound = (req, res, next) => {
-  const err = new Error(`Can't find ${req.originalUrl} on this server`);
-  next(err);
+  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 };
 
 module.exports = notFound;
