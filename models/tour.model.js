@@ -16,6 +16,7 @@ const tourSchema = new mongoose.Schema(
       index: true,
       unique: true,
     },
+
     duration: {
       type: Number,
       required: [true, 'A tour must have a duration'],
@@ -67,6 +68,11 @@ const tourSchema = new mongoose.Schema(
     images: [String],
 
     startDates: [Date],
+
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     // timestamps: true,
@@ -97,6 +103,10 @@ tourSchema.virtual('durationInWeeks').get(function () {
 
 tourSchema.pre('save', function () {
   this.slug = slugify(this.name, { lower: true });
+});
+
+tourSchema.pre(/^find/, function () {
+  this.find({ secretTour: { $ne: true } });
 });
 
 tourSchema.plugin(paginationPlugin);
