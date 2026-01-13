@@ -11,7 +11,6 @@ const DB_URI = 'mongodb://127.0.0.1:27017/natours';
 const connectDB = async () => {
   try {
     await mongoose.connect(DB_URI);
-
     console.log(`\n${'━'.repeat(20)} 🔥 DATABASE ${'━'.repeat(20)}`);
     console.log('✅ MongoDB connected successfully');
     console.log(`📦 Database: ${mongoose.connection.name}`);

@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/Majd-Alhourani98/natours#readme",
   "dependencies": {
-    "bcryptjs": "^3.0.3",
+    "argon2": "^0.44.0",
     "dotenv": "^17.2.4",
     "express": "^4.22.1",
     "mongoose": "^9.1.6",

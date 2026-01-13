@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const argon2 = require('argon2');
 
 const userSchema = new mongoose.Schema(
   {
@@ -59,7 +59,12 @@ userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
 
   // 2. Hash the password with a cost of 12
-  this.password = await bcrypt.hash(this.password, 12);
+  this.password = await argon2.hash(this.password, {
+    type: argon2.argon2id, // Most secure variant
+    memoryCost: 2 ** 16, // 64 MB
+    timeCost: 3, // 3 iterations
+    parallelism: 1, // degree of parallelism
+  });
 
   // 3. Delete the passwordConfirm field so it doesn't get saved to the DB
   this.passwordConfirm = undefined;
