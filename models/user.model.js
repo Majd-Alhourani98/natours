@@ -48,6 +48,14 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+userSchema.set('toJSON', {
+  transform: function (doc, ret) {
+    delete ret.password;
+
+    return ret;
+  },
+});
+
 /**
  * ----------------------------------
  * PRE SAVE MIDDLEWARES
