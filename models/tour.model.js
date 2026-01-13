@@ -68,6 +68,9 @@ const tourSchema = new mongoose.Schema(
       createdAt: true,
       updatedAt: true,
     },
+
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 
@@ -81,6 +84,10 @@ tourSchema.index(
     name: 'TourTextSearchIndex', // custom index name
   }
 );
+
+tourSchema.virtual('durationInWeeks').get(function () {
+  if (this.duration) return +(this.duration / 7).toFixed(2);
+});
 
 tourSchema.plugin(paginationPlugin);
 
