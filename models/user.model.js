@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema(
   {
@@ -45,6 +46,24 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+/**
+ * ----------------------------------
+ * PRE SAVE MIDDLEWARES
+ * ----------------------------------
+ */
+
+// Pre-save middleware to hash password
+userSchema.pre('save', async function () {
+  // 1. If password hasn't been modified or is new, skip hashing
+  if (!this.isModified('password')) return;
+
+  // 2. Hash the password with a cost of 12
+  this.password = await bcrypt.hash(this.password, 12);
+
+  // 3. Delete the passwordConfirm field so it doesn't get saved to the DB
+  this.passwordConfirm = undefined;
+});
 
 /**
  * Create the User model from the schema.
