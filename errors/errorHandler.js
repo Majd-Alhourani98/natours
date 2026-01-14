@@ -5,6 +5,7 @@ const {
   handleDuplicateFieldsDB,
   handleValidationErrorDB,
 } = require('./mongooseError');
+const generateNanoId = require('../utils/nanoid');
 
 const nanoidLetters = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 9);
 
@@ -28,7 +29,7 @@ const sendErrorProd = (err, req, res) => {
 
   // Programming or unknown error: don't leak error details
   // 1. Generate unique error code
-  const errorCode = nanoidLetters();
+  const errorCode = generateNanoId();
 
   // 2. Log error to console (for server logs/monitoring)
   console.error('💥 CRITICAL ERROR 💥');
