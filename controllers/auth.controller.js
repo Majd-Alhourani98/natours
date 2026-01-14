@@ -6,22 +6,10 @@ const AUTH = {
   SIGNUP_SUCCESS: 'Account created successfully! Welcome aboard.',
 };
 
-const generateUsername = async name => {
-  const base = name.replace(/\s+/g, '-').toLowerCase();
-  let username = `${base}-${generateNanoId()}`;
-
-  while (await User.findOne({ username }).lean()) {
-    username = `${base}-${generateNanoId()}`;
-  }
-
-  return username;
-};
-
 const signup = catchAsync(async (req, res) => {
   const { name, email, password, passwordConfirm } = req.body;
 
-  const username = await generateUsername(name);
-  const user = await User.create({ name, email, password, passwordConfirm, username });
+  const user = await User.create({ name, email, password, passwordConfirm });
 
   res.status(201).json({
     status: 'success',

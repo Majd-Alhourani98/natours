@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const argon2 = require('argon2');
+const generateNanoId = require('../utils/nanoid');
 
 const userSchema = new mongoose.Schema(
   {
@@ -85,6 +86,20 @@ userSchema.pre('save', async function () {
 
   // 3. Delete the passwordConfirm field so it doesn't get saved to the DB
   this.passwordConfirm = undefined;
+});
+
+// Pre-save middleware to generate username
+userSchema.pre('save', async function () {
+  if (this.username) return;
+
+  const base = this.name.replace(/\s+/g, '-').toLowerCase();
+  let username = `${base}-${generateNanoId()}`;
+
+  while (await User.findOne({ username }).lean()) {
+    username = `${base}-${generateNanoId()}`;
+  }
+
+  this.username = username;
 });
 
 /**
