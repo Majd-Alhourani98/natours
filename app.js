@@ -6,6 +6,7 @@ const morgan = require("morgan");
 const tourRouter = require("./routes/tour.routes");
 const userRouter = require("./routes/user.routes");
 const AppError = require("./errors/AppError");
+const notFound = require("./middlewares/notFound");
 
 const app = express();
 
@@ -27,11 +28,7 @@ app.get("/health", (req, res) => {
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 
-app.all("*", (req, res, next) => {
-  return next(
-    new AppError(`Can't find ${req.originalUrl} on this server`, 404),
-  );
-});
+app.all("*", notFound);
 
 app.use((err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
