@@ -4,6 +4,7 @@ const httpStatus = require('../constants/httpStatus');
 const catchAsync = require('../errors/catchAsync');
 const Tour = require('../models/tour.model');
 const APIFeatures = require('../utils/apiFeatures');
+const responseStatus = require('../constants/responseStatus');
 
 const getAllTours = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(Tour.find(), req.query)
@@ -25,7 +26,7 @@ const getAllTours = catchAsync(async (req, res, next) => {
   ]);
 
   res.status(httpStatus.OK).json({
-    status: 'success',
+    status: responseStatus.SUCCESS,
     message: 'Tours retrieved successfully',
     results: tours.length,
     paginationMetadata,
@@ -38,7 +39,7 @@ const createTour = catchAsync(async (req, res, next) => {
   const tour = await Tour.create(body);
 
   res.status(httpStatus.CREATED).json({
-    status: 'success',
+    status: responseStatus.SUCCESS,
     message: 'Tour created successfully',
     data: { tour },
   });
@@ -52,7 +53,7 @@ const getTour = catchAsync(async (req, res, next) => {
   if (!tour) return next(new NotFoundError('No tour found with that ID'));
 
   res.status(httpStatus.OK).json({
-    status: 'success',
+    status: responseStatus.SUCCESS,
     message: `Tour retrieved successfully`,
     data: { tour },
   });
@@ -67,7 +68,7 @@ const updateTour = catchAsync(async (req, res, next) => {
   if (!tour) return next(new NotFoundError('No tour found with that ID'));
 
   res.status(httpStatus.OK).json({
-    status: 'success',
+    status: responseStatus.SUCCESS,
     data: { tour },
     message: 'Tour updated successfully',
   });
@@ -148,7 +149,7 @@ const getTourStats = catchAsync(async (req, res, next) => {
   ]);
 
   res.status(httpStatus.OK).json({
-    status: 'success',
+    status: responseStatus.SUCCESS,
     data: { stats },
   });
 });
@@ -197,7 +198,7 @@ const getMonthlyPlan = catchAsync(async (req, res, next) => {
   ]);
 
   res.status(httpStatus.OK).json({
-    status: 'success',
+    status: responseStatus.SUCCESS,
     data: { plan },
   });
 });
