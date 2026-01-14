@@ -10,10 +10,23 @@ const sendErrorDev = (err, res) => {
 
 const sendErrorProd = (err, res) => {
   // Production: send limited error details for operational errors
-  return res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
+
+  if (err.isOperational) {
+    // Trusted error: send message to client
+    return res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message,
+    });
+  } else {
+    // Log the error for internal tracking
+    console.error("ERROR 💥", err);
+
+    // Send generic message
+    return res.status(500).json({
+      status: "error",
+      message: "Something went very wrong!. Please try again later.",
+    });
+  }
 };
 
 const globalErrorHandler = (err, req, res, next) => {
