@@ -160,6 +160,31 @@ tourSchema.pre('aggregate', function () {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
 });
 
+tourSchema.pre('findOneAndUpdate', async function () {
+  const updates = this.getUpdate();
+  const query = this.getQuery();
+
+  let price = updates.price;
+  let priceDiscount = updates.priceDiscount;
+
+  if (price === undefined && priceDiscount === undefined) {
+    return;
+  }
+
+  if (!price || !priceDiscount) {
+    const doc = await this.model.findOne(query).select('price priceDiscount');
+
+    price = price ?? doc?.price;
+    priceDiscount = priceDiscount ?? doc?.priceDiscount;
+  }
+
+  if (price <= priceDiscount) {
+    throw new Error(`Discount price (${priceDiscount}) should be below regular price (${price})`);
+  }
+
+  return;
+});
+
 tourSchema.plugin(paginationPlugin);
 
 const Tour = mongoose.model('Tour', tourSchema);
