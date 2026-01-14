@@ -10,11 +10,9 @@ const signup = catchAsync(async (req, res) => {
 
   const user = await User.create({ name, email, password, passwordConfirm });
 
-  const cleanUser = sanitizeUser(user);
-
   res.status(httpStatus.CREATED).json({
     status: responseStatus.SUCCESS,
-    data: { user: cleanUser },
+    data: { user },
   });
 });
 

@@ -45,6 +45,25 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+userSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    // Remove sensitive or internal fields
+    delete ret.password;
+    delete ret.passwordConfirm;
+    delete ret.emailVerificationToken;
+    delete ret.emailVerificationTokenExpires;
+    delete ret.passwordResetToken;
+    delete ret.passwordResetExpires;
+    delete ret.emailVerificationOTP;
+    delete ret.emailVerificationOTPExpires;
+    delete ret.__v;
+    delete ret.createdAt;
+    delete ret.updatedAt;
+
+    return ret; // Ensure the transformed object is returned
+  },
+});
+
 // Pre-save middleware to hash password
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
