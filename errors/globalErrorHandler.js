@@ -1,8 +1,10 @@
+const { handleCastErrorDB } = require('./mongooseErrors');
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
-    error: err,
     message: err.message,
+    error: err,
     stack: err.stack, // Crucial for debugging!
   });
 };
@@ -35,8 +37,12 @@ const globalErrorHandler = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else {
-    // Default to production for safety
-    sendErrorProd(err, res);
+    let error = { ...err };
+    error.name = err.name;
+    error.message = err.message;
+    error.code = err.code;
+    if (error.name === 'CastError') error = handleCastErrorDB(err);
+    sendErrorProd(error, res);
   }
 };
 
