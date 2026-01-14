@@ -5,6 +5,8 @@ const connectDB = require('./config/db');
 
 const app = require('./app');
 
+let server;
+
 const bootstrap = async () => {
   try {
     // 1. Await Database Connection
@@ -12,7 +14,7 @@ const bootstrap = async () => {
 
     // 2. Start Server
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
+    server = app.listen(PORT, () => {
       console.log(`\n${'━'.repeat(21)} SERVER ${'━'.repeat(21)}`);
       console.log(`🟢 STATUS       → Running `);
       console.log(`🔗 LINK         → http://localhost:${PORT}`);
@@ -26,6 +28,22 @@ const bootstrap = async () => {
 };
 
 bootstrap();
+
+// UNHANDLED REJECTION HANDLER
+process.on('unhandledRejection', (err) => {
+  console.log('UNHANDLED REJECTION! 💥 Shutting down...');
+  console.log(err.name, err.message);
+
+  // Give the server time to finish pending requests before closing
+  if (server) {
+    server.close(() => {
+      process.exit(1);
+    });
+  } else {
+    process.exit(1);
+  }
+});
+
 /*
 Bootstrap vs. Run: Simple Comparison
    - To keep it very simple, think of the difference like this:
