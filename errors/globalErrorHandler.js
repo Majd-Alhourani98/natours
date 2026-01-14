@@ -8,6 +8,7 @@ const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
     message: err.message,
+    code: err.code,
     error: err,
     stack: err.stack, // Crucial for debugging!
   });
