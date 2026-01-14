@@ -66,27 +66,7 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       validate: {
         validator: async function (value) {
-          if (this instanceof mongoose.Query) {
-            const query = this.getQuery();
-            const update = this.getUpdate();
-
-            let price = update.$set.price;
-            let priceDiscount = update.$set.priceDiscount;
-
-            if (!price) {
-              const doc = await this.model.findOne(query);
-
-              if (!doc) return true;
-
-              price = doc.price;
-            }
-
-            if (priceDiscount < price) return true;
-
-            return false;
-          }
-
-          return value < this.price;
+          if (this.value) return value < this.price;
         },
 
         message: 'Discount price ({VALUE}) should be below regular price',
