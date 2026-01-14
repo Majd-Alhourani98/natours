@@ -16,7 +16,6 @@ const handleValidationErrorDB = (err) => {
   const errors = Object.values(err.errors).map((el) => el.message);
 
   const message = `Invalid input data: ${errors.join('. ')}`;
-  console.log(err.message);
   return new ValidationError(message);
 };
 

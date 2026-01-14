@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide a password'],
       minlength: [8, 'Password must be at least 8 characters'],
+      select: false,
     },
 
     passwordConfirm: {
@@ -55,6 +56,8 @@ userSchema.pre('save', async function () {
     timeCost: 3, // Iterations
     parallelism: 1, // Number of threads
   });
+
+  this.passwordConfirm = undefined;
 });
 
 const User = mongoose.model('User', userSchema);

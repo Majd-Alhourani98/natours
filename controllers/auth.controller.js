@@ -9,6 +9,12 @@ const signup = catchAsync(async (req, res) => {
 
   const user = await User.create({ name, email, password, passwordConfirm });
 
+  user.password = undefined;
+  user.emailVerificationToken = undefined;
+  user.emailVerificationTokenExpires = undefined;
+  emailVerificationOTP = undefined;
+  emailVerificationOTPExpires = undefined;
+
   res.status(httpStatus.CREATED).json({
     status: responseStatus.SUCCESS,
     data: { user: user },

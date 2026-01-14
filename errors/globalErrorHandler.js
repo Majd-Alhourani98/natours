@@ -1,4 +1,5 @@
 const httpStatus = require('../constants/httpStatus');
+const responseStatus = require('../constants/responseStatus');
 
 const {
   handleCastErrorDB,
@@ -31,7 +32,7 @@ const sendErrorProd = (err, res) => {
 
     // 2) Send generic message
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      status: 'error',
+      status: responseStatus.ERROR,
       message: 'Something went very wrong!. Please try again later.',
     });
   }
@@ -39,14 +40,14 @@ const sendErrorProd = (err, res) => {
 
 const globalErrorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
-  err.status = err.status || 'error';
+  err.status = err.status || responseStatus.ERROR;
 
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else {
-    let error = { ...err };
-    error.name = err.name;
+    let error = Object.assign(err);
     error.message = err.message;
+    error.name = err.name;
     error.code = err.code;
 
     if (error.name === 'CastError') error = handleCastErrorDB(err);

@@ -7,7 +7,7 @@ class AppError extends Error {
   constructor(
     message,
     statusCode = httpStatus.INTERNAL_SERVER_ERROR,
-    code = null,
+    code = errorCodes.INTERNAL_SERVER_ERROR,
     isOperational = true
   ) {
     super(message);
@@ -38,7 +38,7 @@ class AuthenticationError extends AppError {
 // 403 Forbidden - user lacks permission to access resource
 class ForbiddenError extends AppError {
   constructor(message = httpMessage.FORBIDDEN) {
-    super(message, httpStatus.FORBIDDEN, errorCodes.ForbiddenError);
+    super(message, httpStatus.FORBIDDEN, errorCodes.FORBIDDEN);
   }
 }
 
