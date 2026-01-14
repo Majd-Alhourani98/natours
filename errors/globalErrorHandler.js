@@ -1,4 +1,8 @@
-const { handleCastErrorDB, handleDuplicateFieldsDB } = require('./mongooseErrors');
+const {
+  handleCastErrorDB,
+  handleDuplicateFieldsDB,
+  handleValidationErrorDB,
+} = require('./mongooseErrors');
 
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -42,6 +46,7 @@ const globalErrorHandler = (err, req, res, next) => {
     error.message = err.message;
     error.code = err.code;
     if (error.name === 'CastError') error = handleCastErrorDB(err);
+    if (error.name === 'ValidationError') error = handleValidationErrorDB(err);
     if (error.code === 11000) error = handleDuplicateFieldsDB(err);
     sendErrorProd(error, res);
   }

@@ -11,4 +11,13 @@ const handleDuplicateFieldsDB = (err) => {
   return new AppError(message, 400);
 };
 
-module.exports = { handleCastErrorDB, handleDuplicateFieldsDB };
+const handleValidationErrorDB = (err) => {
+  // Object.values converts the 'errors' object into an array we can loop through
+  const errors = Object.values(err.errors).map((el) => el.message);
+
+  const message = `Invalid input data: ${errors.join('. ')}`;
+  console.log(err.message);
+  return new AppError(message, 400);
+};
+
+module.exports = { handleCastErrorDB, handleDuplicateFieldsDB, handleValidationErrorDB };
