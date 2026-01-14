@@ -1,4 +1,12 @@
 const dotenv = require('dotenv');
+
+// START LISTENING IMMEDIATELY (Safety Net)
+process.on('uncaughtException', (err) => {
+  console.error('🔥🔥 Uncaught Exception:', err.name, err.message);
+  // Synchronous errors leave the app in an "unclean" state, so we must exit.
+  process.exit(1);
+});
+
 dotenv.config();
 
 const connectDB = require('./config/db');
