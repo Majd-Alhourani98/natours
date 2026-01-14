@@ -1,3 +1,11 @@
+// 1) TOP-LEVEL SAFETY NET: Uncaught Exceptions
+// Must be at the top to catch bugs in your imports/configurations
+process.on("uncaughtException", (err) => {
+  console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
+  console.log(err.name, err.message);
+  process.exit(1);
+});
+
 const dotenv = require("dotenv").config();
 
 const connectDB = require("./config/db");
