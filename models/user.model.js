@@ -95,8 +95,11 @@ userSchema.pre('save', async function () {
   const base = this.name.replace(/\s+/g, '-').toLowerCase();
   let username = `${base}-${generateNanoId()}`;
 
-  while (await User.findOne({ username }).lean()) {
+  let doc = await User.findOne({ username }).select('_id').lean();
+
+  while (doc) {
     username = `${base}-${generateNanoId()}`;
+    doc = await User.findOne({ username }).lean();
   }
 
   this.username = username;
