@@ -1,4 +1,6 @@
 const { NotFoundError } = require('../errors/appError');
+const httpStatus = require('../constants/httpStatus');
+
 const catchAsync = require('../errors/catchAsync');
 const Tour = require('../models/tour.model');
 const APIFeatures = require('../utils/apiFeatures');
@@ -22,7 +24,7 @@ const getAllTours = catchAsync(async (req, res, next) => {
     }),
   ]);
 
-  res.status(200).json({
+  res.status(httpStatus.OK).json({
     status: 'success',
     message: 'Tours retrieved successfully',
     results: tours.length,
@@ -35,7 +37,7 @@ const createTour = catchAsync(async (req, res, next) => {
   const { body } = req;
   const tour = await Tour.create(body);
 
-  res.status(201).json({
+  res.status(httpStatus.CREATED).json({
     status: 'success',
     message: 'Tour created successfully',
     data: { tour },
@@ -49,7 +51,7 @@ const getTour = catchAsync(async (req, res, next) => {
   // Handle case where ID is valid format but tour doesn't exist
   if (!tour) return next(new NotFoundError('No tour found with that ID'));
 
-  res.status(200).json({
+  res.status(httpStatus.OK).json({
     status: 'success',
     message: `Tour retrieved successfully`,
     data: { tour },
@@ -64,7 +66,7 @@ const updateTour = catchAsync(async (req, res, next) => {
   // Handle case where ID is valid format but tour doesn't exist
   if (!tour) return next(new NotFoundError('No tour found with that ID'));
 
-  res.status(200).json({
+  res.status(httpStatus.OK).json({
     status: 'success',
     data: { tour },
     message: 'Tour updated successfully',
@@ -78,10 +80,7 @@ const deleteTour = catchAsync(async (req, res, next) => {
   // Handle case where ID is valid format but tour doesn't exist
   if (!tour) return next(new NotFoundError('No tour found with that ID'));
 
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
+  res.status(httpStatus.NO_CONTENT).send();
 });
 
 const getTourStats = catchAsync(async (req, res, next) => {
@@ -148,7 +147,7 @@ const getTourStats = catchAsync(async (req, res, next) => {
     },
   ]);
 
-  res.status(200).json({
+  res.status(httpStatus.OK).json({
     status: 'success',
     data: { stats },
   });
@@ -197,7 +196,7 @@ const getMonthlyPlan = catchAsync(async (req, res, next) => {
     },
   ]);
 
-  res.status(200).json({
+  res.status(httpStatus.OK).json({
     status: 'success',
     data: { plan },
   });

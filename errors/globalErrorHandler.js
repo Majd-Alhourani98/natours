@@ -1,3 +1,5 @@
+const httpStatus = require('../constants/httpStatus');
+
 const {
   handleCastErrorDB,
   handleDuplicateFieldsDB,
@@ -28,7 +30,7 @@ const sendErrorProd = (err, res) => {
     console.error('ERROR 💥', err);
 
     // 2) Send generic message
-    res.status(500).json({
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       status: 'error',
       message: 'Something went very wrong!. Please try again later.',
     });
@@ -36,7 +38,7 @@ const sendErrorProd = (err, res) => {
 };
 
 const globalErrorHandler = (err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
+  err.statusCode = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
   err.status = err.status || 'error';
 
   if (process.env.NODE_ENV === 'development') {
@@ -46,6 +48,7 @@ const globalErrorHandler = (err, req, res, next) => {
     error.name = err.name;
     error.message = err.message;
     error.code = err.code;
+
     if (error.name === 'CastError') error = handleCastErrorDB(err);
     if (error.name === 'ValidationError') error = handleValidationErrorDB(err);
     if (error.code === 11000) error = handleDuplicateFieldsDB(err);

@@ -6,6 +6,7 @@ const userRouter = require('./routes/user.routes');
 const authRouter = require('./routes/auth.routes');
 const globalErrorHandler = require('./errors/globalErrorHandler');
 const notFound = require('./errors/notFound');
+const httpStatus = require('./constants/httpStatus');
 
 const app = express();
 
@@ -20,7 +21,7 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // Health Check Route
 app.get('/health', (req, res) => {
-  res.status(200).json({
+  res.status(httpStatus.OK).json({
     status: 'ok',
     uptime: process.uptime(),
     startDate: new Date(Date.now() - process.uptime() * 1000).toLocaleString(),
