@@ -65,7 +65,27 @@ const tourSchema = new mongoose.Schema(
     priceDiscount: {
       type: Number,
       validate: {
-        validator: function (value) {
+        validator: async function (value) {
+          if (this instanceof mongoose.Query) {
+            const query = this.getQuery();
+            const update = this.getUpdate();
+
+            let price = update.$set.price;
+            let priceDiscount = update.$set.priceDiscount;
+
+            if (!price) {
+              const doc = await this.model.findOne(query);
+
+              if (!doc) return true;
+
+              price = doc.price;
+            }
+
+            if (priceDiscount < price) return true;
+
+            return false;
+          }
+
           return value < this.price;
         },
 
