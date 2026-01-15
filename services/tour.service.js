@@ -46,9 +46,18 @@ const updateTourById = async (id, data) => {
   return tour;
 };
 
+const deleteTourById = async (id) => {
+  const tour = await Tour.findByIdAndDelete(id);
+
+  if (!tour) throw new AppError(`No tour found with that ID ${id}`, 404);
+
+  return null;
+};
+
 module.exports = {
   findAllTours,
   createNewTour,
   findTourById,
   updateTourById,
+  deleteTourById,
 };

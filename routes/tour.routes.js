@@ -3,10 +3,10 @@ const router = express.Router();
 
 const tourController = require("../controllers/tour.controller");
 
-router.param("id", (req, res, next, value) => {
-  console.log(`Tour ID is: ${value}`);
-  next();
-});
+// router.param("id", (req, res, next, value) => {
+//   console.log(`Tour ID is: ${value}`);
+//   next();
+// });
 
 router
   .route("/")
@@ -20,6 +20,7 @@ router
   .get(tourController.aliasTopFiveTour, tourController.getAllTours);
 
 router.route("/tours-stats").get(tourController.getTourStats);
+
 router
   .route("/:id")
   .get(tourController.getTour)

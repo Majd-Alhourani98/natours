@@ -64,12 +64,7 @@ const updateTour = catchAsync(async (req, res, next) => {
 // DELETE /tours/:id - Delete a specific tour by ID
 // Expects tour ID in request parameters
 const deleteTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-
-  const tour = await Tour.findByIdAndDelete(id);
-
-  if (!tour) return next(new AppError("No tour found with that ID", 404));
-
+  const tour = await tourService.deleteTourById(req.params.id);
   return res.status(204).send();
 });
 
