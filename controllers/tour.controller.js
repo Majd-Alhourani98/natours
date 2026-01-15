@@ -1,25 +1,14 @@
 const AppError = require("../errors/AppError");
 const Tour = require("../models/tour.model");
-const APIFeatures = require("../utils/apiFeatures");
 const catchAsync = require("../utils/catchAsync");
+const tourService = require("../services/tour.service");
 
 // GET /tours - Get all tours
 // Supports filtering, searching, sorting, field limiting, and pagination
 const getAllTours = catchAsync(async (req, res, next) => {
-  // Build the query
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .search()
-    .sort()
-    .select()
-    .paginate();
-
-  const { page = 1, limit = 12 } = features.paginationData;
-
-  const [tours, paginationMetaData] = await Promise.all([
-    features.query,
-    Tour.getPaginationMetaData(features.mongoFilter, page, limit),
-  ]);
+  const { tours, paginationMetaData } = await tourService.findAllTours(
+    req.query,
+  );
 
   return res.status(200).json({
     status: "success",
