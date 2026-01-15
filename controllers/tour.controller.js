@@ -25,7 +25,7 @@ const getAllTours = catchAsync(async (req, res, next) => {
 // Expects tour data in request body
 const createTour = catchAsync(async (req, res, next) => {
   const data = req.body;
-  const tour = await Tour.create(data);
+  const tour = await tourService.createNewTour(data);
 
   return res.status(201).json({
     status: "success",

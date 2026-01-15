@@ -20,6 +20,13 @@ const findAllTours = async (queryString) => {
   return { tours, paginationMetaData };
 };
 
+const createNewTour = async (data) => {
+  const tour = await Tour.create(data);
+
+  return tour;
+};
+
 module.exports = {
   findAllTours,
+  createNewTour,
 };
