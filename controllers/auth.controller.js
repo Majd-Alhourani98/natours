@@ -8,10 +8,10 @@ const AUTH = {
 const signup = catchAsync(async (req, res) => {
   const { name, email, password, passwordConfirm } = req.body;
 
-  const user = await User.create({ name, email, password, passwordConfirm });
+  const user = new User({ name, email, password, passwordConfirm });
 
   const otp = user.generateEmailVerificationOtp();
-  await user.save({ validateBeforeSave: false });
+  await user.save();
 
   res.status(201).json({
     status: 'success',
