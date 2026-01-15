@@ -1,7 +1,5 @@
 const catchAsync = require('../errors/catchAsync');
 const User = require('../models/user.model');
-const { generateOtp } = require('../utils/crypto');
-const generateNanoId = require('../utils/nanoid');
 
 const AUTH = {
   SIGNUP_SUCCESS: 'Account created! Please check your email to verify your account.',
@@ -9,15 +7,11 @@ const AUTH = {
 
 const signup = catchAsync(async (req, res) => {
   const { name, email, password, passwordConfirm } = req.body;
-  const { otp, hashedOtp, otpExpires } = generateOtp();
-  const user = await User.create({
-    name,
-    email,
-    password,
-    passwordConfirm,
-    emailVerificationOTP: hashedOtp,
-    emailVerificationOTPExpires: otpExpires,
-  });
+
+  const user = await User.create({ name, email, password, passwordConfirm });
+
+  const otp = user.generateEmailVerificationOtp();
+  await user.save({ validateBeforeSave: false });
 
   res.status(201).json({
     status: 'success',

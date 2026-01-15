@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const argon2 = require('argon2');
 const generateNanoId = require('../utils/nanoid');
+const { generateOtp } = require('../utils/crypto');
 
 const userSchema = new mongoose.Schema(
   {
@@ -114,16 +115,29 @@ userSchema.pre('save', async function () {
   const base = this.name.replace(/\s+/g, '-').toLowerCase();
   let username = `${base}-${generateNanoId()}`;
 
-  let doc = await User.findOne({ username }).select('_id').lean();
+  let doc = await mongoose.models.User.findOne({ username }).select('_id').lean();
 
   while (doc) {
     username = `${base}-${generateNanoId()}`;
-    doc = await User.findOne({ username }).lean();
+    doc = await mongoose.models.User.findOne({ username }).lean();
   }
 
   this.username = username;
 });
 
+/**
+ * ----------------------------------
+ * Instances Methods
+ * ----------------------------------
+ */
+userSchema.methods.generateEmailVerificationOtp = function () {
+  const { otp, hashedOtp, otpExpires } = generateOtp();
+
+  this.emailVerificationOTP = hashedOtp;
+  this.emailVerificationOTPExpires = otpExpires;
+
+  return otp;
+};
 /**
  * Create the User model from the schema.
  */
