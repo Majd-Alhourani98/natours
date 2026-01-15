@@ -249,6 +249,14 @@ const getMonthlyPlan = async (req, res) => {
   }
 };
 
+const aliasTopTours = async (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,description,difficulty';
+
+  next();
+};
+
 module.exports = {
   getAllTours,
   getTour,
@@ -257,4 +265,5 @@ module.exports = {
   deleteTour,
   getTourStatistics,
   getMonthlyPlan,
+  aliasTopTours,
 };
