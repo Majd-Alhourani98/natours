@@ -12,6 +12,7 @@ const authRouter = require('./routes/auth.routes');
 
 const { NotFoundError } = require('./errors/AppError');
 const errorHandler = require('./errors/errorHandler');
+const notFound = require('./errors/notFound');
 
 const app = express();
 
@@ -39,9 +40,7 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
 
-app.all('*', (req, res, next) => {
-  return next(new NotFoundError(`Can't find ${req.originalUrl} on this server`));
-});
+app.all('*', notFound);
 
 app.use(errorHandler);
 
