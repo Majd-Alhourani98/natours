@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
 
 // const DB_URL = 'mongodb://localhost:27017/natours';
+const buildDatabaseURL = (databaseURL, username, password, dbname) => {
+  return databaseURL.replace('<USERNAME>', username).replace('<PASSWORD>', password).replace('<DATABASE_NAME>', dbname);
+};
 
-const DB_URL = process.env.DATABASE_URL.replace('<USERNAME>', process.env.DATABASE_USERNAME)
-  .replace('<PASSWORD>', process.env.DATABASE_PASSWORD)
-  .replace('<DATABASE_NAME>', process.env.DATABASE_NAME);
+const { DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_NAME } = process.env;
+
+const DB_URL = buildDatabaseURL(DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_NAME);
 
 console.log(DB_URL);
 const connectDB = async () => {
