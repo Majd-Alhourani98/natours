@@ -39,10 +39,7 @@ const createTour = catchAsync(async (req, res, next) => {
 // GET /tours/:id - Get a specific tour by ID
 // Expects tour ID in request parameters
 const getTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const tour = await Tour.findById(id);
-
-  if (!tour) return next(new AppError("No tour found with that ID", 404));
+  const tour = tourService.findTourById(req.params.id);
 
   return res.status(200).json({
     status: "success",

@@ -1,3 +1,4 @@
+const AppError = require("../errors/AppError");
 const APIFeatures = require("../utils/apiFeatures");
 const Tour = require("./../models/tour.model");
 
@@ -26,7 +27,17 @@ const createNewTour = async (data) => {
   return tour;
 };
 
+const findTourById = async (id) => {
+  const tour = await Tour.findById(id);
+
+  if (!tour) throw new AppError(`No tour found with that ID ${id}`, 404);
+
+  return tour;
+};
+
 module.exports = {
   findAllTours,
   createNewTour,
+  findTourById,
+  updateTourById,
 };
