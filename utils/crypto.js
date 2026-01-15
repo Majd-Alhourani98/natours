@@ -23,4 +23,4 @@ const generateOtp = (length = OTP.LENGTH, expiryDurationsMs = OTP.TTL_MS) => {
   return { otp, hashedOtp, otpExpires };
 };
 
-console.log(generateOtp());
+module.exports = { generateOtp };
