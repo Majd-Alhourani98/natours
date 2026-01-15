@@ -50,16 +50,9 @@ const getTour = catchAsync(async (req, res, next) => {
 
 // PATCH /tours/:id - Update a specific tour by ID
 // Expects tour ID in request parameters and updated data in request body
+
 const updateTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const data = req.body;
-
-  const tour = await Tour.findByIdAndUpdate(id, data, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!tour) return next(new AppError("No tour found with that ID", 404));
+  const tour = await tourService.updateTourById(req.params.id, req.body);
 
   return res.status(200).json({
     status: "success",

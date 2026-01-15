@@ -35,6 +35,17 @@ const findTourById = async (id) => {
   return tour;
 };
 
+const updateTourById = async (id, data) => {
+  const tour = await Tour.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!tour) throw new AppError(`No tour found with that ID ${id}`, 404);
+
+  return tour;
+};
+
 module.exports = {
   findAllTours,
   createNewTour,
