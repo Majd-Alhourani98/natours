@@ -8,12 +8,20 @@ const DB_URL = buildDatabaseURL(DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWO
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(DB_URL);
-    console.log('Database connection successful');
-  } catch (err) {
-    console.error('Database connection error:', err);
-    // Exit process with failure
-    process.exit(1);
+    const conn = await mongoose.connect(DB_URL);
+    console.log(`\n${'━'.repeat(14)} 🔥 DATABASE ${'━'.repeat(14)}`);
+    console.log('✅ MongoDB connected successfully');
+    console.log(`📦 Database: ${mongoose.connection.name}`);
+    console.log(`🌐 Host: ${mongoose.connection.host}`);
+    console.log(`${'━'.repeat(41)}\n`);
+  } catch (error) {
+    console.error(`\n${'❌'.repeat(20)} DATABASE ERROR ${'❌'.repeat(20)}`);
+    console.error('🚨 MongoDB connection failed');
+    console.error(`📛 Error: ${error.message}`);
+    console.error(`🔍 Error Code: ${error.code || 'N/A'}`);
+    console.error(`📍 Connection String: ${DB_URL}`);
+    console.error(`${'❌'.repeat(48)}\n`);
+    process.exit(1); // Exit process with failure
   }
 };
 
