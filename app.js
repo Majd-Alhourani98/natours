@@ -4,6 +4,7 @@ const path = require('path');
 
 const express = require('express');
 const morgan = require('morgan');
+require('./config/transporter');
 
 // Routers
 const tourRouter = require('./routes/tour.routes');
