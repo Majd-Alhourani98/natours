@@ -7,19 +7,13 @@ const { genereateToken, generateOtp } = require('../utils/crypto');
 
 const signup = catchAsync(async (req, res) => {
   const { name, email, password, passwordConfirm } = req.body;
-  const { token, hashedToken, expiryToken } = genereateToken();
-  const { otp, hashedOtp, expiryOtp } = generateOtp();
 
-  const user = await User.create({
-    name,
-    email,
-    password,
-    passwordConfirm,
-    emailVerificationToken: hashedToken,
-    emailVerificationTokenExpires: expiryToken,
-    emailVerificationOTP: hashedOtp,
-    emailVerificationOTPExpires: expiryOtp,
-  });
+  const user = await User.create({ name, email, password, passwordConfirm });
+
+  const token = user.generateEmailVerificationToken();
+  const otp = user.generateEmailVerificationOtp();
+
+  await user.save({ validateBeforeSave: false });
 
   res.status(httpStatus.CREATED).json({
     status: responseStatus.SUCCESS,

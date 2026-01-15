@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const mongoose = require('mongoose');
 const argon2 = require('argon2');
 const nanoidLetters = require('../utils/nanoidLetters');
@@ -108,6 +110,30 @@ userSchema.pre('save', async function () {
     this.username = username;
   }
 });
+
+userSchema.methods.generateEmailVerificationToken = function (
+  length = 32,
+  expiryDurationMs = 10 * 60 * 1000
+) {
+  const token = crypto.randomBytes(length).toString('hex');
+  this.emailVerificationToken = crypto.createHash('sha256').update(token).digest('hex');
+  this.emailVerificationTokenExpires = Date.now() + expiryDurationMs;
+
+  return token;
+};
+
+userSchema.methods.generateEmailVerificationOtp = function (
+  length = 6,
+  expiryDurationMs = 10 * 60 * 1000
+) {
+  const max = Math.pow(10, length);
+  const otp = crypto.randomInt(0, max).toString().padStart(length, '0');
+
+  this.emailVerificationOTP = crypto.createHash('sha256').update(otp).digest('hex');
+  this.emailVerificationOTPExpires = Date.now() + expiryDurationMs;
+
+  return otp;
+};
 
 const User = mongoose.model('User', userSchema);
 
