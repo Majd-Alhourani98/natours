@@ -1,11 +1,16 @@
 const crypto = require('crypto');
 const { getExpiryDate } = require('./date');
 
+const OTP = {
+  LENGTH: Number(process.env.OTP_LENGTH) || 6,
+  TTL_MS: Number(process.env.OTP_TTL_MS) || 15 * 60 * 1000,
+};
+
 const hashValue = value => {
   return crypto.createHash('sha256').update(value).digest('hex');
 };
 
-const generateOtp = (length = 6, expiryDurationsMs = 15 * 60 * 1000) => {
+const generateOtp = (length = OTP.LENGTH, expiryDurationsMs = OTP.TTL_MS) => {
   let otp = '';
 
   for (let i = 0; i < length; i++) {
