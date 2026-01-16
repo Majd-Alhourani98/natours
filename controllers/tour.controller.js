@@ -90,70 +90,18 @@ const getTourStats = catchAsync(async (req, res, next) => {
 
 // GET /tours/monthly-plan/:year - Get monthly plan for a specific year
 // Expects year in request parameters
-const getMonthlyPlan = catchAsync(async (req, res, next) => {
+exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
   const year = Number(req.params.year);
 
-  const plan = await Tour.aggregate([
-    { $unwind: "$startDates" },
-    {
-      $match: {
-        startDates: {
-          $gte: new Date(`${year}-01-01`),
-          $lte: new Date(`${year}-12-31`),
-        },
-      },
-    },
-    {
-      $group: {
-        _id: { $month: "$startDates" },
-        numTourStarts: { $sum: 1 },
-        // Pushing an object instead of just a string
-        tours: { $push: { name: "$name", price: "$price" } },
-      },
-    },
-    {
-      $addFields: {
-        month: "$_id",
-        // Converting number to Name
-        monthName: {
-          $let: {
-            vars: {
-              monthsInString: [
-                "",
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December",
-              ],
-            },
-            in: { $arrayElemAt: ["$monthsInString", "$_id"] },
-          },
-        },
-      },
-    },
-    { $project: { _id: 0 } },
-    { $sort: { month: 1 } }, // Sorting chronologically is usually better for plans
-  ]);
+  const plan = await tourService.getMonthlyPlan(year);
 
-  return res.status(200).json({
+  res.status(200).json({
     status: "success",
     message: "Monthly plan retrieved successfully",
     results: plan.length,
     data: { plan },
   });
 });
-
-// field: the name of the field
-// $field: the data inside that field
-// $$var: A temporary value you created.
 
 module.exports = {
   getAllTours,

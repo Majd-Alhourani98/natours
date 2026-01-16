@@ -113,6 +113,62 @@ const getTourStats = async () => {
   return stats[0];
 };
 
+exports.getMonthlyPlan = async (year) => {
+  const plan = await Tour.aggregate([
+    { $unwind: "$startDates" },
+    {
+      $match: {
+        startDates: {
+          $gte: new Date(`${year}-01-01`),
+          $lte: new Date(`${year}-12-31`),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: { $month: "$startDates" },
+        numTourStarts: { $sum: 1 },
+        tours: { $push: { name: "$name", price: "$price" } },
+      },
+    },
+    {
+      $addFields: {
+        month: "$_id",
+        monthName: {
+          $let: {
+            vars: {
+              monthsInString: [
+                "",
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+              ],
+            },
+            in: { $arrayElemAt: ["$$monthsInString", "$_id"] },
+          },
+        },
+      },
+    },
+    { $project: { _id: 0 } },
+    { $sort: { month: 1 } },
+  ]);
+
+  return plan;
+};
+
+// field: the name of the field
+// $field: the data inside that field
+// $$var: A temporary value you created.
+
 module.exports = {
   findAllTours,
   createNewTour,
