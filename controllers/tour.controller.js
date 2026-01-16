@@ -90,7 +90,7 @@ const getTourStats = catchAsync(async (req, res, next) => {
 
 // GET /tours/monthly-plan/:year - Get monthly plan for a specific year
 // Expects year in request parameters
-exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
+const getMonthlyPlan = catchAsync(async (req, res, next) => {
   const year = Number(req.params.year);
 
   const plan = await tourService.getMonthlyPlan(year);

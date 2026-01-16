@@ -113,7 +113,7 @@ const getTourStats = async () => {
   return stats[0];
 };
 
-exports.getMonthlyPlan = async (year) => {
+const getMonthlyPlan = async (year) => {
   const plan = await Tour.aggregate([
     { $unwind: "$startDates" },
     {
@@ -176,4 +176,5 @@ module.exports = {
   updateTourById,
   deleteTourById,
   getTourStats,
+  getMonthlyPlan,
 };

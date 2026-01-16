@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const tourController = require("../controllers/tour.controller");
-
+const tourMiddleware = require("../middlewares/tour.middleware");
 // router.param("id", (req, res, next, value) => {
 //   console.log(`Tour ID is: ${value}`);
 //   next();
@@ -17,7 +17,7 @@ router.route("/monthly-plan/:year").get(tourController.getMonthlyPlan);
 
 router
   .route("/top-five-cheap")
-  .get(tourController.aliasTopFiveTour, tourController.getAllTours);
+  .get(tourMiddleware.aliasTopFiveTour, tourController.getAllTours);
 
 router.route("/tours-stats").get(tourController.getTourStats);
 
