@@ -6,7 +6,7 @@ const { DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_NAME, DATABASE_URL } =
 
 let DB_URI;
 
-if (process.env.NODE_env === "development") {
+if (process.env.NODE_ENV === "development") {
   DB_URI = "mongodb://localhost:27017/natours";
 } else {
   DB_URI = buildDatabaseURL(

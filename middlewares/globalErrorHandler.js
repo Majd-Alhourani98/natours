@@ -5,6 +5,13 @@ const {
   handleValidationErrorDB,
 } = require("../errors/dbErrorHandler");
 
+const transformError = (error) => {
+  if (error.name === "CastError") error = handleCastErrorDB(error);
+  if (error.code === 11000) error = handleDuplicateFieldsDB(error);
+  if (error.name === "ValidationError") error = handleValidationErrorDB(error);
+  return error;
+};
+
 const sendErrorDev = (err, res) => {
   // Development: send full error details
   sendResponse(res, {
@@ -50,10 +57,7 @@ const globalErrorHandler = (err, req, res, next) => {
     error.message = err.message;
     error.name = err.name;
 
-    if (error.name === "CastError") error = handleCastErrorDB(error);
-    if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-    if (error.name === "ValidationError")
-      error = handleValidationErrorDB(error);
+    error = transformError(err);
 
     sendErrorProd(error, res);
   }
