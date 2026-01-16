@@ -12,7 +12,6 @@ const signup = catchAsync(async (req, res) => {
   const user = new User({ name, email, password, passwordConfirm });
 
   const otp = user.generateEmailVerificationOtp();
-  await user.save();
 
   try {
     await sendEmail({
@@ -23,7 +22,11 @@ const signup = catchAsync(async (req, res) => {
   } catch (error) {
     user.emailVerificationOTP = undefined;
     user.emailVerificationOTPExpires = undefined;
-    user.save({ validateBeforeSave: false });
+
+    // We log it so developers know, but the user gets a 201 Success
+    console.error('📧 Silent Email Failure:', error.message);
+  } finally {
+    await user.save();
   }
 
   res.status(201).json({
