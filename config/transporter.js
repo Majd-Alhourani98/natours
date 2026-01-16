@@ -22,4 +22,4 @@ transporter.verify((err, success) => {
   }
 });
 
-module.exports = nodemailer;
+module.exports = transporter;
