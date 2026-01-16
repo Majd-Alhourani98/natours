@@ -23,10 +23,11 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Health check endpoint
 app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "success",
-    uptime: process.uptime(),
+  sendResponse(res, {
     message: "API is healthy and running smoothly 🚀",
+    data: {
+      uptime: process.uptime(),
+    },
   });
 });
 
