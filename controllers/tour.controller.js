@@ -79,65 +79,12 @@ const aliasTopFiveTour = async (req, res, next) => {
 
 // GET /tours/stats - Get tour statistics
 const getTourStats = catchAsync(async (req, res, next) => {
-  const stats = await Tour.aggregate([
-    {
-      $facet: {
-        overall: [
-          {
-            $group: {
-              _id: null,
-              numTours: { $sum: 1 },
-              numOfRatings: { $sum: "$ratingsQuantity" },
-              avgRating: { $avg: "$ratingsAverage" },
-              minRating: { $min: "$ratingsAverage" },
-              maxRating: { $max: "$ratingsAverage" },
-              avgPrice: { $avg: "$price" },
-              minPrice: { $min: "$price" },
-              maxPrice: { $max: "$price" },
-            },
-          },
-
-          {
-            $project: { _id: 0 },
-          },
-        ],
-
-        byDifficulty: [
-          {
-            // 1) Filter for tours with a high enough rating
-            $match: { ratingsAverage: { $gte: 4.5 } },
-          },
-          {
-            // 2) Group by difficulty (converted to uppercase)
-            $group: {
-              _id: { $toUpper: "$difficulty" },
-              numTours: { $sum: 1 },
-              numOfRatings: { $sum: "$ratingsQuantity" },
-              avgRating: { $avg: "$ratingsAverage" },
-              minRating: { $min: "$ratingsAverage" },
-              maxRating: { $max: "$ratingsAverage" },
-              avgPrice: { $avg: "$price" },
-              minPrice: { $min: "$price" },
-              maxPrice: { $max: "$price" },
-            },
-          },
-          {
-            // 3) Sort by average price (ascending)
-            $sort: { avgPrice: 1 },
-          },
-          {
-            // 4) Filter out 'EASY' (Note: must be uppercase to match group stage)
-            $match: { _id: { $ne: "EASY" } },
-          },
-        ],
-      },
-    },
-  ]);
+  const stats = await tourService.getTourStats();
 
   return res.status(200).json({
     status: "success",
     message: "Statistics retrieved successfully",
-    data: { stats: stats[0] },
+    data: { stats: stats },
   });
 });
 
