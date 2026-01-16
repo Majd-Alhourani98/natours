@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
 const notFound = require('./errors/notFound');
+const globalError = require('./errors/globalError');
 
 const app = express();
 
@@ -28,15 +29,6 @@ app.use('/api/v1/users', userRouter);
 
 app.all('*', notFound);
 
-app.use((err, req, res, next) => {
-  console.log(err);
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
-});
+app.use(globalError);
 
 module.exports = app;
