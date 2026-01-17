@@ -1,3 +1,5 @@
+const argon2 = require('argon2');
+
 const { ConflictError, BadRequestError } = require('../errors/AppError');
 const catchAsync = require('../errors/catchAsync');
 const User = require('../models/user.model');
@@ -77,4 +79,36 @@ const verifyEmail = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports = { signup, verifyEmail };
+const login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(new BadRequestError('Email and password are required'));
+  }
+
+  // 1. Find user and explicitly select the password field
+  const user = await User.findOne({ email }).select('+password');
+
+  // 2. Generic error if user doesn't exist
+  if (!user) return next(new BadRequestError('Email or password is incorrect'));
+
+  // 3. Block login if email isn't verified
+  if (!user.isEmailVerified) {
+    return next(new BadRequestError('Please verify your email before logging in.'));
+  }
+
+  // Password Verification
+  const isPasswordCorrect = await argon2.verify(user.password, password);
+
+  if (!isPasswordCorrect) {
+    return next(new BadRequestError('Email or password is incorrect'));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Logged in successfully!',
+    data: user,
+  });
+});
+
+module.exports = { signup, verifyEmail, login };

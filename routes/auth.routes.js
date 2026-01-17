@@ -1,9 +1,10 @@
 const express = require('express');
-const { signup, verifyEmail } = require('../controllers/auth.controller');
+const { signup, verifyEmail, login } = require('../controllers/auth.controller');
 
 const router = express.Router();
 
 router.route('/signup').post(signup);
+router.route('/login').post(login);
 router.route('/verify-email').post(verifyEmail);
 
 module.exports = router;
