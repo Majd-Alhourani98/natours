@@ -1,4 +1,9 @@
 const { generateErrorId } = require('../utils/nanoid');
+const AppError = require('./AppError');
+
+const handleCastErrorDB = err => {
+  return new AppError(`Invalid ${err.path}: ${err.value}.`, 400);
+};
 
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -16,6 +21,7 @@ const sendErrorProd = (err, req, res) => {
       message: err.message,
     });
   } else {
+    console.log(err);
     const errorId = generateErrorId();
     console.error('💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥 CRITICAL ERROR 💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥');
     console.error(`ID:        ${errorId}`);
@@ -43,7 +49,11 @@ const globalError = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     return sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
-    return sendErrorProd(err, req, res);
+    let error = { ...err };
+    error.name = err.name;
+
+    if (error.name === 'CastError') error = handleCastErrorDB(error);
+    return sendErrorProd(error, req, res);
   }
 };
 
