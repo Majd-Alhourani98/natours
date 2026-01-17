@@ -1,11 +1,6 @@
+const catchAsync = require('../errors/catchAsync');
 const Tour = require('../models/tour.model');
 const { APIFeatures } = require('../utils/APIFeatures');
-
-const catchAsync = fn => {
-  return (req, res, next) => {
-    fn(req, res, next).catch(err => next(err));
-  };
-};
 
 const getAllTours = catchAsync(async (req, res) => {
   const features = new APIFeatures(Tour, req.query).build();
