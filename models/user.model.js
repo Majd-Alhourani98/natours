@@ -57,5 +57,19 @@ userSchema.pre("save", async function () {
   this.passwordConfirm = undefined;
 });
 
+userSchema.set("toJSON", {
+  transform: (doc, ret) => {
+    delete ret.password;
+    delete ret.emailVerificationToken;
+    delete ret.emailVerificationTokenExpires;
+    delete ret.passwordResetToken;
+    delete ret.passwordResetExpires;
+    delete ret.emailVerificationOTP;
+    delete ret.emailVerificationOTPExpires;
+
+    return ret;
+  },
+});
+
 const User = mongoose.model("User", userSchema);
 module.exports = User;
