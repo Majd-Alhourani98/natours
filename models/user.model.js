@@ -1,6 +1,7 @@
 const argon2 = require("argon2");
-const { nanoid, customAlphabet } = require("nanoid");
 const mongoose = require("mongoose");
+
+const { generateUsernameSuffix } = require("../utils/nanoid");
 
 const userSchema = new mongoose.Schema(
   {
@@ -77,14 +78,13 @@ userSchema.set("toJSON", {
   },
 });
 
-const nanoidLetters = customAlphabet("abcdefghijklmnopqrstuvwxyz", 5);
 userSchema.pre("save", async function () {
   if (!this.username) {
     const base = this.name.replace(/\s+/g, "-").toLowerCase();
     let username = base;
 
-    while (await User.findOne({ username }).lean()) {
-      username = `${base}_${nanoidLetters()}`.toLowerCase();
+    while (await mongoose.models.User.findOne({ username }).lean()) {
+      username = `${base}_${generateUsernameSuffix()}`.toLowerCase();
     }
 
     this.username = username;
