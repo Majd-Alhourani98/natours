@@ -5,6 +5,14 @@ const handleCastErrorDB = err => {
   return new AppError(`Invalid ${err.path}: ${err.value}.`, 400);
 };
 
+const handleDuplicateFieldsDB = err => {
+  const field = Object.keys(err.keyValue)[0];
+  const value = err.keyValue[field];
+  console.log(field);
+
+  return new AppError(`Duplicate field: ${field}: "${value}". Please use another value.`, 400);
+};
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -53,6 +61,8 @@ const globalError = (err, req, res, next) => {
     error.name = err.name;
 
     if (error.name === 'CastError') error = handleCastErrorDB(error);
+    if (error.code === 11000) error = handleDuplicateFieldsDB(error);
+
     return sendErrorProd(error, req, res);
   }
 };
