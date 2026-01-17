@@ -1,8 +1,14 @@
-const AppError = require("../errors/AppError");
+const {
+  BadRequestError,
+  ValidationError,
+  ConflictError,
+} = require("../errors/AppError");
 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}.`;
-  return new AppError(message, 400);
+
+  // Use BadRequestError for invalid ID formats/types
+  return new BadRequestError(message);
 };
 
 const handleDuplicateFieldsDB = (err) => {
@@ -11,7 +17,8 @@ const handleDuplicateFieldsDB = (err) => {
 
   const message = `Duplicate field: ${field}: "${value}". Please use another value.`;
 
-  return new AppError(message, 400);
+  // Use ConflictError (409) as it best represents a duplicate resource state
+  return new ConflictError(message);
 };
 
 const handleValidationErrorDB = (err) => {
@@ -21,8 +28,8 @@ const handleValidationErrorDB = (err) => {
   // 2) Join them into a single readable string
   const message = `Invalid input data: ${errors.join(". ")}`;
 
-  return new AppError(message, 400);
-  //   return new AppError(err.message, 400);
+  // Use your new ValidationError class (422)
+  return new ValidationError(message);
 };
 
 module.exports = {

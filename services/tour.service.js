@@ -1,4 +1,4 @@
-const AppError = require("../errors/AppError");
+const { NotFoundError } = require("../errors/AppError");
 const APIFeatures = require("../utils/apiFeatures");
 const Tour = require("./../models/tour.model");
 
@@ -30,7 +30,7 @@ const createNewTour = async (data) => {
 const findTourById = async (id) => {
   const tour = await Tour.findById(id);
 
-  if (!tour) throw new AppError(`No tour found with that ID ${id}`, 404);
+  if (!tour) throw new NotFoundError(`No tour found with that ID ${id}`);
 
   return tour;
 };
@@ -41,16 +41,14 @@ const updateTourById = async (id, data) => {
     runValidators: true,
   });
 
-  if (!tour) throw new AppError(`No tour found with that ID ${id}`, 404);
-
+  if (!tour) throw new NotFoundError(`No tour found with that ID ${id}`);
   return tour;
 };
 
 const deleteTourById = async (id) => {
   const tour = await Tour.findByIdAndDelete(id);
 
-  if (!tour) throw new AppError(`No tour found with that ID ${id}`, 404);
-
+  if (!tour) throw new NotFoundError(`No tour found with that ID ${id}`);
   return null;
 };
 
