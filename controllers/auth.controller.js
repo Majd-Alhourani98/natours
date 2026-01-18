@@ -10,6 +10,7 @@ const signup = catchAsync(async (req, res, next) => {
     name,
     password,
     passwordConfirm,
+    isEmailVerified: false,
   });
 
   sendResponse(res, { statusCode: 201, data: { user: user } });
