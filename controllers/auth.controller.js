@@ -3,7 +3,13 @@ const catchAsync = require("../utils/catchAsync");
 const sendResponse = require("../utils/sendResponse");
 
 const signup = catchAsync(async (req, res, next) => {
-  const { email, name, password, passwordConfirm } = req.body;
+  const {
+    email,
+    name,
+    password,
+    passwordConfirm,
+    verifyMethod = "otp",
+  } = req.body;
 
   const user = new User({
     email,
@@ -13,9 +19,7 @@ const signup = catchAsync(async (req, res, next) => {
     isEmailVerified: false,
   });
 
-  let token,
-    otp,
-    verifyMethod = "otp";
+  let token, otp;
 
   if (verifyMethod === "otp") {
     otp = user.generateEmailVerificationOtp();
