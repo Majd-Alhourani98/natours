@@ -2,6 +2,7 @@ const argon2 = require("argon2");
 const mongoose = require("mongoose");
 
 const { generateUsernameSuffix } = require("../utils/nanoid");
+const { generateToken, generateOtp } = require("../utils/crypto");
 
 const userSchema = new mongoose.Schema(
   {
@@ -67,14 +68,6 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return;
-  if (!this.password) return;
-
-  this.password = await argon2.hash(this.password, 12);
-  this.passwordConfirm = undefined;
-});
-
 userSchema.set("toJSON", {
   transform: (doc, ret) => {
     delete ret.password;
@@ -90,6 +83,14 @@ userSchema.set("toJSON", {
 });
 
 userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  if (!this.password) return;
+
+  this.password = await argon2.hash(this.password, 12);
+  this.passwordConfirm = undefined;
+});
+
+userSchema.pre("save", async function () {
   if (!this.username) {
     const base = this.name.replace(/\s+/g, "-").toLowerCase();
     let username = base;
@@ -101,6 +102,24 @@ userSchema.pre("save", async function () {
     this.username = username;
   }
 });
+
+userSchema.methods.generateEmailVerificationToken = function () {
+  const { token, hashedToken, tokenExpires } = generateToken();
+
+  this.emailVerificationToken = hashedToken;
+  this.emailVerificationTokenExpires = tokenExpires;
+
+  return token;
+};
+
+userSchema.methods.generateEmailVerificationOtp = function () {
+  const { otp, hashedOtp, otpExpires } = generateOtp();
+
+  this.emailVerificationOTP = hashedOtp;
+  this.emailVerificationOTPExpires = otpExpires;
+
+  return otp;
+};
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;

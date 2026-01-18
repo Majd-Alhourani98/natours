@@ -6,20 +6,18 @@ const sendResponse = require("../utils/sendResponse");
 const signup = catchAsync(async (req, res, next) => {
   const { email, name, password, passwordConfirm } = req.body;
 
-  const { token, hashedToken, tokenExpires } = generateToken();
-  const { otp, hashedOtp, otpExpires } = generateOtp();
-
-  const user = await User.create({
+  const user = new User({
     email,
     name,
     password,
     passwordConfirm,
     isEmailVerified: false,
-    emailVerificationToken: hashedToken,
-    emailVerificationTokenExpires: tokenExpires,
-    emailVerificationOTP: hashedOtp,
-    emailVerificationOTPExpires: otpExpires,
   });
+
+  const token = user.generateEmailVerificationToken();
+  const otp = user.generateEmailVerificationOtp();
+
+  await user.save();
 
   sendResponse(res, { statusCode: 201, data: { user: user, otp, token } });
 });
