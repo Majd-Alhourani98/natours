@@ -1,17 +1,17 @@
-const argon2 = require("argon2");
-const mongoose = require("mongoose");
+const argon2 = require('argon2');
+const mongoose = require('mongoose');
 
-const { generateUsernameSuffix } = require("../utils/nanoid");
-const { generateToken, generateOtp } = require("../utils/crypto");
+const { generateUsernameSuffix } = require('../utils/nanoid');
+const { generateToken, generateOtp } = require('../utils/crypto');
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Please tell us your name"],
+      required: [true, 'Please tell us your name'],
       trim: true,
-      minlength: [3, "Name must be at least 3 characters"],
-      maxlength: [50, "Name must be less than 50 characters"],
+      minlength: [3, 'Name must be at least 3 characters'],
+      maxlength: [50, 'Name must be less than 50 characters'],
     },
 
     username: {
@@ -22,32 +22,29 @@ const userSchema = new mongoose.Schema(
 
     email: {
       type: String,
-      required: [true, "Please provide your email"],
+      required: [true, 'Please provide your email'],
       unique: true,
       lowercase: true,
       trim: true,
-      match: [
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-        "Please provide a valid email",
-      ],
+      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email'],
     },
 
     password: {
       type: String,
-      required: [true, "Please provide a password"],
-      minlength: [8, "Password must be at least 8 characters"],
+      required: [true, 'Please provide a password'],
+      minlength: [8, 'Password must be at least 8 characters'],
     },
 
     passwordConfirm: {
       type: String,
-      required: [true, "Please confirm your password"],
+      required: [true, 'Please confirm your password'],
 
       validate: {
         validator: function (value) {
           return value === this.password;
         },
 
-        message: "Passwords do not match",
+        message: 'Passwords do not match',
       },
     },
 
@@ -68,7 +65,7 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-userSchema.set("toJSON", {
+userSchema.set('toJSON', {
   transform: (doc, ret) => {
     delete ret.password;
     delete ret.emailVerificationToken;
@@ -82,17 +79,17 @@ userSchema.set("toJSON", {
   },
 });
 
-userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return;
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
   if (!this.password) return;
 
   this.password = await argon2.hash(this.password, 12);
   this.passwordConfirm = undefined;
 });
 
-userSchema.pre("save", async function () {
+userSchema.pre('save', async function () {
   if (!this.username) {
-    const base = this.name.replace(/\s+/g, "-").toLowerCase();
+    const base = this.name.replace(/\s+/g, '-').toLowerCase();
     let username = base;
 
     while (await mongoose.models.User.findOne({ username }).lean()) {
@@ -121,5 +118,5 @@ userSchema.methods.generateEmailVerificationOtp = function () {
   return otp;
 };
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 module.exports = User;

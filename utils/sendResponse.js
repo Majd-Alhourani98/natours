@@ -7,9 +7,9 @@ const sendResponse = (
   res,
   {
     statusCode = 200,
-    status = "success",
+    status = 'success',
     data = null,
-    message = "",
+    message = '',
     paginationMetaData = null,
     results = null,
     error = null,

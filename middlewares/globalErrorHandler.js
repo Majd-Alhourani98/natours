@@ -1,14 +1,10 @@
-const sendResponse = require("../utils/sendResponse");
-const {
-  handleCastErrorDB,
-  handleDuplicateFieldsDB,
-  handleValidationErrorDB,
-} = require("../errors/dbErrorHandler");
+const sendResponse = require('../utils/sendResponse');
+const { handleCastErrorDB, handleDuplicateFieldsDB, handleValidationErrorDB } = require('../errors/dbErrorHandler');
 
-const transformError = (error) => {
-  if (error.name === "CastError") error = handleCastErrorDB(error);
+const transformError = error => {
+  if (error.name === 'CastError') error = handleCastErrorDB(error);
   if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-  if (error.name === "ValidationError") error = handleValidationErrorDB(error);
+  if (error.name === 'ValidationError') error = handleValidationErrorDB(error);
   return error;
 };
 
@@ -34,13 +30,13 @@ const sendErrorProd = (err, res) => {
     });
   } else {
     // Log the error for internal tracking
-    console.error("ERROR 💥", err);
+    console.error('ERROR 💥', err);
 
     // Send generic message
     sendResponse(res, {
       statusCode: 500,
-      status: "error",
-      message: "Something went very wrong! Please try again later.",
+      status: 'error',
+      message: 'Something went very wrong! Please try again later.',
     });
   }
 };
@@ -48,11 +44,11 @@ const sendErrorProd = (err, res) => {
 const globalErrorHandler = (err, req, res, next) => {
   // Set default values for error status and code
   err.statusCode = err.statusCode || 500;
-  err.status = err.status || "error";
+  err.status = err.status || 'error';
 
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
-  } else if (process.env.NODE_ENV === "production") {
+  } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err };
     error.message = err.message;
     error.name = err.name;

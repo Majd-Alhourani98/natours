@@ -1,9 +1,5 @@
-const getPaginationMetaData = (schema) => {
-  schema.statics.getPaginationMetaData = async function (
-    filter = {},
-    page = 1,
-    limit = 12,
-  ) {
+const getPaginationMetaData = schema => {
+  schema.statics.getPaginationMetaData = async function (filter = {}, page = 1, limit = 12) {
     const totalDocs = await this.countDocuments(filter);
     const totalPages = Math.ceil(totalDocs / limit);
 

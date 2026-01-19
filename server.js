@@ -1,22 +1,22 @@
 // 1) TOP-LEVEL SAFETY NET: Uncaught Exceptions
 // Must be at the top to catch bugs in your imports/configurations
-process.on("uncaughtException", (err) => {
-  console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
+process.on('uncaughtException', err => {
+  console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
   console.log(err.name, err.message);
   process.exit(1);
 });
 
-const dotenv = require("dotenv").config();
+const dotenv = require('dotenv').config();
 
-const connectDB = require("./config/db");
+const connectDB = require('./config/db');
 
-const app = require("./app");
+const app = require('./app');
 
 connectDB();
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
-  console.log(`\n${"━".repeat(20)} 🔥 SERVER ${"━".repeat(20)}`);
+  console.log(`\n${'━'.repeat(20)} 🔥 SERVER ${'━'.repeat(20)}`);
   console.log(`🟢 STATUS      → Running`);
   console.log(`🔗 LINK        → http://localhost:${PORT}`);
   console.log(`🌍 ENVIRONMENT → ${process.env.NODE_ENV}`);
@@ -24,8 +24,8 @@ const server = app.listen(PORT, () => {
 });
 
 // SAFETY NET: Handling Unhandled Rejections
-process.on("unhandledRejection", (err) => {
-  console.log("UNHANDLED REJECTION! 💥 Shutting down...");
+process.on('unhandledRejection', err => {
+  console.log('UNHANDLED REJECTION! 💥 Shutting down...');
   console.log(err.name, err.message);
 
   // Give the server time to finish pending requests before closing

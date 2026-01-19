@@ -1,6 +1,6 @@
-const { customAlphabet } = require("nanoid");
+const { customAlphabet } = require('nanoid');
 
-const alphabet = "abcdefghijklmnopqrstuvwxyz";
+const alphabet = 'abcdefghijklmnopqrstuvwxyz';
 
 /**
  * Generates a random alphabetical string.

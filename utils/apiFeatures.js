@@ -23,15 +23,12 @@ class APIFeatures {
     const queryObj = { ...this.queryString };
 
     // Define fields that are handled by other methods
-    const excludedFields = ["page", "limit", "fields", "sort", "search"];
-    excludedFields.forEach((field) => delete queryObj[field]);
+    const excludedFields = ['page', 'limit', 'fields', 'sort', 'search'];
+    excludedFields.forEach(field => delete queryObj[field]);
 
     // Convert operators to MongoDB syntax: gte -> $gte
     let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(
-      /\b(gte|gt|lte|lt|ne|in|nin)\b/g,
-      (match) => `$${match}`,
-    );
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt|ne|in|nin)\b/g, match => `$${match}`);
 
     // Merge new filters with existing ones and apply to the Mongoose query
     this.mongoFilter = { ...this.mongoFilter, ...JSON.parse(queryStr) };
@@ -60,11 +57,11 @@ class APIFeatures {
   sort() {
     if (this.queryString.sort) {
       // Split comma-separated string from URL into space-separated string for Mongoose
-      const sortBy = this.queryString.sort.split(",").join(" ");
+      const sortBy = this.queryString.sort.split(',').join(' ');
       this.query = this.query.sort(sortBy);
     } else {
       // Default: Sort by newest created date; include _id to ensure consistent pagination
-      this.query = this.query.sort("-createdAt _id");
+      this.query = this.query.sort('-createdAt _id');
     }
     return this;
   }
@@ -75,11 +72,11 @@ class APIFeatures {
    */
   select() {
     if (this.queryString.fields) {
-      const fields = this.queryString.fields.split(",").join(" ");
+      const fields = this.queryString.fields.split(',').join(' ');
       this.query = this.query.select(fields);
     } else {
       // Default: Exclude the Mongoose internal version key (__v)
-      this.query = this.query.select("-__v");
+      this.query = this.query.select('-__v');
     }
     return this;
   }

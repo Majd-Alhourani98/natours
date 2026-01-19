@@ -1,16 +1,14 @@
-const tourService = require("../services/tour.service");
-const catchAsync = require("../utils/catchAsync");
-const sendResponse = require("../utils/sendResponse");
+const tourService = require('../services/tour.service');
+const catchAsync = require('../utils/catchAsync');
+const sendResponse = require('../utils/sendResponse');
 
 // GET /tours - Get all tours
 const getAllTours = catchAsync(async (req, res, next) => {
-  const { tours, paginationMetaData } = await tourService.findAllTours(
-    req.query,
-  );
+  const { tours, paginationMetaData } = await tourService.findAllTours(req.query);
 
   sendResponse(res, {
     data: { tours },
-    message: "Tours retrieved successfully",
+    message: 'Tours retrieved successfully',
     paginationMetaData,
   });
 });
@@ -22,7 +20,7 @@ const createTour = catchAsync(async (req, res, next) => {
   sendResponse(res, {
     statusCode: 201,
     data: { tour },
-    message: "Tour created successfully",
+    message: 'Tour created successfully',
   });
 });
 
@@ -32,7 +30,7 @@ const getTour = catchAsync(async (req, res, next) => {
 
   sendResponse(res, {
     data: { tour },
-    message: "Tour retrieved successfully",
+    message: 'Tour retrieved successfully',
   });
 });
 
@@ -42,7 +40,7 @@ const updateTour = catchAsync(async (req, res, next) => {
 
   sendResponse(res, {
     data: { tour },
-    message: "Tour updated successfully",
+    message: 'Tour updated successfully',
   });
 });
 
@@ -53,7 +51,7 @@ const deleteTour = catchAsync(async (req, res, next) => {
   sendResponse(res, {
     statusCode: 204,
     data: null,
-    message: "Tour deleted successfully",
+    message: 'Tour deleted successfully',
   });
 });
 
@@ -63,7 +61,7 @@ const getTourStats = catchAsync(async (req, res, next) => {
 
   sendResponse(res, {
     data: { stats },
-    message: "Statistics retrieved successfully",
+    message: 'Statistics retrieved successfully',
   });
 });
 
@@ -73,7 +71,7 @@ const getMonthlyPlan = catchAsync(async (req, res, next) => {
 
   sendResponse(res, {
     data: { plan },
-    message: "Monthly plan retrieved successfully",
+    message: 'Monthly plan retrieved successfully',
     results: plan.length,
   });
 });

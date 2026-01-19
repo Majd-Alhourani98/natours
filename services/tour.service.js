@@ -1,15 +1,10 @@
-const { NotFoundError } = require("../errors/AppError");
-const APIFeatures = require("../utils/apiFeatures");
-const Tour = require("./../models/tour.model");
+const { NotFoundError } = require('../errors/AppError');
+const APIFeatures = require('../utils/apiFeatures');
+const Tour = require('./../models/tour.model');
 
-const findAllTours = async (queryString) => {
+const findAllTours = async queryString => {
   // Build the query
-  const features = new APIFeatures(Tour.find(), queryString)
-    .filter()
-    .search()
-    .sort()
-    .select()
-    .paginate();
+  const features = new APIFeatures(Tour.find(), queryString).filter().search().sort().select().paginate();
 
   const { page = 1, limit = 12 } = features.paginationData;
 
@@ -21,13 +16,13 @@ const findAllTours = async (queryString) => {
   return { tours, paginationMetaData };
 };
 
-const createNewTour = async (data) => {
+const createNewTour = async data => {
   const tour = await Tour.create(data);
 
   return tour;
 };
 
-const findTourById = async (id) => {
+const findTourById = async id => {
   const tour = await Tour.findById(id);
 
   if (!tour) throw new NotFoundError(`No tour found with that ID ${id}`);
@@ -45,7 +40,7 @@ const updateTourById = async (id, data) => {
   return tour;
 };
 
-const deleteTourById = async (id) => {
+const deleteTourById = async id => {
   const tour = await Tour.findByIdAndDelete(id);
 
   if (!tour) throw new NotFoundError(`No tour found with that ID ${id}`);
@@ -61,13 +56,13 @@ const getTourStats = async () => {
             $group: {
               _id: null,
               numTours: { $sum: 1 },
-              numOfRatings: { $sum: "$ratingsQuantity" },
-              avgRating: { $avg: "$ratingsAverage" },
-              minRating: { $min: "$ratingsAverage" },
-              maxRating: { $max: "$ratingsAverage" },
-              avgPrice: { $avg: "$price" },
-              minPrice: { $min: "$price" },
-              maxPrice: { $max: "$price" },
+              numOfRatings: { $sum: '$ratingsQuantity' },
+              avgRating: { $avg: '$ratingsAverage' },
+              minRating: { $min: '$ratingsAverage' },
+              maxRating: { $max: '$ratingsAverage' },
+              avgPrice: { $avg: '$price' },
+              minPrice: { $min: '$price' },
+              maxPrice: { $max: '$price' },
             },
           },
 
@@ -84,15 +79,15 @@ const getTourStats = async () => {
           {
             // 2) Group by difficulty (converted to uppercase)
             $group: {
-              _id: { $toUpper: "$difficulty" },
+              _id: { $toUpper: '$difficulty' },
               numTours: { $sum: 1 },
-              numOfRatings: { $sum: "$ratingsQuantity" },
-              avgRating: { $avg: "$ratingsAverage" },
-              minRating: { $min: "$ratingsAverage" },
-              maxRating: { $max: "$ratingsAverage" },
-              avgPrice: { $avg: "$price" },
-              minPrice: { $min: "$price" },
-              maxPrice: { $max: "$price" },
+              numOfRatings: { $sum: '$ratingsQuantity' },
+              avgRating: { $avg: '$ratingsAverage' },
+              minRating: { $min: '$ratingsAverage' },
+              maxRating: { $max: '$ratingsAverage' },
+              avgPrice: { $avg: '$price' },
+              minPrice: { $min: '$price' },
+              maxPrice: { $max: '$price' },
             },
           },
           {
@@ -101,7 +96,7 @@ const getTourStats = async () => {
           },
           {
             // 4) Filter out 'EASY' (Note: must be uppercase to match group stage)
-            $match: { _id: { $ne: "EASY" } },
+            $match: { _id: { $ne: 'EASY' } },
           },
         ],
       },
@@ -111,9 +106,9 @@ const getTourStats = async () => {
   return stats[0];
 };
 
-const getMonthlyPlan = async (year) => {
+const getMonthlyPlan = async year => {
   const plan = await Tour.aggregate([
-    { $unwind: "$startDates" },
+    { $unwind: '$startDates' },
     {
       $match: {
         startDates: {
@@ -124,34 +119,34 @@ const getMonthlyPlan = async (year) => {
     },
     {
       $group: {
-        _id: { $month: "$startDates" },
+        _id: { $month: '$startDates' },
         numTourStarts: { $sum: 1 },
-        tours: { $push: { name: "$name", price: "$price" } },
+        tours: { $push: { name: '$name', price: '$price' } },
       },
     },
     {
       $addFields: {
-        month: "$_id",
+        month: '$_id',
         monthName: {
           $let: {
             vars: {
               monthsInString: [
-                "",
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December",
+                '',
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December',
               ],
             },
-            in: { $arrayElemAt: ["$$monthsInString", "$_id"] },
+            in: { $arrayElemAt: ['$$monthsInString', '$_id'] },
           },
         },
       },

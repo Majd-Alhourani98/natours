@@ -1,4 +1,4 @@
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
@@ -11,8 +11,8 @@ const transporter = nodemailer.createTransport({
 });
 
 transporter.verify((err, success) => {
-  if (err) console.error("💥Transporter error:", err);
-  else console.log("Transporter is ready:", success);
+  if (err) console.error('💥Transporter error:', err);
+  else console.log('Transporter is ready:', success);
 });
 
 module.exports = transporter;

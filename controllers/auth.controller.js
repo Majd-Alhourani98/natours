@@ -1,16 +1,10 @@
-const User = require("../models/user.model");
-const catchAsync = require("../utils/catchAsync");
-const sendEmail = require("../utils/email");
-const sendResponse = require("../utils/sendResponse");
+const User = require('../models/user.model');
+const catchAsync = require('../utils/catchAsync');
+const sendEmail = require('../utils/email');
+const sendResponse = require('../utils/sendResponse');
 
 const signup = catchAsync(async (req, res, next) => {
-  const {
-    email,
-    name,
-    password,
-    passwordConfirm,
-    verifyMethod = "otp",
-  } = req.body;
+  const { email, name, password, passwordConfirm, verifyMethod = 'otp' } = req.body;
 
   const user = new User({
     email,
@@ -22,9 +16,9 @@ const signup = catchAsync(async (req, res, next) => {
 
   let token, otp;
 
-  if (verifyMethod === "otp") {
+  if (verifyMethod === 'otp') {
     otp = user.generateEmailVerificationOtp();
-  } else if (verifyMethod == "link") {
+  } else if (verifyMethod == 'link') {
     token = user.generateEmailVerificationToken();
   }
 
@@ -33,9 +27,9 @@ const signup = catchAsync(async (req, res, next) => {
   try {
     await sendEmail({
       to: user.email,
-      subject: "Verify your email",
+      subject: 'Verify your email',
       text:
-        verifyMethod == "link"
+        verifyMethod == 'link'
           ? `Click this link to verify your email: ${process.env.FRONTEND_URL}/api/v1/auth/verify-email?token=${token}&email=${user.email}`
           : `Your OTP for email verification is: ${otp}`,
       // html,
@@ -49,9 +43,9 @@ const signup = catchAsync(async (req, res, next) => {
   }
 
   const message =
-    verifyMethod === "otp"
-      ? "Registration successful! Please check your email for the verification OTP."
-      : "Registration successful! A verification link has been sent to your email.";
+    verifyMethod === 'otp'
+      ? 'Registration successful! Please check your email for the verification OTP.'
+      : 'Registration successful! A verification link has been sent to your email.';
 
   sendResponse(res, {
     statusCode: 201,

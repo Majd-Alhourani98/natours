@@ -1,32 +1,32 @@
-const path = require("path");
+const path = require('path');
 
-const express = require("express");
-const morgan = require("morgan");
+const express = require('express');
+const morgan = require('morgan');
 
-const tourRouter = require("./routes/tour.routes");
-const userRouter = require("./routes/user.routes");
-const authRouter = require("./routes/auth.routes");
+const tourRouter = require('./routes/tour.routes');
+const userRouter = require('./routes/user.routes');
+const authRouter = require('./routes/auth.routes');
 
-const notFound = require("./middlewares/notFound");
-const globalErrorHandler = require("./middlewares/globalErrorHandler");
+const notFound = require('./middlewares/notFound');
+const globalErrorHandler = require('./middlewares/globalErrorHandler');
 
 // Initialize Express app
 const app = express();
 
 // Development logging
-if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the public directory
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get('/health', (req, res) => {
   sendResponse(res, {
-    message: "API is healthy and running smoothly 🚀",
+    message: 'API is healthy and running smoothly 🚀',
     data: {
       uptime: process.uptime(),
     },
@@ -34,12 +34,12 @@ app.get("/health", (req, res) => {
 });
 
 // Mount routers
-app.use("/api/v1/tours", tourRouter);
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/auth", authRouter);
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
+app.use('/api/v1/auth', authRouter);
 
 // Handle undefined routes
-app.all("*", notFound);
+app.all('*', notFound);
 
 // Global error handling middleware
 app.use(globalErrorHandler);
