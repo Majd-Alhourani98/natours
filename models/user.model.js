@@ -118,5 +118,13 @@ userSchema.methods.generateEmailVerificationOtp = function () {
   return otp;
 };
 
+userSchema.methods.setupVerification = function (method) {
+  if (method === 'otp') {
+    return { otp: this.generateEmailVerificationOtp() };
+  }
+
+  return { token: this.generateEmailVerificationToken() };
+};
+
 const User = mongoose.model('User', userSchema);
 module.exports = User;

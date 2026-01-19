@@ -5,34 +5,20 @@ const sendResponse = require('../utils/sendResponse');
 
 const signup = catchAsync(async (req, res, next) => {
   const { email, name, password, passwordConfirm, verifyMethod = 'otp' } = req.body;
+  const user = new User({ email, name, password, passwordConfirm, isEmailVerified: false });
 
-  const user = new User({
-    email,
-    name,
-    password,
-    passwordConfirm,
-    isEmailVerified: false,
-  });
-
-  let token, otp;
-
-  if (verifyMethod === 'otp') {
-    otp = user.generateEmailVerificationOtp();
-  } else if (verifyMethod == 'link') {
-    token = user.generateEmailVerificationToken();
-  }
+  const credentials = user.setupVerification(verifyMethod);
 
   await user.save();
 
   try {
-    await sendEmail({
+    const message = await sendEmail({
       to: user.email,
       subject: 'Verify your email',
       text:
-        verifyMethod == 'link'
-          ? `Click this link to verify your email: ${process.env.FRONTEND_URL}/api/v1/auth/verify-email?token=${token}&email=${user.email}`
-          : `Your OTP for email verification is: ${otp}`,
-      // html,
+        verifyMethod === 'link'
+          ? `Link: ${process.env.FRONTEND_URL}/verify?token=${credentials.token}&email=${user.email}`
+          : `OTP: ${credentials.otp}`,
     });
   } catch (error) {
     user.emailVerificationOTP = undefined;
@@ -50,7 +36,7 @@ const signup = catchAsync(async (req, res, next) => {
   sendResponse(res, {
     statusCode: 201,
     message,
-    data: { user, otp, token },
+    data: { user, otp: credentials.otp, token: credentials.token },
   });
 });
 
