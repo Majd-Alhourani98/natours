@@ -1,8 +1,9 @@
+const { NotFoundError } = require('../errors/AppError');
 const catchAsync = require('../errors/catchAsync');
 const Tour = require('../models/tour.model');
 const { APIFeatures } = require('../utils/APIFeatures');
 
-const getAllTours = catchAsync(async (req, res) => {
+const getAllTours = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(Tour, req.query).build();
 
   const [tours, paginationMetaData] = await Promise.all([
@@ -20,7 +21,7 @@ const getAllTours = catchAsync(async (req, res) => {
   });
 });
 
-const createTour = catchAsync(async (req, res) => {
+const createTour = catchAsync(async (req, res, next) => {
   const data = req.body;
 
   const tour = await Tour.create(data);
@@ -33,12 +34,12 @@ const createTour = catchAsync(async (req, res) => {
   });
 });
 
-const getTour = catchAsync(async (req, res) => {
+const getTour = catchAsync(async (req, res, next) => {
   const id = req.params.id;
 
   const tour = await Tour.findById(id);
 
-  if (!tour) throw new Error('No tour found with that ID');
+  if (!tour) return next(new NotFoundError('No tour found with that ID'));
 
   return res.status(200).json({
     status: 'success',
@@ -48,7 +49,7 @@ const getTour = catchAsync(async (req, res) => {
   });
 });
 
-const updateTour = catchAsync(async (req, res) => {
+const updateTour = catchAsync(async (req, res, next) => {
   const id = req.params.id;
   const updates = req.body;
 
@@ -58,7 +59,7 @@ const updateTour = catchAsync(async (req, res) => {
     runValidators: true,
   });
 
-  if (!tour) throw new Error('No tour found with that ID');
+  if (!tour) return next(new NotFoundError('No tour found with that ID'));
 
   return res.status(200).json({
     status: 'success',
@@ -68,12 +69,12 @@ const updateTour = catchAsync(async (req, res) => {
   });
 });
 
-const deleteTour = catchAsync(async (req, res) => {
+const deleteTour = catchAsync(async (req, res, next) => {
   const id = req.params.id;
 
   const tour = await Tour.findByIdAndDelete(id);
 
-  if (!tour) throw new Error('No tour found with that ID');
+  if (!tour) return next(new NotFoundError('No tour found with that ID'));
 
   // 204 status means 'No Content' - the request was successful but there is no data to send back
   return res.status(204).json({
@@ -84,7 +85,7 @@ const deleteTour = catchAsync(async (req, res) => {
   });
 });
 
-const getTourStatistics = catchAsync(async (req, res) => {
+const getTourStatistics = catchAsync(async (req, res, next) => {
   // 1. Whitelist for Grouping
   const allowedGroupByFields = ['difficulty', 'duration', 'price', 'ratingsAverage'];
   const groupBy = allowedGroupByFields.includes(req.query.groupBy) ? req.query.groupBy : 'difficulty';
@@ -140,7 +141,7 @@ const getTourStatistics = catchAsync(async (req, res) => {
   });
 });
 
-const getMonthlyPlan = catchAsync(async (req, res) => {
+const getMonthlyPlan = catchAsync(async (req, res, next) => {
   const year = req.params.year || new Date().getFullYear();
 
   const months = [

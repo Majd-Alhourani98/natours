@@ -3,6 +3,7 @@ const { handleCastErrorDB, handleDuplicateFieldsDB, handleValidationErrorDB } = 
 const transformError = err => {
   let error = { ...err };
   error.name = err.name;
+  error.message = err.message;
 
   if (error.name === 'CastError') error = handleCastErrorDB(error);
   if (error.code === 11000) error = handleDuplicateFieldsDB(error);
