@@ -5,6 +5,8 @@ const morgan = require('morgan');
 
 const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
+const authRouter = require('./routes/auth.routes');
+
 const notFound = require('./errors/notFound');
 const globalError = require('./errors/globalError');
 
@@ -26,6 +28,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/auth', authRouter);
 
 app.all('*', notFound);
 
