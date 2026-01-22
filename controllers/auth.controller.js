@@ -6,7 +6,7 @@ const signup = async (req, res) => {
   try {
     const { name, email, password, passwordConfirm } = req.body;
 
-    const user = await User.create({ name, email, password, passwordConfirm });
+    const user = new User({ name, email, password, passwordConfirm });
 
     user.password = await bcrypt.hash(user.password, 12);
     user.passwordConfirm = undefined;
