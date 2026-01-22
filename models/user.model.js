@@ -53,6 +53,11 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre('save', async function () {
+  // Only hash the password if it has been modified (or is new)
+  // This prevents re-hashing an already hashed password
+  // when updating other fields like name or email
+  if (!this.isModified('password')) return;
+
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
 });
