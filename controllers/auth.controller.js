@@ -9,8 +9,7 @@ const signup = async (req, res) => {
     const user = await User.create({ name, email, password, passwordConfirm });
 
     user.password = await bcrypt.hash(user.password, 12);
-    user.passwordConfirm = await bcrypt.hash(user.passwordConfirm, 12);
-    await new Promise(res => setTimeout(res, 10000));
+    user.passwordConfirm = undefined;
     await user.save({ validateBeforeSave: false });
 
     res.status(201).json({
