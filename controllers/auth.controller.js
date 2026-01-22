@@ -7,8 +7,9 @@ const signup = async (req, res) => {
     const { name, email, password, passwordConfirm } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPasswordConfirm = await bcrypt.hash(passwordConfirm, 12);
 
-    console.log(hashedPassword, passwordConfirm);
+    console.log(hashedPassword, hashedPasswordConfirm);
     const user = await User.create({ name, email, password: hashedPassword, passwordConfirm });
 
     res.status(201).json({
