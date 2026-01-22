@@ -6,11 +6,12 @@ const signup = async (req, res) => {
   try {
     const { name, email, password, passwordConfirm } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const hashedPasswordConfirm = await bcrypt.hash(passwordConfirm, 12);
+    const user = await User.create({ name, email, password, passwordConfirm });
 
-    console.log(hashedPassword, hashedPasswordConfirm);
-    const user = await User.create({ name, email, password: hashedPassword, passwordConfirm });
+    user.password = await bcrypt.hash(user.password, 12);
+    user.passwordConfirm = await bcrypt.hash(user.passwordConfirm, 12);
+    await new Promise(res => setTimeout(res, 10000));
+    await user.save({ validateBeforeSave: false });
 
     res.status(201).json({
       status: 'success',
