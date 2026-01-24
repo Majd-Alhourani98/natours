@@ -52,6 +52,14 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+userSchema.set('toJSON', {
+  transform: function (doc, ret) {
+    delete ret.password;
+
+    return ret;
+  },
+});
+
 userSchema.pre('save', async function () {
   // Only hash the password if it has been modified (or is new)
   // This prevents re-hashing an already hashed password
