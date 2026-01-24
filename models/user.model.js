@@ -81,6 +81,7 @@ userSchema.pre('save', async function () {
 
 userSchema.pre('save', async function () {
   if (this.username) return;
+  if (!this.isNew || !this.name) return;
 
   const base = this.name.replace(/\s+/g, '-').toLowerCase();
   let username = `${base}_${generateUsernameSuffix()}`;
