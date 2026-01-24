@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { hashPassword } = require('../utils/argon2');
+const { generateUsernameSuffix } = require('../utils/nanoid');
 
 const userSchema = new mongoose.Schema(
   {
@@ -76,6 +77,22 @@ userSchema.pre('save', async function () {
   this.password = await hashPassword(this.password);
 
   this.passwordConfirm = undefined;
+});
+
+userSchema.pre('save', async function () {
+  if (this.username) return;
+
+  const base = this.name.replace(/\s+/g, '-').toLowerCase();
+  let username = `${base}_${generateUsernameSuffix()}`;
+
+  let doc = await User.findOne({ username }).select('_id').lean();
+
+  while (doc) {
+    username = `${base}_${generateUsernameSuffix()}`;
+    doc = await User.findOne({ username }).select('_id').lean();
+  }
+
+  this.username = username;
 });
 
 const User = mongoose.model('User', userSchema);
