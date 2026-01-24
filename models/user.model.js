@@ -88,10 +88,20 @@ userSchema.pre('save', async function () {
 
   let doc = await User.findOne({ username }).select('_id').lean();
 
-  while (doc) {
+  if (!doc) {
+    this.username = username;
+    return;
+  }
+
+  let attempts = 0;
+
+  while (doc && attempts < 5) {
     username = `${base}_${generateUsernameSuffix()}`;
     doc = await User.findOne({ username }).select('_id').lean();
+    attempts++;
   }
+
+  if (doc) username = username = `${base}_${generateUsernameSuffix(10)}`;
 
   this.username = username;
 });
