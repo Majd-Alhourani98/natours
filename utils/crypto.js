@@ -7,7 +7,8 @@ const generateSecureOTP = () => {
     otp += crypto.randomInt(0, 10);
   }
 
-  return otp;
+  const hashedOTP = crypto.createHash('sha256').update(otp).digest('hex');
+  return { otp, hashedOTP };
 };
 
 console.log(generateSecureOTP());
