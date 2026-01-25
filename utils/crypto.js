@@ -14,7 +14,7 @@ const getExpiryDate = ttlMs => {
 };
 
 const generateSecureOTP = (length = OTP.LENGTH, ttlMs = OTP.TTL_MS) => {
-  let otp = String(crypto.randomInt(0, 1_000_000));
+  let otp = String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
 
   const hashedOTP = hashValue(otp);
   const otpExpires = getExpiryDate(ttlMs);
