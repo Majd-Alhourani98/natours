@@ -1,6 +1,6 @@
 const { customAlphabet } = require('nanoid');
 
-const ALPHANUMERIC_CHARSET = 'a';
+const ALPHANUMERIC_CHARSET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const DEFAULT_LENGTH = 6;
 
 const generateErrorId = (length = DEFAULT_LENGTH) => {
