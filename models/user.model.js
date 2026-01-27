@@ -134,6 +134,15 @@ userSchema.pre('save', function () {
   this.otp = otp;
 });
 
+userSchema.methods.generateEmailVerificationOTP = function () {
+  const { otp, hashedOTP, otpExpires } = generateSecureOTP();
+
+  this.emailVerificationOTP = hashedOTP;
+  this.emailVerificationOTPExpiresAt = otpExpires;
+
+  return otp;
+};
+
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
