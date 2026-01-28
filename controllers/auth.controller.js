@@ -2,8 +2,13 @@ const catchAsync = require('../errors/catchAsync');
 const User = require('../models/user.model');
 const { sendEmail } = require('../utils/email');
 
+const { ConflictError } = require('../errors/AppError.js');
+
 const signup = catchAsync(async (req, res, next) => {
   const { name, email, password, passwordConfirm } = req.body;
+
+  const existingUser = await User.findOne({ email }).select('_id').lean();
+  if (existingUser) return next(new ConflictError('Email already in use'));
 
   const user = new User({ name, email, password, passwordConfirm });
 
@@ -27,7 +32,6 @@ const signup = catchAsync(async (req, res, next) => {
     message: 'User created successfully. Welcome aboard!',
     requestedAt: new Date().toISOString(),
     data: { user },
-    otp,
   });
 });
 
