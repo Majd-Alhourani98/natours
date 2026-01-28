@@ -22,7 +22,6 @@ const signup = catchAsync(async (req, res, next) => {
   try {
     await sendVerificationEmail({ to: user.email, verifyMethod, credentials });
   } catch (error) {
-    console.log('hitting');
     user.rollbackEmailVerification();
     await user.save({ validateBeforeSave: false });
   }
