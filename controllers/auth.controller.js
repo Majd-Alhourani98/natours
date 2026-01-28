@@ -8,7 +8,6 @@ const signup = catchAsync(async (req, res, next) => {
   const user = new User({ name, email, password, passwordConfirm });
 
   const otp = user.generateEmailVerificationOTP();
-  await user.save();
 
   try {
     await sendEmail({
@@ -19,9 +18,9 @@ const signup = catchAsync(async (req, res, next) => {
   } catch (error) {
     user.emailVerificationOTP = undefined;
     user.emailVerificationOTPExpiresAt = undefined;
-
-    await user.save({ validateBeforeSave: false });
   }
+
+  await user.save();
 
   res.status(201).json({
     status: 'success',
