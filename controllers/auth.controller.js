@@ -1,4 +1,4 @@
-const { BadRequestError, ConflictError } = require('../errors/AppError');
+const { BadRequestError, ConflictError, ServiceUnavailableError } = require('../errors/AppError');
 const User = require('../models/user.model');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/email');
@@ -17,8 +17,6 @@ const signup = catchAsync(async (req, res, next) => {
 
   const credentials = user.setupVerification(verifyMethod);
 
-  await user.save();
-
   try {
     await sendEmail({
       to: user.email,
@@ -30,8 +28,14 @@ const signup = catchAsync(async (req, res, next) => {
     });
   } catch (error) {
     user.rollbackEmailVerification();
-    await user.save({ validateBeforeSave: false });
+    return next(
+      new ServiceUnavailableError(
+        "We couldn't send the verification email right now. Please try again in a few minutes.",
+      ),
+    );
   }
+
+  await user.save();
 
   const message =
     verifyMethod === 'otp'
