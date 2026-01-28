@@ -54,7 +54,7 @@ const userSchema = new mongoose.Schema(
 
     // Verfication Email Fields
     isEmailVerified: {
-      type: String,
+      type: Boolean,
       default: false,
     },
 
@@ -123,15 +123,6 @@ userSchema.pre('save', async function () {
   if (doc) username = username = `${base}_${generateUsernameSuffix(10)}`;
 
   this.username = username;
-});
-
-userSchema.pre('save', function () {
-  const { otp, hashedOTP, otpExpires } = generateSecureOTP();
-
-  this.emailVerificationOTP = hashedOTP;
-  this.emailVerificationOTPExpiresAt = otpExpires;
-
-  this.otp = otp;
 });
 
 userSchema.methods.generateEmailVerificationOTP = function () {
