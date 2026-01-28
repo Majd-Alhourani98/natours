@@ -1,7 +1,7 @@
-const { BadRequestError, ConflictError, ServiceUnavailableError } = require('../errors/AppError');
+const { BadRequestError, ConflictError } = require('../errors/AppError');
 const User = require('../models/user.model');
 const catchAsync = require('../utils/catchAsync');
-const sendEmail = require('../utils/email');
+const { sendVerificationEmail } = require('../utils/email');
 const sendResponse = require('../utils/sendResponse');
 
 const signup = catchAsync(async (req, res, next) => {
@@ -17,35 +17,23 @@ const signup = catchAsync(async (req, res, next) => {
 
   const credentials = user.setupVerification(verifyMethod);
 
-  try {
-    await sendEmail({
-      to: user.email,
-      subject: 'Verify your email',
-      text:
-        verifyMethod === 'link'
-          ? `Link: ${process.env.FRONTEND_URL}/verify?token=${credentials.token}&email=${user.email}`
-          : `OTP: ${credentials.otp}`,
-    });
-  } catch (error) {
-    user.rollbackEmailVerification();
-    return next(
-      new ServiceUnavailableError(
-        "We couldn't send the verification email right now. Please try again in a few minutes.",
-      ),
-    );
-  }
-
   await user.save();
 
-  const message =
-    verifyMethod === 'otp'
-      ? 'Registration successful! Please check your email for the verification OTP.'
-      : 'Registration successful! A verification link has been sent to your email.';
+  try {
+    await sendVerificationEmail({ to: user.email, verifyMethod, credentials });
+  } catch (error) {
+    console.log('hitting');
+    user.rollbackEmailVerification();
+    await user.save({ validateBeforeSave: false });
+  }
 
   sendResponse(res, {
     statusCode: 201,
-    message,
-    data: { user, otp: credentials.otp, token: credentials.token },
+    message:
+      verifyMethod === 'otp'
+        ? 'Registration successful! Please check your email for the verification OTP.'
+        : 'Registration successful! A verification link has been sent to your email.',
+    data: { user },
   });
 });
 
