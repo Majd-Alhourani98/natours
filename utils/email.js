@@ -1,4 +1,4 @@
-const { transporter } = require('../config/transporter');
+const transporter = require('../config/transporter');
 
 const sendEmail = async options => {
   const mailOptions = {
