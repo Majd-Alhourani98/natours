@@ -18,9 +18,9 @@ const signup = catchAsync(async (req, res, next) => {
   } catch (error) {
     user.emailVerificationOTP = undefined;
     user.emailVerificationOTPExpiresAt = undefined;
+  } finally {
+    await user.save();
   }
-
-  await user.save();
 
   res.status(201).json({
     status: 'success',
