@@ -2,6 +2,7 @@ const catchAsync = require('../errors/catchAsync');
 const User = require('../models/user.model');
 const { sendEmail } = require('../utils/email');
 const { ConflictError } = require('../errors/AppError.js');
+const { hashValue } = require('../utils/crypto');
 
 const signup = catchAsync(async (req, res, next) => {
   const { name, email, password, passwordConfirm } = req.body;
