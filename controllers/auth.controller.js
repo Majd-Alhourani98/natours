@@ -1,7 +1,7 @@
 const catchAsync = require('../errors/catchAsync');
 const User = require('../models/user.model');
 const { sendEmail } = require('../utils/email');
-const { ConflictError } = require('../errors/AppError.js');
+const { ConflictError, BadRequestError } = require('../errors/AppError.js');
 const { hashValue } = require('../utils/crypto');
 const { getCurrentTime } = require('../utils/date.js');
 
@@ -50,7 +50,7 @@ const verifyEmail = catchAsync(async (req, res, next) => {
   const user = await User.findOne({
     email,
     emailVerificationOTP: hashedOTP,
-    emailVerificationOTPExpiresAt: { $gte: currentTime() },
+    emailVerificationOTPExpiresAt: { $gte: getCurrentTime() },
   });
 
   // 2. If no user found, the OTP is either wrong or expired
