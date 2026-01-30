@@ -1,7 +1,9 @@
+const argon2 = require('argon2');
+
 const catchAsync = require('../errors/catchAsync');
 const User = require('../models/user.model');
 const { sendEmail } = require('../utils/email');
-const { ConflictError, BadRequestError } = require('../errors/AppError.js');
+const { ConflictError, BadRequestError, AuthenticationError } = require('../errors/AppError.js');
 const { hashValue } = require('../utils/crypto');
 const { getCurrentTime } = require('../utils/date.js');
 
@@ -70,4 +72,32 @@ const verifyEmail = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports = { signup, verifyEmail };
+const login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(new BadRequestError('Please provide email and password'));
+  }
+
+  // 1. Check if user exists
+  const user = await User.findOne({ email }).select('+password +isEmailVerified');
+  if (!user) return next(new AuthenticationError('Incorrect email or password'));
+
+  // 2. Check if email is verified
+  if (!user.isEmailVerified) {
+    return next(new AuthenticationError('Please verify your email before logging in'));
+  }
+
+  // 3. Compare password
+  const isPasswordCorrect = await argon2.verify(user.password, password);
+  if (!isPasswordCorrect) return next(new AuthenticationError('Incorrect email or password'));
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Logged in successfully!',
+    requestedAt: new Date().toISOString(),
+    data: { user },
+  });
+});
+
+module.exports = { signup, verifyEmail, login };
