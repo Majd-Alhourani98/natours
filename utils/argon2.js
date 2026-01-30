@@ -11,4 +11,8 @@ const hashPassword = async password => {
   return await argon2.hash(password, HASH_OPTIONS);
 };
 
-module.exports = { hashPassword };
+const verifyPassword = (hashPassword, plainPassword) => {
+  return argon2.verify(hashPassword, plainPassword);
+};
+
+module.exports = { hashPassword, verifyPassword };
