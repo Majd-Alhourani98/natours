@@ -1,10 +1,10 @@
-const jwt = require('jsonwebtoken');
 const catchAsync = require('../errors/catchAsync');
 const User = require('../models/user.model');
 const { sendEmail } = require('../utils/email');
 const { ConflictError, BadRequestError, AuthenticationError } = require('../errors/AppError.js');
 const { hashValue } = require('../utils/crypto');
 const { getCurrentTime } = require('../utils/date.js');
+const { signToken } = require('../utils/jwt.js');
 
 const signup = catchAsync(async (req, res, next) => {
   const { name, email, password, passwordConfirm } = req.body;
@@ -91,9 +91,7 @@ const login = catchAsync(async (req, res, next) => {
   const isPasswordCorrect = await user.comparePassword(password);
   if (!isPasswordCorrect) return next(new AuthenticationError('Incorrect email or password'));
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
-  });
+  const token = signToken({ id: user._id });
 
   res.status(200).json({
     status: 'success',
