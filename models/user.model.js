@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { hashPassword, verifyPassword } = require('../utils/argon2');
 const { generateUsernameSuffix } = require('../utils/nanoid');
 const { generateSecureOTP } = require('../utils/crypto');
+const { signToken } = require('../utils/jwt');
 
 const userSchema = new mongoose.Schema(
   {
@@ -136,6 +137,10 @@ userSchema.methods.generateEmailVerificationOTP = function () {
 
 userSchema.methods.comparePassword = async function (plainPassword) {
   return await verifyPassword(this.password, plainPassword);
+};
+
+userSchema.methods.generateAuthToken = function () {
+  return signToken({ id: this._id });
 };
 
 const User = mongoose.model('User', userSchema);

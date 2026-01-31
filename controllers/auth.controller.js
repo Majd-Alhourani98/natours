@@ -88,10 +88,9 @@ const login = catchAsync(async (req, res, next) => {
   }
 
   // 3. Compare password
-  const isPasswordCorrect = await user.comparePassword(password);
-  if (!isPasswordCorrect) return next(new AuthenticationError('Incorrect email or password'));
+  if (!(await user.comparePassword(password))) return next(new AuthenticationError('Incorrect email or password'));
 
-  const token = signToken({ id: user._id });
+  const token = user.generateAuthToken();
 
   res.status(200).json({
     status: 'success',
