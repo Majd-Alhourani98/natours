@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { hashPassword } = require('../utils/argon2');
+const { hashPassword, verifyPassword } = require('../utils/argon2');
 const { generateUsernameSuffix } = require('../utils/nanoid');
 const { generateSecureOTP } = require('../utils/crypto');
 
@@ -132,6 +132,10 @@ userSchema.methods.generateEmailVerificationOTP = function () {
   this.emailVerificationOTPExpiresAt = otpExpires;
 
   return otp;
+};
+
+userSchema.methods.comparePassword = async function (plainPassword) {
+  return await verifyPassword(this.password, plainPassword);
 };
 
 const User = mongoose.model('User', userSchema);

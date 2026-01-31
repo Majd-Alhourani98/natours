@@ -90,7 +90,7 @@ const login = catchAsync(async (req, res, next) => {
   }
 
   // 3. Compare password
-  const isPasswordCorrect = await verifyPassword(user.password, password);
+  const isPasswordCorrect = await user.comparePassword(password);
   if (!isPasswordCorrect) return next(new AuthenticationError('Incorrect email or password'));
 
   res.status(200).json({
