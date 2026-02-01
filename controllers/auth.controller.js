@@ -4,7 +4,6 @@ const { sendEmail } = require('../utils/email');
 const { ConflictError, BadRequestError, AuthenticationError } = require('../errors/AppError.js');
 const { hashValue } = require('../utils/crypto');
 const { getCurrentTime } = require('../utils/date.js');
-const { signToken } = require('../utils/jwt.js');
 
 const signup = catchAsync(async (req, res, next) => {
   const { name, email, password, passwordConfirm } = req.body;
@@ -64,9 +63,11 @@ const verifyEmail = catchAsync(async (req, res, next) => {
 
   await user.save({ validateBeforeSave: false });
 
+  const token = user.generateAuthToken();
   res.status(200).json({
     status: 'success',
     message: 'Email verified successfully!',
+    token,
     data: user,
   });
 });
