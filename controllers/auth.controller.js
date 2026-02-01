@@ -15,7 +15,7 @@ const signup = catchAsync(async (req, res, next) => {
   const existingUser = await User.findOne({ email }).select('_id').lean();
   if (existingUser) return next(new ConflictError('Email already in use'));
 
-  const user = new User({ name, email, password, passwordConfirm, isEmailVerified: false });
+  const user = new User(req.body);
 
   const otp = user.generateEmailVerificationOTP();
 
@@ -124,7 +124,9 @@ const protect = catchAsync(async (req, res, next) => {
   const user = await User.findById(decode.id);
   if (!user) return next(new AuthenticationError('the User belonging to this token does no longet exsit.'));
 
-  // Check if user changed password after the token was issued
+  if (user.passwordChangedAt && decode.iat < parseInt(user.passwordChangedAt.getTime() / 1000, 10)) {
+    return next(new AuthenticationError('User recently changed password! Pleaase log in again'));
+  }
 
   next();
 });
