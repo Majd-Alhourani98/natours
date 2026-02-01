@@ -118,10 +118,13 @@ const protect = catchAsync(async (req, res, next) => {
   }
 
   // token verification
-
   const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-  // next();
+  // Check if the user still exists
+  const user = await User.findById(decode.id);
+  if (!user) return next(new AuthenticationError('the User belonging to this token does no longet exsit.'));
+
+  next();
 });
 
 module.exports = { signup, verifyEmail, login, protect };
