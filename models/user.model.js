@@ -128,6 +128,14 @@ userSchema.pre('save', async function () {
   this.username = username;
 });
 
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    return parseInt(this.passwordChangedAt.getTime() / 1000, 10) > JWTTimestamp;
+  }
+
+  return false;
+};
+
 userSchema.methods.generateEmailVerificationOTP = function () {
   const { otp, hashedOTP, otpExpires } = generateSecureOTP();
 
