@@ -117,12 +117,19 @@ const protect = catchAsync(async (req, res, next) => {
   }
 
   // token verification
+  try {
+    const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError') {
+      return next(new AuthenticationError('Invlid token, Please log in again!'));
+    } else if (error.name === 'TokenExpiredError') {
+      return next(new AuthenticationError('Your token has expired! please log in again.'));
+    }
 
-  const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    console.log(error);
+  }
 
-  console.log(decode);
-
-  next();
+  // next();
 });
 
 module.exports = { signup, verifyEmail, login, protect };
