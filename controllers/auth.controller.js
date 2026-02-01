@@ -1,7 +1,8 @@
+const jwt = require('jsonwebtoken');
+
 const { promisify } = require('util');
 const catchAsync = require('../errors/catchAsync');
 const User = require('../models/user.model');
-const jwt = require('jsonwebtoken');
 const { sendEmail } = require('../utils/email');
 const { ConflictError, BadRequestError, AuthenticationError } = require('../errors/AppError.js');
 const { hashValue } = require('../utils/crypto');
@@ -117,17 +118,8 @@ const protect = catchAsync(async (req, res, next) => {
   }
 
   // token verification
-  try {
-    const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
-      return next(new AuthenticationError('Invlid token, Please log in again!'));
-    } else if (error.name === 'TokenExpiredError') {
-      return next(new AuthenticationError('Your token has expired! please log in again.'));
-    }
 
-    console.log(error);
-  }
+  const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
   // next();
 });
