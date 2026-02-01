@@ -1,5 +1,7 @@
+const { promisify } = require('util');
 const catchAsync = require('../errors/catchAsync');
 const User = require('../models/user.model');
+const jwt = require('jsonwebtoken');
 const { sendEmail } = require('../utils/email');
 const { ConflictError, BadRequestError, AuthenticationError } = require('../errors/AppError.js');
 const { hashValue } = require('../utils/crypto');
@@ -114,6 +116,12 @@ const protect = catchAsync(async (req, res, next) => {
     return next(new AuthenticationError('You are not logged in! please log in to get access.'));
   }
 
+  // token verification
+
+  const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  console.log(decode);
+
   next();
 });
 
@@ -122,3 +130,7 @@ module.exports = { signup, verifyEmail, login, protect };
 // Header Key: Authorization
 // Header Value: Bearer <your_jwt_token>
 // Express automatically turn all Headers keys into small letters
+
+// jwt.verify(sync): Simple but blocks the event loop, stopping your server from handling other requests during the cryptographic check.
+
+// promisify(jwt.verify): Converts the function to a Promise, allowing the use of await without blocking the server's performance.
