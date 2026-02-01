@@ -124,6 +124,8 @@ const protect = catchAsync(async (req, res, next) => {
   const user = await User.findById(decode.id);
   if (!user) return next(new AuthenticationError('the User belonging to this token does no longet exsit.'));
 
+  // Check if user changed password after the token was issued
+
   next();
 });
 
