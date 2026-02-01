@@ -102,4 +102,28 @@ const login = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports = { signup, verifyEmail, login };
+const protect = catchAsync(async (req, res, next) => {
+  // 1) Getting token and check of it's there
+
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (!token) {
+    return next(new AuthenticationError('You are not logged in! please log in to get access.'));
+  }
+  // 2) token verification
+
+  // 3) Check if user still exsists
+
+  // 4) Check if user changed password after the token was issued
+
+  next();
+});
+
+module.exports = { signup, verifyEmail, login, protect };
+
+// Header Key: Authorization
+// Header Value: Bearer <your_jwt_token>
+// Express automatically turn all Headers keys into small letters
