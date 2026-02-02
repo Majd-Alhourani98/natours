@@ -4,7 +4,7 @@ const { promisify } = require('util');
 const catchAsync = require('../errors/catchAsync');
 const User = require('../models/user.model');
 const { sendEmail } = require('../utils/email');
-const { ConflictError, BadRequestError, AuthenticationError } = require('../errors/AppError.js');
+const { ConflictError, BadRequestError, AuthenticationError, ForbiddenError } = require('../errors/AppError.js');
 const { hashValue } = require('../utils/crypto');
 const { getCurrentTime } = require('../utils/date.js');
 
@@ -15,7 +15,7 @@ const signup = catchAsync(async (req, res, next) => {
   const existingUser = await User.findOne({ email }).select('_id').lean();
   if (existingUser) return next(new ConflictError('Email already in use'));
 
-  const user = new User(req.body);
+  const user = new User({ name, email, password, passwordConfirm });
 
   const otp = user.generateEmailVerificationOTP();
 
@@ -129,15 +129,106 @@ const protect = catchAsync(async (req, res, next) => {
   }
 
   req.user = user;
+
   next();
 });
 
-module.exports = { signup, verifyEmail, login, protect };
+const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    // we have access to roles via closure
 
-// Header Key: Authorization
-// Header Value: Bearer <your_jwt_token>
-// Express automatically turn all Headers keys into small letters
+    if (!roles.includes(req.user.role)) {
+      console.log('Helo');
+      return next(new ForbiddenError('You do not have permission to perfrom this action'));
+    }
 
-// jwt.verify(sync): Simple but blocks the event loop, stopping your server from handling other requests during the cryptographic check.
+    next();
+  };
+};
 
-// promisify(jwt.verify): Converts the function to a Promise, allowing the use of await without blocking the server's performance.
+module.exports = { signup, verifyEmail, login, protect, restrictTo };
+/*
+========================================
+JWT Authentication + Postman Automation
+========================================
+How Authorization headers, JWT verification,
+and Postman environments work together
+in a Node.js + Express backend.
+
+----------------------------------------
+1) Authorization Header Format
+----------------------------------------
+
+Header Key:
+  Authorization
+
+Header Value:
+  Bearer <your_jwt_token>
+
+Note:
+Express automatically converts all header
+keys to lowercase → req.headers.authorization
+
+
+----------------------------------------
+2) JWT Verification
+----------------------------------------
+
+❌ Synchronous (Blocks Event Loop):
+  jwt.verify(token, secret)
+
+- Simple
+- Blocks server while verifying
+
+✅ Non-Blocking (Recommended):
+  await promisify(jwt.verify)(token, secret)
+
+- Uses Promise
+- Works with async/await
+- Does NOT block event loop
+
+
+----------------------------------------
+3) Postman Environments
+----------------------------------------
+
+We create environments:
+  - dev
+  - prod
+
+Each environment contains variables like:
+  - BASE_URL
+  - jwt
+
+Use variable like this:
+  {{variableName}}
+
+
+----------------------------------------
+4) Automatically Store JWT in Postman
+----------------------------------------
+
+In Login / Verify-Email request:
+
+Go to:
+  Scripts → Post-response
+
+Add:
+
+  pm.environment.set("jwt", pm.response.json().token);
+
+This:
+  - Creates a variable called "jwt"
+  - Updates it automatically every time
+  - Removes manual copy-paste
+
+
+----------------------------------------
+5) Use JWT in Authorization Header
+----------------------------------------
+
+Authorization: Bearer {{jwt}}
+
+Now every request automatically uses
+the latest token.
+*/
