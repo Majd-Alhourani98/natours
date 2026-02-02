@@ -128,6 +128,7 @@ const protect = catchAsync(async (req, res, next) => {
     return next(new AuthenticationError('User recently changed password! Pleaase log in again'));
   }
 
+  req.user = user;
   next();
 });
 
