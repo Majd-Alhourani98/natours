@@ -4,7 +4,13 @@ const { promisify } = require('util');
 const catchAsync = require('../errors/catchAsync');
 const User = require('../models/user.model');
 const { sendEmail } = require('../utils/email');
-const { ConflictError, BadRequestError, AuthenticationError, ForbiddenError } = require('../errors/AppError.js');
+const {
+  ConflictError,
+  BadRequestError,
+  AuthenticationError,
+  ForbiddenError,
+  NotFoundError,
+} = require('../errors/AppError.js');
 const { hashValue } = require('../utils/crypto');
 const { getCurrentTime } = require('../utils/date.js');
 
