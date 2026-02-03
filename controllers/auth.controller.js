@@ -113,7 +113,6 @@ const login = catchAsync(async (req, res, next) => {
 
 const protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it's there
-
   let token;
   if (req.headers.authorization?.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
@@ -142,9 +141,7 @@ const protect = catchAsync(async (req, res, next) => {
 const restrictTo = (...roles) => {
   return (req, res, next) => {
     // we have access to roles via closure
-
     if (!roles.includes(req.user.role)) {
-      console.log('Helo');
       return next(new ForbiddenError('You do not have permission to perfrom this action'));
     }
 
