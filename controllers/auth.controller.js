@@ -11,7 +11,7 @@ const {
   ForbiddenError,
   NotFoundError,
 } = require('../errors/AppError.js');
-const { hashValue } = require('../utils/crypto');
+const { hashValue, generateSecureToken } = require('../utils/crypto');
 const { getCurrentTime } = require('../utils/date.js');
 
 const signup = catchAsync(async (req, res, next) => {
@@ -149,7 +149,34 @@ const restrictTo = (...roles) => {
   };
 };
 
-module.exports = { signup, verifyEmail, login, protect, restrictTo };
+const forgotPassword = catchAsync(async (req, res, next) => {
+  // 1) Get User based on Posted email
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) return next(new NotFoundError('There is no user with email address.', 404));
+
+  // 2) Generate the random reset token
+
+  const { token, hashedToken, tokenExpires } = generateSecureToken();
+
+  user.passwordResetToken = hashedToken;
+  user.passwordResetTokenExpiresAt = tokenExpires;
+
+  console.log(token, hashedToken, tokenExpires);
+
+  user.save({ validateBeforeSave: false });
+
+  // 3) Send it to user's email
+
+  res.status(200).json({
+    status: 'success',
+    requestedAt: new Date().toISOString(),
+    message:
+      'A password reset link has been sent to your email address. Please check your inbox (and your spam folder) to proceed.',
+  });
+});
+
+module.exports = { signup, verifyEmail, login, protect, restrictTo, forgotPassword };
 /*
 ========================================
 JWT Authentication + Postman Automation
